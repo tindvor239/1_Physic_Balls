@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class Item : MonoBehaviour
+public abstract class Item : MonoBehaviour
 {
     protected static Vector2 position = Vector2.zero;
     protected Animator animator;
@@ -14,14 +14,8 @@ public class Item : MonoBehaviour
         position = transform.position;
         animator = GetComponent<Animator>();
     }
-    protected virtual void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Ball")
-        {
-            GameManager.Instance.Score++;
-            Destroy(gameObject);
-        }
-    }
+    protected abstract void OnCollisionEnter2D(Collision2D collision);
+    protected abstract void OnTriggerEnter2D(Collider2D collision);
     public void Moving(Vector2 target)
     {
         isDoneMoving = false;

@@ -14,6 +14,6 @@ public class Buttom : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         Rigidbody2D rigidbody = collision.gameObject.GetComponent<Rigidbody2D>();
-        rigidbody.AddForce(new Vector2(rigidbody.velocity.x + Mathf.Sign(rigidbody.velocity.x) * 2f, 0));
+        rigidbody.AddForce(new Vector2(rigidbody.velocity.x + Mathf.Sign(rigidbody.velocity.x) * 30f, 0));
     }
 }

@@ -27,11 +27,13 @@ public class Spawner : MonoBehaviour
     private bool spawnOnStart = true;
     private void Update()
     {
+        // Spawn 4 obstacle on start
         if (spawnOnStart)
         {
             if (countSpawnOnStart < 4 && GameManager.Instance.isSpawning == false)
             {
                 GameManager.Instance.turn = 0;
+                minRandomValue = 1;
                 maxRandomValue = 1;
                 countSpawnOnStart++;
                 GameManager.Instance.isSpawning = true;
@@ -82,6 +84,10 @@ public class Spawner : MonoBehaviour
             GameManager.Instance.isSpawning = false;
             GameManager.Instance.isEndTurn = true;
             GameManager.Instance.turn++;
+            if (maxRandomValue <= 3)
+                minRandomValue = maxRandomValue;
+            else
+                minRandomValue = maxRandomValue - (GameManager.Instance.turn * 2);
             maxRandomValue = startMaxRandomValue + (GameManager.Instance.turn * 5);
             isDoneMoving = false;
         }
@@ -91,8 +97,8 @@ public class Spawner : MonoBehaviour
         for(byte column = 0; column < obstacles.GetLength(1); column++)
         {
             //Random that slot is spawn or not.
-            int randomSpawn = Random.Range(0, 2);
-            if(randomSpawn == 1)
+            int randomSpawn = Random.Range(0, (int)GameManager.Instance.turn + 2);
+            if(randomSpawn >= 1)
             {
                 //if 1 is circle, 0 is square.
                 if (spawnCount != 4)
@@ -147,7 +153,6 @@ public class Spawner : MonoBehaviour
             {
                 if (obstacles[row, column] != null)
                 {
-                    Debug.Log(string.Format("{0} have row: {1}, column: {2} \n y position: {3}", obstacles[row, column].name, row, column, transform.position.y + (space * row)));
                     obstacles[row, column].Moving(new Vector2(obstacles[row, column].transform.position.x, transform.position.y + (space * row)));
                     if (obstacles[row, column].IsDoneMoving)
                         countDoneMoving++;

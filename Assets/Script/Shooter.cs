@@ -23,15 +23,14 @@ public class Shooter : MonoBehaviour
     private GameObject aimCursor;
     [SerializeField]
     private float minScale = 2, maxScale = 8;
-    private float maxY = 5;
     private static float shootTime = 0.25f;
+    private static float reloadOnEndTurnDelay = 2f;
     private float currentTime = shootTime;
 
     private bool isReloading = false;
     private bool isDoneShoot = false;
-    private bool isAllIn = false;
     [SerializeField]
-    private int count = 0;
+    private bool isAllIn = false;
 
     private Vector2 shootDirection;
     #region Singleton
@@ -66,20 +65,24 @@ public class Shooter : MonoBehaviour
         //Set a closet ball = transform position to shoot.
         if (GameManager.Instance.isEndTurn)
         {
-            Reload();
-            StartCoroutine(MoveToShootPoint());
-            //Debug.Log("Is End Turn");
+            reloadOnEndTurnDelay -= Time.fixedDeltaTime;
+            if(reloadOnEndTurnDelay <= 0)
+            {
+                Reload();
+                StartCoroutine(MoveToShootPoint());
+                reloadOnEndTurnDelay = 2;
+            }
             if (bullet != null)
             {
                GetMouseDirection();
             }
         }
         if (isShooting)
-        {   
-            if (count == GameManager.Instance.Balls.Count && isReloading == false)
+        {
+            //To do: if balls == null.
+            if (balls.Count == 0 && isReloading == false && bullet == null)
             {
                 isShooting = false;
-                count = 0;
                 shootDirection = new Vector2(0, 0);
             }
             if (currentTime <= 0)
@@ -108,26 +111,31 @@ public class Shooter : MonoBehaviour
             GameManager.Instance.isSpawning = true;
         }
     }
-
     private void GetMouseDirection()
     {
-        Vector2 mousePosition = new Vector2();
-        if(Input.GetMouseButton(0))
+        if(Input.GetMouseButton(0) || Input.touchCount > 0)
         {
             aimCursor.SetActive(true);
-            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosition = new Vector2(mousePosition.x, Mathf.Clamp(mousePosition.y, -40, maxY));
-
-            shootDirection = mousePosition - (Vector2)transform.position;
-            if(shootDirection.y >= 5)
+            Vector2 mousePosition = Vector2.zero;
+            if (Input.GetMouseButton(0))
+                mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            else if(Input.touchCount > 0)
             {
-                shootDirection = new Vector2(shootDirection.x, -shootDirection.y) * 3;
+                Touch touch = Input.GetTouch(0);
+                mousePosition = touch.position;
             }
-            float scale = Mathf.Clamp(-mousePosition.y, minScale, maxScale);
+            float scale = Mathf.Clamp(Vector2.Distance(mousePosition, transform.position), minScale, maxScale);
             aimCursor.transform.localScale = new Vector2(scale, scale);
-            aimCursor.transform.up = -shootDirection;
+            // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
+            aimCursor.transform.up = -(mousePosition - (Vector2)transform.position);
+            // put lock rotation between from -77(291) to 77.
+            if(aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
+                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, 77));
+            else
+                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 291, 360));
+            shootDirection = -aimCursor.transform.up;
         }
-        else if(Input.GetMouseButtonUp(0))
+        if(Input.GetMouseButtonUp(0))
         {
             aimCursor.SetActive(false);
             isShooting = true;
@@ -145,45 +153,29 @@ public class Shooter : MonoBehaviour
             balls.RemoveAt(0);
             isDoneShoot = false;
             isReloading = true;
-            Debug.Log("Reloading ");
         }
     }
     IEnumerator MoveToShootPoint()
     {
         if (bullet != null && isReloading)
         {
-            //Debug.Log("Begin");
-            //if (bullet.transform.position != transform.position)
-            //{
-            //bullet.transform.position = Vector2.MoveTowards(bullet.transform.position,transform.position, 0.5f);
-            //Debug.Log("Moving " + bullet.name);
-            //}
-            //if(bullet.transform.position == transform.position)
-            //{
-            //isReloading = false;
-            //Debug.Log("Done Reload " + bullet.name);
-            //}
             while (bullet.transform.position != transform.position)
             {
-                bullet.transform.position = Vector2.MoveTowards(bullet.transform.position, transform.position, 0.5f);
-                //Debug.Log("In While");
+                bullet.transform.position = Vector2.MoveTowards(bullet.transform.position, transform.position, 0.2f);
                 yield return new WaitForEndOfFrame();
             }
             isReloading = false;
-            //Debug.Log("Return");
         }
     }
     private void Shoot()
     {
         if (bullet != null && isReloading == false)
         {
-            count++;
-            //Debug.Log(count);
             Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
+            rigidbody.mass = 1;
             rigidbody.bodyType = RigidbodyType2D.Dynamic;
             bullet.GetComponent<Collider2D>().enabled = true;
-            rigidbody.gravityScale = 1;
-            Debug.Log(shootDirection);
+            rigidbody.gravityScale = 2;
             bullet.GetComponent<Rigidbody2D>().AddForce(shootDirection * force, ForceMode2D.Impulse);
             bullet.GetComponent<Collider2D>().sharedMaterial = physic;
             foreach(GameObject ball in GameManager.Instance.Balls)
@@ -195,7 +187,6 @@ public class Shooter : MonoBehaviour
         isAllIn = false;
         GameManager.Instance.isEndTurn = false;
         bullet = null;
-        //Debug.Log("Shoot");
         isDoneShoot = true;
     }
 }

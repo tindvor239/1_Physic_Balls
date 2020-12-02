@@ -18,7 +18,7 @@ public class Fan : MonoBehaviour
         collision.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
         Rigidbody2D rigidbody = collision.gameObject.GetComponent<Rigidbody2D>();
         rigidbody.gravityScale = 6;
-        collision.gameObject.GetComponent<Rigidbody2D>().AddForce(direction * 2, ForceMode2D.Impulse);
+        collision.gameObject.GetComponent<Rigidbody2D>().AddForce(direction * 6, ForceMode2D.Impulse);
         foreach (GameObject ball in GameManager.Instance.Balls)
         {
             if (collision != ball)
