@@ -21,6 +21,6 @@ public class AddItem : Item
             if (newBall != ball)
                 Physics2D.IgnoreCollision(newBall.GetComponent<Collider2D>(), ball.GetComponent<Collider2D>(), true);
         }
-        newBall.GetComponent<Rigidbody2D>().AddForce(hitObject.GetComponent<Rigidbody2D>().velocity * 10);
+        newBall.GetComponent<Rigidbody2D>().AddForce(new Vector2(newBall.transform.position.x, newBall.transform.position.y) * 10);
     }
 }

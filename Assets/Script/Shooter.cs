@@ -23,9 +23,10 @@ public class Shooter : MonoBehaviour
     private GameObject aimCursor;
     [SerializeField]
     private float minScale = 2, maxScale = 8;
-    private static float shootTime = 0.25f;
-    private static float reloadOnEndTurnDelay = 2f;
-    private float currentTime = shootTime;
+    private static float shootDelay = 0.25f;
+    private static float reloadOnEndTurnDelay = 6f;
+    private float reloadOnEndTurnTime = reloadOnEndTurnDelay;
+    private float shootTime = shootDelay;
 
     private bool isReloading = false;
     private bool isDoneShoot = false;
@@ -57,20 +58,24 @@ public class Shooter : MonoBehaviour
         containBalls.Clear();
     }
     // Update is called once per frame
+    private void Update()
+    {
+        if (GameManager.Instance.isEndTurn)
+            reloadOnEndTurnTime -= Time.deltaTime;
+    }
     private void FixedUpdate()
     {
-        currentTime -= Time.fixedDeltaTime;
+        shootTime -= Time.fixedDeltaTime;
         //If all balls is in start shooting.
         //If start shooting disable collision.
         //Set a closet ball = transform position to shoot.
         if (GameManager.Instance.isEndTurn)
         {
-            reloadOnEndTurnDelay -= Time.fixedDeltaTime;
-            if(reloadOnEndTurnDelay <= 0)
+            if(reloadOnEndTurnTime <= 0)
             {
                 Reload();
                 StartCoroutine(MoveToShootPoint());
-                reloadOnEndTurnDelay = 2;
+                reloadOnEndTurnTime = reloadOnEndTurnDelay;
             }
             if (bullet != null)
             {
@@ -85,11 +90,11 @@ public class Shooter : MonoBehaviour
                 isShooting = false;
                 shootDirection = new Vector2(0, 0);
             }
-            if (currentTime <= 0)
+            if (shootTime <= 0)
             {
                 Shoot();
                 Reload();
-                currentTime = shootTime;
+                shootTime = shootDelay;
             }
             StartCoroutine(MoveToShootPoint());
         }
@@ -113,17 +118,11 @@ public class Shooter : MonoBehaviour
     }
     private void GetMouseDirection()
     {
-        if(Input.GetMouseButton(0) || Input.touchCount > 0)
+        if (Input.GetMouseButton(0))
         {
             aimCursor.SetActive(true);
             Vector2 mousePosition = Vector2.zero;
-            if (Input.GetMouseButton(0))
-                mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            else if(Input.touchCount > 0)
-            {
-                Touch touch = Input.GetTouch(0);
-                mousePosition = touch.position;
-            }
+            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             float scale = Mathf.Clamp(Vector2.Distance(mousePosition, transform.position), minScale, maxScale);
             aimCursor.transform.localScale = new Vector2(scale, scale);
             // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
