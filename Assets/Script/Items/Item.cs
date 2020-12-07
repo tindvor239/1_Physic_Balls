@@ -9,13 +9,13 @@ public abstract class Item : MonoBehaviour
     public bool IsDoneMoving { get => isDoneMoving; }
     public Animator Animator { get => animator; }
     #endregion
-    protected void Awake()
+    protected virtual void Awake()
     {
         position = transform.position;
         animator = GetComponent<Animator>();
     }
-    protected abstract void OnCollisionEnter2D(Collision2D collision);
-    protected abstract void OnTriggerEnter2D(Collider2D collision);
+    protected virtual void OnCollisionEnter2D(Collision2D collision) { }
+    protected virtual void OnTriggerEnter2D(Collider2D collision) { }
     public void Moving(Vector2 target)
     {
         isDoneMoving = false;

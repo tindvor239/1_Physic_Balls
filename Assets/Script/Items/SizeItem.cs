@@ -4,7 +4,6 @@ public class SizeItem : AddItem
 {
     [SerializeField]
     private uint maxSize = 6, minSize = 5;
-    protected override void OnCollisionEnter2D(Collision2D collision) { }
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Ball")

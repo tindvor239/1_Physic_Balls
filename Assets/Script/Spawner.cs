@@ -11,20 +11,30 @@ public class Spawner : MonoBehaviour
     [SerializeField]
     private GameObject[] itemPrefabs;
     [SerializeField]
-    private byte spawnCount;
-    [SerializeField]
     private GameObject[] obstaclePrefabs;
-    private static uint startMaxRandomValue = 1;
+    private static int startMaxRandomValue = 1;
     [SerializeField]
-    private uint maxRandomValue = startMaxRandomValue;
+    private int maxRandomValue = startMaxRandomValue;
     [SerializeField]
-    private uint minRandomValue = 1;
+    private int minRandomValue = 1;
     private Item[,] obstacles = new Item[9, 6];
     private byte countSpawnOnStart;
-    private byte countDoneMoving = 0, countDoneShaking = 0, countInWarning = 0, countNotNullObstacle = 0;
+    private byte countDoneMoving = 0, countDoneShaking = 0;
+    [SerializeField]
+    private byte countInWarning = 0, countNotNullObstacle = 0;
     private bool isDoneMoveUpInArray = false, isDoneMoving = false;
     private bool isInWarning = false, isDoneChecking = false;
     private bool spawnOnStart = true;
+    private static byte maxSpawnRate = 70;
+    [SerializeField]
+    private byte spawnRate = 25;
+    private byte spawnStartRate;
+    [SerializeField]
+    private byte spawnItemRate = 25;
+    private void Awake()
+    {
+        spawnStartRate = spawnRate;
+    }
     private void Update()
     {
         // Spawn 4 obstacle on start
@@ -36,6 +46,7 @@ public class Spawner : MonoBehaviour
                 minRandomValue = 1;
                 maxRandomValue = 1;
                 countSpawnOnStart++;
+                spawnRate = spawnStartRate;
                 GameManager.Instance.isSpawning = true;
             }
             else if(countSpawnOnStart >= 4)
@@ -69,6 +80,7 @@ public class Spawner : MonoBehaviour
             if(isInWarning)
             {
                 CheckingIsGameOver();
+                isInWarning = false;
             }
             if(countDoneShaking == 0 && isInWarning == false || countDoneShaking != 0 && countNotNullObstacle != 0 && countDoneShaking == countNotNullObstacle )
             isDoneChecking = true;
@@ -81,36 +93,68 @@ public class Spawner : MonoBehaviour
             isDoneMoving = false;
             isDoneChecking = false;
             isDoneMoveUpInArray = false;
+            if (spawnRate >= maxSpawnRate)
+                spawnRate = maxSpawnRate;
+            else
+                spawnRate++;
             GameManager.Instance.isSpawning = false;
             GameManager.Instance.isEndTurn = true;
             GameManager.Instance.turn++;
-            if (maxRandomValue <= 3)
-                minRandomValue = maxRandomValue;
-            else
-                minRandomValue = maxRandomValue - (GameManager.Instance.turn * 2);
-            maxRandomValue = startMaxRandomValue + (GameManager.Instance.turn * 5);
+            if (maxRandomValue - 6 > 0)
+            {
+                Debug.Log(maxRandomValue - 6);
+                minRandomValue = maxRandomValue - 6;
+            }
+            maxRandomValue = startMaxRandomValue + (int)GameManager.Instance.turn;
             isDoneMoving = false;
         }
     }
     private void SpawnItems()
     {
+        int count = 0;
         for(byte column = 0; column < obstacles.GetLength(1); column++)
         {
             //Random that slot is spawn or not.
-            int randomSpawn = Random.Range(0, (int)GameManager.Instance.turn + 2);
-            if(randomSpawn >= 1)
+            int randomSpawn = Random.Range(0, 100);
+            Debug.Log("chance: "+ randomSpawn);
+            if(randomSpawn <= 80)
             {
-                //if 1 is circle, 0 is square.
-                if (spawnCount != 4)
-                    SpawnObstacle(column);
-                else
+                int randomRate = Random.Range(0, 100);
+                if(randomRate <= spawnRate)
                 {
-                    SpawnItem(column);
-                    spawnCount = 0;
+                    SpawnObstacle(column);
+                    count++;
+                }
+                
+            }
+            else
+            {
+                int randomItemSpawn = Random.Range(0, 100);
+                Debug.Log("item chance: " + randomItemSpawn);
+                if(randomItemSpawn <= spawnItemRate)
+                {
+                    byte itemCount = 0;
+                    for(byte i = 0; i < obstacles.GetLength(1); i++)
+                    {
+                        if((obstacles[0, i] is AddItem || obstacles[0, i] is SizeItem) && obstacles[0, i] != null)
+                        {
+                            Debug.Log("Have Item In " + obstacles[0, i]);
+                            itemCount++;
+                        }
+                    }
+                    if (itemCount == 0)
+                    {
+                        Debug.Log("In");
+                        SpawnItem(column);
+                    }
                 }
             }
         }
-        spawnCount++;
+        if (count == 0)
+        {
+            byte randomIndex = (byte)Random.Range(0, 6);
+            SpawnObstacle(randomIndex);
+        }
     }
     private void SpawnObstacle(byte column)
     {
@@ -170,13 +214,11 @@ public class Spawner : MonoBehaviour
                 //If in row 10 have obstacle => warning by shaking the obstacle in row 10. ==> GameOver...
                 if(row >= obstacles.GetLength(0) - 2 && obstacles[row, column] != null)
                 {
-                    countInWarning++;
+                    return true;
                 }
             }
         }
-        if (countInWarning > 0)
-            return true;
-        else return false;
+        return false;
     }
     private void CheckingIsGameOver()
     {

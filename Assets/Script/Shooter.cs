@@ -24,10 +24,17 @@ public class Shooter : MonoBehaviour
     [SerializeField]
     private float minScale = 2, maxScale = 8;
     private static float shootDelay = 0.25f;
-    private static float reloadOnEndTurnDelay = 6f;
+    private static float reloadOnEndTurnDelay = 3f;
     private float reloadOnEndTurnTime = reloadOnEndTurnDelay;
     private float shootTime = shootDelay;
-
+    [SerializeField]
+    private float lockAngle = 77f;
+    [SerializeField]
+    private float gravityScale;
+    [SerializeField]
+    private float mass;
+    [SerializeField]
+    private float drag;
     private bool isReloading = false;
     private bool isDoneShoot = false;
     [SerializeField]
@@ -60,18 +67,14 @@ public class Shooter : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (GameManager.Instance.isEndTurn)
-            reloadOnEndTurnTime -= Time.deltaTime;
-    }
-    private void FixedUpdate()
-    {
-        shootTime -= Time.fixedDeltaTime;
+        shootTime -= Time.deltaTime;
         //If all balls is in start shooting.
         //If start shooting disable collision.
         //Set a closet ball = transform position to shoot.
         if (GameManager.Instance.isEndTurn)
         {
-            if(reloadOnEndTurnTime <= 0)
+            reloadOnEndTurnTime -= Time.deltaTime;
+            if (reloadOnEndTurnTime <= 0)
             {
                 Reload();
                 StartCoroutine(MoveToShootPoint());
@@ -129,13 +132,14 @@ public class Shooter : MonoBehaviour
             aimCursor.transform.up = -(mousePosition - (Vector2)transform.position);
             // put lock rotation between from -77(291) to 77.
             if(aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
-                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, 77));
+                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, lockAngle));
             else
-                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 291, 360));
+                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 360 - lockAngle, 360));
             shootDirection = -aimCursor.transform.up;
         }
-        if(Input.GetMouseButtonUp(0))
+        if(Input.GetMouseButton(0)  == false && Input.GetMouseButtonUp(0))
         {
+            Debug.Log("up");
             aimCursor.SetActive(false);
             isShooting = true;
         }
@@ -171,10 +175,11 @@ public class Shooter : MonoBehaviour
         if (bullet != null && isReloading == false)
         {
             Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
-            rigidbody.mass = 1;
+            rigidbody.mass = mass;
+            rigidbody.angularDrag = drag;
             rigidbody.bodyType = RigidbodyType2D.Dynamic;
             bullet.GetComponent<Collider2D>().enabled = true;
-            rigidbody.gravityScale = 2;
+            rigidbody.gravityScale = gravityScale;
             bullet.GetComponent<Rigidbody2D>().AddForce(shootDirection * force, ForceMode2D.Impulse);
             bullet.GetComponent<Collider2D>().sharedMaterial = physic;
             foreach(GameObject ball in GameManager.Instance.Balls)

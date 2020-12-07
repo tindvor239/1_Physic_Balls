@@ -24,10 +24,6 @@ public class Obstacle : Item
                 Destroy(gameObject);
         }
     }
-    protected override void OnTriggerEnter2D(Collider2D collision)
-    {
-        
-    }
 
     public void Shaking()
     {
