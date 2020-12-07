@@ -23,7 +23,9 @@ public class Spawner : MonoBehaviour
     [SerializeField]
     private byte countInWarning = 0, countNotNullObstacle = 0;
     private bool isDoneMoveUpInArray = false, isDoneMoving = false;
-    private bool isInWarning = false, isDoneChecking = false;
+    private bool isDoneWarning = false, isDoneChecking = false;
+    private Obstacle[] warningObstacle = null;
+    private Obstacle gameoverObstacle = null;
     private bool spawnOnStart = true;
     private static byte maxSpawnRate = 70;
     [SerializeField]
@@ -76,14 +78,19 @@ public class Spawner : MonoBehaviour
         }
         if (isDoneMoving && isDoneChecking == false)
         {
-            isInWarning = CheckIsInWarning();
-            if(isInWarning)
+            if(isDoneWarning == false)
+            {
+                warningObstacle = CheckIsInWarning();
+                isDoneWarning = true;
+            }
+            if(warningObstacle.Length > 0)
+                Debug.Log(warningObstacle[0]);
+            if (warningObstacle != null && warningObstacle.Length > 0 && isDoneWarning)
             {
                 CheckingIsGameOver();
-                isInWarning = false;
             }
-            if(countDoneShaking == 0 && isInWarning == false || countDoneShaking != 0 && countNotNullObstacle != 0 && countDoneShaking == countNotNullObstacle )
-            isDoneChecking = true;
+            else
+                isDoneChecking = true;
         }
         if (isDoneMoving && isDoneChecking || countNotNullObstacle == 0 && countDoneMoving == 0)
         {
@@ -93,6 +100,7 @@ public class Spawner : MonoBehaviour
             isDoneMoving = false;
             isDoneChecking = false;
             isDoneMoveUpInArray = false;
+            isDoneWarning = false;
             if (spawnRate >= maxSpawnRate)
                 spawnRate = maxSpawnRate;
             else
@@ -100,9 +108,10 @@ public class Spawner : MonoBehaviour
             GameManager.Instance.isSpawning = false;
             GameManager.Instance.isEndTurn = true;
             GameManager.Instance.turn++;
+            gameoverObstacle = null;
+            warningObstacle = null;
             if (maxRandomValue - 6 > 0)
             {
-                Debug.Log(maxRandomValue - 6);
                 minRandomValue = maxRandomValue - 6;
             }
             maxRandomValue = startMaxRandomValue + (int)GameManager.Instance.turn;
@@ -116,7 +125,6 @@ public class Spawner : MonoBehaviour
         {
             //Random that slot is spawn or not.
             int randomSpawn = Random.Range(0, 100);
-            Debug.Log("chance: "+ randomSpawn);
             if(randomSpawn <= 80)
             {
                 int randomRate = Random.Range(0, 100);
@@ -130,7 +138,6 @@ public class Spawner : MonoBehaviour
             else
             {
                 int randomItemSpawn = Random.Range(0, 100);
-                Debug.Log("item chance: " + randomItemSpawn);
                 if(randomItemSpawn <= spawnItemRate)
                 {
                     byte itemCount = 0;
@@ -138,13 +145,11 @@ public class Spawner : MonoBehaviour
                     {
                         if((obstacles[0, i] is AddItem || obstacles[0, i] is SizeItem) && obstacles[0, i] != null)
                         {
-                            Debug.Log("Have Item In " + obstacles[0, i]);
                             itemCount++;
                         }
                     }
                     if (itemCount == 0)
                     {
-                        Debug.Log("In");
                         SpawnItem(column);
                     }
                 }
@@ -177,7 +182,7 @@ public class Spawner : MonoBehaviour
         {
             for(int column = 0; column < obstacles.GetLength(1); column++)
             {
-                if (obstacles[row, column] != null)
+                if (obstacles[row, column] != null && row < obstacles.GetLength(0) - 1)
                 {
                     countNotNullObstacle++;
                     if(row + 1 <= obstacles.GetLength(0) && obstacles[row + 1, column] == null)
@@ -204,45 +209,47 @@ public class Spawner : MonoBehaviour
             }
         }
     }
-    private bool CheckIsInWarning()
+    private Obstacle[] CheckIsInWarning()
     {
-        for(int row = obstacles.GetLength(0) - 1; row >= 0; row--)
-        {
-            for(int column = 0; column <obstacles.GetLength(1); column++)
-            {
-                //If in row 9 have obstacle => warning by shaking the obstacle in row 9.
-                //If in row 10 have obstacle => warning by shaking the obstacle in row 10. ==> GameOver...
-                if(row >= obstacles.GetLength(0) - 2 && obstacles[row, column] != null)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    private void CheckingIsGameOver()
-    {
+        List<Obstacle> inWarningObstacles = new List<Obstacle>();
         for(int row = obstacles.GetLength(0) - 1; row >= 0; row--)
         {
             for(int column = 0; column < obstacles.GetLength(1); column++)
             {
-                if (row >= obstacles.GetLength(0) - 2 && obstacles[row, column] != null)
+                //If in row 9 have obstacle => warning by shaking the obstacle in row 9.
+                //If in row 10 have obstacle => warning by shaking the obstacle in row 10. ==> GameOver...
+                if(row >= obstacles.GetLength(0) - 2 && obstacles[row, column] != null && obstacles[row, column] is Obstacle)
                 {
-                    //To do: shaking.
-                    if(obstacles[row, column] is Obstacle)
+                    if(row == obstacles.GetLength(0) - 1)
                     {
-                        Obstacle obstacle = (Obstacle)obstacles[row, column];
-                        obstacle.Shaking();
-                        if (obstacle.Animator.GetBool("isShaking"))
-                            countDoneShaking++;
+                        gameoverObstacle = (Obstacle)obstacles[row, column];
                     }
-                    if (row == obstacles.GetLength(0) - 1 && countDoneShaking == countNotNullObstacle && countDoneShaking != 0 && countNotNullObstacle != 0) // Must done shaking.
-                    {
-                        //To do: gameOver.
-                        GameManager.Instance.gameState = GameManager.GameState.gameover;
-                    }
+                    Obstacle obstacle = (Obstacle)obstacles[row, column];
+                    obstacle.Shaking();
+                    inWarningObstacles.Add(obstacle);
                 }
             }
+        }
+        return inWarningObstacles.ToArray();
+    }
+    private void CheckingIsGameOver()
+    {
+        int count = 0;
+        Debug.Log(warningObstacle);
+        foreach (Obstacle obstacle in warningObstacle)
+        {
+            if (obstacle.Animator.GetBool("isShaking") == false)
+            {
+                count++;
+            }
+        }
+        if(count == warningObstacle.Length)
+        {
+            if(gameoverObstacle != null)
+            {
+                GameManager.Instance.gameState = GameManager.GameState.gameover;
+            }
+            isDoneChecking = true;
         }
     }
 }

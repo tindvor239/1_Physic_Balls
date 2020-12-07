@@ -36,6 +36,7 @@ public class Shooter : MonoBehaviour
     [SerializeField]
     private float drag;
     private bool isReloading = false;
+    private bool isMoving = false;
     private bool isDoneShoot = false;
     [SerializeField]
     private bool isAllIn = false;
@@ -67,7 +68,6 @@ public class Shooter : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        shootTime -= Time.deltaTime;
         //If all balls is in start shooting.
         //If start shooting disable collision.
         //Set a closet ball = transform position to shoot.
@@ -87,6 +87,7 @@ public class Shooter : MonoBehaviour
         }
         if (isShooting)
         {
+            shootTime -= Time.deltaTime;
             //To do: if balls == null.
             if (balls.Count == 0 && isReloading == false && bullet == null)
             {
@@ -110,7 +111,6 @@ public class Shooter : MonoBehaviour
                     balls.Add(gameObject);
                 }
                 containBalls.Clear();
-                Debug.Log("Shooting");
             }
         }
         if(balls.Count == GameManager.Instance.Balls.Count && isAllIn == false)
@@ -137,11 +137,11 @@ public class Shooter : MonoBehaviour
                 aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 360 - lockAngle, 360));
             shootDirection = -aimCursor.transform.up;
         }
-        if(Input.GetMouseButton(0)  == false && Input.GetMouseButtonUp(0))
+        if(Input.GetMouseButtonUp(0))
         {
-            Debug.Log("up");
             aimCursor.SetActive(false);
             isShooting = true;
+            GameManager.Instance.isEndTurn = false;
         }
     }
     private void Reload()
@@ -167,7 +167,8 @@ public class Shooter : MonoBehaviour
                 bullet.transform.position = Vector2.MoveTowards(bullet.transform.position, transform.position, 0.2f);
                 yield return new WaitForEndOfFrame();
             }
-            isReloading = false;
+            if(bullet.transform.position == transform.position)
+                isReloading = false;
         }
     }
     private void Shoot()
@@ -189,7 +190,6 @@ public class Shooter : MonoBehaviour
             }
         }
         isAllIn = false;
-        GameManager.Instance.isEndTurn = false;
         bullet = null;
         isDoneShoot = true;
     }

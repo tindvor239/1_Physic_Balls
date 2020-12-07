@@ -8,9 +8,14 @@ public class Bottom : Item
     private Color color = Color.yellow;
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
-        collision.gameObject.GetComponent<SpriteRenderer>().color = color;
-        collision.gameObject.GetComponent<Collider2D>().sharedMaterial = null;
-        collision.gameObject.GetComponent<Rigidbody2D>().velocity = collision.transform.position;
+        collision.GetComponent<SpriteRenderer>().color = color;
+        collision.GetComponent<Collider2D>().sharedMaterial = null;
+        collision.GetComponent<Rigidbody2D>().velocity = collision.transform.position;
+        foreach(GameObject ball in GameManager.Instance.Balls)
+        {
+            if(collision != ball)
+                Physics2D.IgnoreCollision(collision.GetComponent<Collider2D>(), ball.GetComponent<Collider2D>(), true);
+        }
         Rigidbody2D rigidbody = collision.gameObject.GetComponent<Rigidbody2D>();
         Vector2 force = new Vector2();
         if (collision.transform.position.x >= gameObject.transform.position.x)

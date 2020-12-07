@@ -37,7 +37,6 @@ public class Ball : Item
             {
                 rigidbody.AddForce(transform.position * 2, ForceMode2D.Impulse);
                 hitCount = 0;
-                Debug.Log("h");
             }
         }
         hitDelay = 0;
