@@ -209,10 +209,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 5217485191223251952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d322482c9a92f643ae43ff66bd4b3da, type: 3}
+  m_Script: {fileID: 11500000, guid: f06520cd162ad404086b7aa7c934136b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitCount: {fileID: 5217485191736772760}
+  hp:
+    baseStat: 1
+  hpUI: {fileID: 5217485191736772760}
+  geometry: 0
 --- !u!95 &2132746393
 Animator:
   serializedVersion: 3

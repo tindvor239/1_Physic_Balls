@@ -3,11 +3,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(PoolParty))]
 public class GameManager : MonoBehaviour
 {
     [SerializeField]
-    private List<GameObject> balls;
+    private Level level;
+    public enum GameMode { survival, level }
     public enum GameState {play, gameover};
+    [SerializeField]
+    public GameMode gameMode = GameMode.survival;
     [SerializeField]
     public GameState gameState = GameState.play;
     public uint turn = 0;
@@ -30,22 +34,45 @@ public class GameManager : MonoBehaviour
     private Text score;
     [SerializeField]
     private Text time;
-
+    [SerializeField]
+    private ParticleSystem particle;
+    [SerializeField]
+    private List<GameObject> obstaclesPool;
+    [SerializeField]
+    private List<ParticleSystem> particlesPool;
+    [SerializeField]
+    private PoolParty poolParty;
+    [SerializeField]
+    private float gravity = 4.2f;
+    [SerializeField]
+    private string levelFolder = "Level";
     private float timer;
     #region Singleton
     public static GameManager Instance;
     private void Awake()
     {
         Instance = this;
+        poolParty = GetComponent<PoolParty>();
         Score = 0;
     }
     #endregion
     #region Properties
-    public List<GameObject> Balls { get => balls; }
+    public Level Level { get => level; }
     public int Score
     {
-        get => int.Parse(score.text);
-        set => score.text = value.ToString();
+        get => int.Parse(GetScore());
+        set => score.text = value.ToString("#,##0");
+    }
+    public string LevelFolder { get => levelFolder; }
+    private string GetScore()
+    {
+        string[] splitedString = score.text.Split(',');
+        string result = "";
+        for(int i = 0; i < splitedString.Length; i++)
+        {
+            result += splitedString[i];
+        }
+        return result;
     }
     public int BestScore
     {
@@ -55,11 +82,14 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetInt("Best Score", value);
         }
     }
+    public ParticleSystem Particle { get => particle; }
+    public PoolParty PoolParty { get => poolParty; }
     private string Comment
     {
         get => comment.text;
         set => comment.text = value;
     }
+    public float Gravity { get => gravity; }
     #endregion
 
     private void Update()
@@ -75,20 +105,25 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
-
+    public void ChooseLevel()
+    {
+        //To do: show level menu.
+    }
+    public void ChooseSurvival()
+    {
+        //To do: show play survival mode
+    }
     public void Pause()
     {
         Time.timeScale = 0;
         menu.SetActive(true);
         pauseMenu.SetActive(true);
     }
-
     public void Continue()
     {
         Time.timeScale = 1;
         menu.SetActive(false);
     }
-
     public void Restart()
     {
         Time.timeScale = 1;
@@ -127,4 +162,5 @@ public class GameManager : MonoBehaviour
             Comment = "Great!";
         }
     }
+    private void
 }

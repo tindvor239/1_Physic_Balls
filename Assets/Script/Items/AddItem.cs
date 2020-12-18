@@ -6,16 +6,18 @@ public class AddItem : Item
     {
         if (collision.gameObject.tag == "Ball")
         {
+            BackToPool(GameManager.Instance.PoolParty.GetPool("Items Pool"));
             AddBall(collision.gameObject);
-            Destroy(gameObject);
         }
     }
     protected virtual void AddBall(GameObject hitObject)
     {
-        GameObject newBall = Instantiate(hitObject, hitObject.transform.parent);
+        Ball newBall = Instantiate(hitObject, hitObject.transform.parent).GetComponent<Ball>();
+        float gravity = GameManager.Instance.Gravity;
+        newBall.Rigidbody.gravityScale = gravity;
         newBall.transform.position = hitObject.transform.position;
-        GameManager.Instance.Balls.Add(newBall);
-        foreach (GameObject ball in GameManager.Instance.Balls)
+        GameManager.Instance.Level.Balls.Add(newBall);
+        foreach (Ball ball in GameManager.Instance.Level.Balls)
         {
             if (newBall != ball)
                 Physics2D.IgnoreCollision(newBall.GetComponent<Collider2D>(), ball.GetComponent<Collider2D>(), true);

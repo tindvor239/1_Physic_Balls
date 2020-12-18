@@ -16,6 +16,6 @@ public class SizeItem : AddItem
             else
                 collision.transform.localScale = new Vector2(maxSize, maxSize);
         }
-        Destroy(gameObject);
+        BackToPool(GameManager.Instance.PoolParty.GetPool("Items Pool"));
     }
 }

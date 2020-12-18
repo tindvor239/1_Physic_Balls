@@ -8,10 +8,6 @@ public class Spawner : MonoBehaviour
     private float space;
     [SerializeField]
     private float startPosition;
-    [SerializeField]
-    private GameObject[] itemPrefabs;
-    [SerializeField]
-    private GameObject[] obstaclePrefabs;
     private static int startMaxRandomValue = 1;
     [SerializeField]
     private int maxRandomValue = startMaxRandomValue;
@@ -19,7 +15,7 @@ public class Spawner : MonoBehaviour
     private int minRandomValue = 1;
     private Item[,] obstacles = new Item[9, 6];
     private byte countSpawnOnStart;
-    private byte countDoneMoving = 0, countDoneShaking = 0;
+    private byte countDoneMoving = 0;
     [SerializeField]
     private byte countInWarning = 0, countNotNullObstacle = 0;
     private bool isDoneMoveUpInArray = false, isDoneMoving = false;
@@ -27,39 +23,59 @@ public class Spawner : MonoBehaviour
     private Obstacle[] warningObstacle = null;
     private Obstacle gameoverObstacle = null;
     private bool spawnOnStart = true;
-    private static byte maxSpawnRate = 70;
-    [SerializeField]
-    private byte spawnRate = 25;
-    private byte spawnStartRate;
-    [SerializeField]
-    private byte spawnItemRate = 25;
+    private static float maxSpawnRate = 0.7f;
+    [SerializeField] [Range(0f, 1f)]
+    private float spawnRate = 0.25f;
+    private float spawnStartRate;
+    [SerializeField] [Range(0f, 1f)]
+    private float spawnItemRate = 0.25f;
+    #region Singleton
+    public static Spawner instance;
     private void Awake()
     {
         spawnStartRate = spawnRate;
+        instance = this;
     }
+    #endregion
+    #region Properties
+    public Item[,] Obstacles { get => obstacles; }
+    #endregion
     private void Update()
     {
         // Spawn 4 obstacle on start
-        if (spawnOnStart)
+        switch(GameManager.Instance.gameMode)
         {
-            if (countSpawnOnStart < 4 && GameManager.Instance.isSpawning == false)
-            {
-                GameManager.Instance.turn = 0;
-                minRandomValue = 1;
-                maxRandomValue = 1;
-                countSpawnOnStart++;
-                spawnRate = spawnStartRate;
-                GameManager.Instance.isSpawning = true;
-            }
-            else if(countSpawnOnStart >= 4)
-            {
-                countSpawnOnStart = 0;
-                spawnOnStart = false;
-            }
-        }
-        if (GameManager.Instance.isSpawning)
-        {
-            SpawnOneLine();
+            case GameManager.GameMode.survival:
+                switch(GameManager.Instance.gameState)
+                {
+                    case GameManager.GameState.play:
+                        if (spawnOnStart)
+                        {
+                            if (countSpawnOnStart < 4 && GameManager.Instance.isSpawning == false)
+                            {
+                                GameManager.Instance.turn = 0;
+                                minRandomValue = 1;
+                                maxRandomValue = 2;
+                                countSpawnOnStart++;
+                                spawnRate = spawnStartRate;
+                                GameManager.Instance.isSpawning = true;
+                            }
+                            else if (countSpawnOnStart >= 4)
+                            {
+                                countSpawnOnStart = 0;
+                                spawnOnStart = false;
+                            }
+                        }
+                        if (GameManager.Instance.isSpawning)
+                        {
+                            SpawnOneLine();
+                        }
+                        break;
+                }
+                break;
+            case GameManager.GameMode.level:
+                //To do: load level.
+                break;
         }
     }
     private void SpawnOneLine()
@@ -83,8 +99,6 @@ public class Spawner : MonoBehaviour
                 warningObstacle = CheckIsInWarning();
                 isDoneWarning = true;
             }
-            if(warningObstacle.Length > 0)
-                Debug.Log(warningObstacle[0]);
             if (warningObstacle != null && warningObstacle.Length > 0 && isDoneWarning)
             {
                 CheckingIsGameOver();
@@ -104,16 +118,14 @@ public class Spawner : MonoBehaviour
             if (spawnRate >= maxSpawnRate)
                 spawnRate = maxSpawnRate;
             else
-                spawnRate++;
+                spawnRate += 0.02f;
             GameManager.Instance.isSpawning = false;
             GameManager.Instance.isEndTurn = true;
             GameManager.Instance.turn++;
             gameoverObstacle = null;
             warningObstacle = null;
-            if (maxRandomValue - 6 > 0)
-            {
-                minRandomValue = maxRandomValue - 6;
-            }
+            minRandomValue = maxRandomValue / 2;
+            GetItemBackToPoolOnLastRow();
             maxRandomValue = startMaxRandomValue + (int)GameManager.Instance.turn;
             isDoneMoving = false;
         }
@@ -127,7 +139,7 @@ public class Spawner : MonoBehaviour
             int randomSpawn = Random.Range(0, 100);
             if(randomSpawn <= 80)
             {
-                int randomRate = Random.Range(0, 100);
+                float randomRate = Random.Range(0f, 1f);
                 if(randomRate <= spawnRate)
                 {
                     SpawnObstacle(column);
@@ -137,7 +149,7 @@ public class Spawner : MonoBehaviour
             }
             else
             {
-                int randomItemSpawn = Random.Range(0, 100);
+                float randomItemSpawn = Random.Range(0f, 1f);
                 if(randomItemSpawn <= spawnItemRate)
                 {
                     byte itemCount = 0;
@@ -157,24 +169,79 @@ public class Spawner : MonoBehaviour
         }
         if (count == 0)
         {
-            byte randomIndex = (byte)Random.Range(0, 6);
-            SpawnObstacle(randomIndex);
+            //get null index of first row in array
+            List<byte> indexes = new List<byte>();
+            for(byte i = 0; i < obstacles.GetLength(1); i++)
+            {
+                if (obstacles[0, i] == null)
+                    indexes.Add(i);
+            }
+            int randomIndex = Random.Range(0, indexes.Count);
+            SpawnObstacle(indexes[randomIndex]);
         }
     }
     private void SpawnObstacle(byte column)
     {
-        int randomSprite = Random.Range(0, obstaclePrefabs.Length);
-        GameObject newGameObject = Instantiate(obstaclePrefabs[randomSprite], transform);
-        obstacles[0, column] = newGameObject.GetComponent<Obstacle>();
-        newGameObject.GetComponent<Obstacle>().HitCount = (uint)Random.Range(minRandomValue, maxRandomValue);
-        newGameObject.transform.position = new Vector2(transform.position.x + startPosition + (space * column), transform.position.y);
+        Pool pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
+        GameObject newObj;
+        newObj = GetPooledObjectOrCreateNew(column, pool);
+        obstacles[0, column] = newObj.GetComponent<Obstacle>();
+        newObj.GetComponent<Obstacle>().HP = (uint)Random.Range(minRandomValue, maxRandomValue);
+    }
+    private GameObject[] GetItemOnLastRow()
+    {
+        List<GameObject> result = new List<GameObject>();
+        for (int column = 0; column < obstacles.GetLength(1); column++)
+        {
+            if (obstacles[obstacles.GetLength(0) - 1, column] != null && obstacles[obstacles.GetLength(0) - 1, column] is AddItem)
+            {
+                result.Add(obstacles[obstacles.GetLength(0) - 1, column].gameObject);
+                obstacles[obstacles.GetLength(0) - 1, column] = null;
+            }
+        }
+        return result.ToArray();
+    }
+    private void GetItemBackToPoolOnLastRow()
+    {
+        GameObject[] itemOnLastRow = GetItemOnLastRow();
+        if(itemOnLastRow.Length != 0)
+        {
+            for(int i = 0; i < itemOnLastRow.Length; i++)
+            {
+                GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(itemOnLastRow[i], GameManager.Instance.gameObject.transform.position);
+            }
+        }
+    }
+    private GameObject GetPooledObjectOrCreateNew(byte column, Pool pool)
+    {
+        PoolParty poolParty = GameManager.Instance.PoolParty;
+        GameObject[] gameObjectsToPool = pool.ObjectsToPool;
+        int randomSprite = Random.Range(0, gameObjectsToPool.Length);
+        if (pool.ObjectsPool.Count != 0)
+        {
+            foreach (GameObject gameObj in pool.ObjectsPool)
+            {
+                if (gameObj.GetComponent<Obstacle>().Geometry == gameObjectsToPool[randomSprite].GetComponent<Obstacle>().Geometry
+                    && gameObj.activeInHierarchy == false)
+                {
+                    return pool.GetOutOfPool(new Vector2(transform.position.x + startPosition + (space * column), transform.position.y));
+                }
+            }
+        }
+        return poolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomSprite, transform);
     }
     private void SpawnItem(byte column)
     {
-        int randomItem = Random.Range(0, itemPrefabs.Length);
-        GameObject newGameObject = Instantiate(itemPrefabs[randomItem], transform);
+        Pool pool = GameManager.Instance.PoolParty.GetPool("Items Pool");
+        int randomItem = Random.Range(0, pool.ObjectsToPool.Length);
+        GameObject newGameObject;
+        if (pool.CanExtend)
+        {
+            newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
+        }
+        else
+            newGameObject = pool.GetOutOfPool(new Vector2(transform.position.x + startPosition + (space * column), transform.position.y));
         obstacles[0, column] = newGameObject.GetComponent<Item>();
-        newGameObject.transform.position = new Vector2(transform.position.x + startPosition + (space * column), transform.position.y);
     }
     private void MoveObstaclesInArrayUp()
     {
@@ -234,22 +301,20 @@ public class Spawner : MonoBehaviour
     }
     private void CheckingIsGameOver()
     {
-        int count = 0;
-        Debug.Log(warningObstacle);
-        foreach (Obstacle obstacle in warningObstacle)
+        for(int row = Obstacles.GetLength(0) - 1; row >= 0 ; row--)
         {
-            if (obstacle.Animator.GetBool("isShaking") == false)
+            for(int column = Obstacles.GetLength(1) - 1; column >= 0; column--)
             {
-                count++;
+                if(Obstacles[row, column] is Obstacle)
+                {
+                    Obstacle obstacle = (Obstacle)Obstacles[row, column];
+                    if(obstacle.IsGameOver == true)
+                    {
+                        GameManager.Instance.gameState = GameManager.GameState.gameover;
+                    }
+                }
             }
         }
-        if(count == warningObstacle.Length)
-        {
-            if(gameoverObstacle != null)
-            {
-                GameManager.Instance.gameState = GameManager.GameState.gameover;
-            }
-            isDoneChecking = true;
-        }
+        isDoneChecking = true;
     }
 }
