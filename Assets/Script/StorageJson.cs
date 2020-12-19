@@ -9,20 +9,20 @@ public class StorageJson
 {
     #region Member Field
     [SerializeField]
-    private string folderName;
+    protected string folderName;
     [SerializeField]
-    private string fileName;
+    protected string fileName;
     [SerializeField]
-    private string fileExtension;
+    protected string fileExtension;
 
     [SerializeField]
-    private GameObject ballPrefab;
+    protected GameObject ballPrefab;
     [SerializeField]
-    private List<GameObject> obstaclesPrefab;
+    protected List<GameObject> obstaclesPrefab;
     #endregion
     #region Properties
     public string FileName { get => fileName; }
-    private string Path
+    protected string Path
     {
         get
         {
@@ -36,7 +36,7 @@ public class StorageJson
     }
     #endregion
     #region Method
-    public void Save(Level level)
+    protected virtual void Save(Level level)
     {
         if (File.Exists(Path))
         {
@@ -49,7 +49,7 @@ public class StorageJson
         }
         WriteFile(level);
     }
-    public void Load()
+    protected virtual void Load()
     {
         if(File.Exists(Path))
         {
@@ -68,6 +68,8 @@ public class StorageJson
         Debug.Log(Path);
         if (level.Balls != null && level.Obstacles != null)
         {
+            byte ballCount = (byte)GameManager.Instance.Level.Balls.Count;
+            //To do: spawn ball.
             foreach(Obstacle obstacle in GameManager.Instance.Level.Obstacles)
             {
                 CreaturePackage package = new CreaturePackage();
