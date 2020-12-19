@@ -68,8 +68,15 @@ public class StorageJson
         Debug.Log(Path);
         if (level.Balls != null && level.Obstacles != null)
         {
+            //To do: write name.
+            string name = GameManager.Instance.Level.Name;
+            json += JsonUtility.ToJson(name);
+            //To do: write star.
+            byte star = GameManager.Instance.Level.Star;
+            json += JsonUtility.ToJson(star);
+            //To do: write ball count.
             byte ballCount = (byte)GameManager.Instance.Level.Balls.Count;
-            //To do: spawn ball.
+            json += JsonUtility.ToJson(ballCount);
             foreach(Obstacle obstacle in GameManager.Instance.Level.Obstacles)
             {
                 CreaturePackage package = new CreaturePackage();

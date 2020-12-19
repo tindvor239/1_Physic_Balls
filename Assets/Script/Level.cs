@@ -16,6 +16,8 @@ public class Level
     [SerializeField]
     private StorageJson storage = new StorageJson();
     #region Properties
+    public string Name { get => name; }
+    public byte Star { get => star; }
     public List<Ball> Balls { get => balls; }
     public List<Obstacle> Obstacles { get => obstacles; }
     public StorageJson Storage { get => storage; }

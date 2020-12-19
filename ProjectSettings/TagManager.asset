@@ -44,6 +44,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Game Play
+    uniqueID: 2919079233
+    locked: 0
   - name: Text
     uniqueID: 3003194341
     locked: 0

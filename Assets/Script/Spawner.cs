@@ -13,6 +13,8 @@ public class Spawner : MonoBehaviour
     private int maxRandomValue = startMaxRandomValue;
     [SerializeField]
     private int minRandomValue = 1;
+    [SerializeField]
+    private TwoDimentionalItems asd = new TwoDimentionalItems();
     private Item[,] obstacles = new Item[9, 6];
     private byte countSpawnOnStart;
     private byte countDoneMoving = 0;
