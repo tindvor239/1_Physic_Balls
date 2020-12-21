@@ -18,13 +18,13 @@ public abstract class Item : MonoBehaviour
     protected virtual void OnTriggerEnter2D(Collider2D collision) { }
     protected void BackToPool(Pool pool)
     {
-        for (int row = 0; row < Spawner.instance.Obstacles.GetLength(0); row++)
+        for (int row = 0; row < Spawner.instance.Obstacles.rows.Count; row++)
         {
-            for (int column = 0; column < Spawner.instance.Obstacles.GetLength(1); column++)
+            for (int column = 0; column < Spawner.instance.Obstacles.rows[0].columns.Count; column++)
             {
-                if (Spawner.instance.Obstacles[row, column] == this)
+                if (Spawner.instance.Obstacles.rows[row].columns[column] == this)
                 {
-                    Spawner.instance.Obstacles[row, column] = null;
+                    Spawner.instance.Obstacles.rows[row].columns[column] = null;
                     pool.GetBackToPool(gameObject, GameManager.Instance.transform.position);
                     Debug.Log(string.Format("get {0} back to pool {1}", this.name, "Items Pool"));
                 }

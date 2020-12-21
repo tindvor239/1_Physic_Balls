@@ -161,7 +161,7 @@ public class Shooter : MonoBehaviour
             GameManager.Instance.isEndTurn = false;
         }
     }
-    private void Reload()
+    public void Reload()
     {
         if (balls.Count != 0 && bullet == null && isDoneShoot == true)
         {

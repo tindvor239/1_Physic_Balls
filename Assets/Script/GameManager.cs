@@ -8,6 +8,10 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField]
     private Level level;
+    [SerializeField]
+    private GameObject spawnBall;
+    [SerializeField]
+    private GameObject gameScene;
     public enum GameMode { survival, level }
     public enum GameState {play, gameover};
     [SerializeField]
@@ -58,6 +62,8 @@ public class GameManager : MonoBehaviour
     #endregion
     #region Properties
     public Level Level { get => level; }
+    public GameObject SpawnBall { get => spawnBall; }
+    public GameObject GameScene { get => gameScene; }
     public int Score
     {
         get => int.Parse(GetScore());
@@ -105,6 +111,10 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
+    public GameObject CreateObject(Transform parent, GameObject prefab)
+    {
+        return Instantiate(prefab, parent);
+    }
     public void ChooseLevel()
     {
         //To do: show level menu.
@@ -135,7 +145,7 @@ public class GameManager : MonoBehaviour
         timer += Time.deltaTime;
         string minutes = Mathf.Floor(timer / 60).ToString("00");
         string seconds = Mathf.RoundToInt(timer % 60).ToString("00");
-        time.text = string.Format("TIME\n{0} : {1}", minutes, seconds);
+        time.text = string.Format("{0} : {1}", minutes, seconds);
     }
     private void OnPlay()
     {

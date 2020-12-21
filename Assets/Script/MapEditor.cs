@@ -4,19 +4,16 @@ using UnityEngine;
 
 public class MapEditor : MonoBehaviour
 {
-    [SerializeField]
-    private Level level;
-
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if(Input.GetKeyDown(KeyCode.S))
         {
-            //To do Save.
+            GameManager.Instance.Level.Storage.Save(GameManager.Instance.Level);
         }
         else if(Input.GetKeyDown(KeyCode.L))
         {
-            //To do Load.
+            GameManager.Instance.Level.Storage.Load();
         }
     }
 }

@@ -14,8 +14,8 @@ public class Spawner : MonoBehaviour
     [SerializeField]
     private int minRandomValue = 1;
     [SerializeField]
-    private TwoDimentionalItems asd = new TwoDimentionalItems();
-    private Item[,] obstacles = new Item[9, 6];
+    // row will be 9 and column will 6
+    private TwoDimentionalItems obstacles = new TwoDimentionalItems();
     private byte countSpawnOnStart;
     private byte countDoneMoving = 0;
     [SerializeField]
@@ -40,7 +40,7 @@ public class Spawner : MonoBehaviour
     }
     #endregion
     #region Properties
-    public Item[,] Obstacles { get => obstacles; }
+    public TwoDimentionalItems Obstacles { get => obstacles; }
     #endregion
     private void Update()
     {
@@ -135,8 +135,9 @@ public class Spawner : MonoBehaviour
     private void SpawnItems()
     {
         int count = 0;
-        for(byte column = 0; column < obstacles.GetLength(1); column++)
+        for(byte column = 0; column < obstacles.rows[0].columns.Count; column++)
         {
+            Debug.Log(column);
             //Random that slot is spawn or not.
             int randomSpawn = Random.Range(0, 100);
             if(randomSpawn <= 80)
@@ -155,9 +156,10 @@ public class Spawner : MonoBehaviour
                 if(randomItemSpawn <= spawnItemRate)
                 {
                     byte itemCount = 0;
-                    for(byte i = 0; i < obstacles.GetLength(1); i++)
+                    for(byte i = 0; i < obstacles.rows[0].columns.Count; i++)
                     {
-                        if((obstacles[0, i] is AddItem || obstacles[0, i] is SizeItem) && obstacles[0, i] != null)
+                        Debug.Log(obstacles.rows[0].columns.Count);
+                        if((obstacles.rows[0].columns[i] is AddItem || obstacles.rows[0].columns[i] is SizeItem) && obstacles.rows[0].columns[i] != null)
                         {
                             itemCount++;
                         }
@@ -173,9 +175,9 @@ public class Spawner : MonoBehaviour
         {
             //get null index of first row in array
             List<byte> indexes = new List<byte>();
-            for(byte i = 0; i < obstacles.GetLength(1); i++)
+            for(byte i = 0; i < obstacles.rows[0].columns.Count; i++)
             {
-                if (obstacles[0, i] == null)
+                if (obstacles.rows[0].columns[i] == null)
                     indexes.Add(i);
             }
             int randomIndex = Random.Range(0, indexes.Count);
@@ -187,18 +189,18 @@ public class Spawner : MonoBehaviour
         Pool pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
         GameObject newObj;
         newObj = GetPooledObjectOrCreateNew(column, pool);
-        obstacles[0, column] = newObj.GetComponent<Obstacle>();
+        obstacles.rows[0].columns[column] = newObj.GetComponent<Obstacle>();
         newObj.GetComponent<Obstacle>().HP = (uint)Random.Range(minRandomValue, maxRandomValue);
     }
     private GameObject[] GetItemOnLastRow()
     {
         List<GameObject> result = new List<GameObject>();
-        for (int column = 0; column < obstacles.GetLength(1); column++)
+        for (int column = 0; column < obstacles.rows[0].columns.Count; column++)
         {
-            if (obstacles[obstacles.GetLength(0) - 1, column] != null && obstacles[obstacles.GetLength(0) - 1, column] is AddItem)
+            if (obstacles.rows[obstacles.rows.Count - 1].columns[column] != null && obstacles.rows[obstacles.rows.Count - 1].columns[column] is AddItem)
             {
-                result.Add(obstacles[obstacles.GetLength(0) - 1, column].gameObject);
-                obstacles[obstacles.GetLength(0) - 1, column] = null;
+                result.Add(obstacles.rows[obstacles.rows.Count - 1].columns[column].gameObject);
+                obstacles.rows[obstacles.rows.Count - 1].columns[column] = null;
             }
         }
         return result.ToArray();
@@ -243,21 +245,21 @@ public class Spawner : MonoBehaviour
         }
         else
             newGameObject = pool.GetOutOfPool(new Vector2(transform.position.x + startPosition + (space * column), transform.position.y));
-        obstacles[0, column] = newGameObject.GetComponent<Item>();
+        obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
     }
     private void MoveObstaclesInArrayUp()
     {
-        for(int row = obstacles.GetLength(0) - 1; row >= 0; row--)
+        for(int row = obstacles.rows.Count - 1; row >= 0; row--)
         {
-            for(int column = 0; column < obstacles.GetLength(1); column++)
+            for(int column = 0; column < obstacles.rows[0].columns.Count; column++)
             {
-                if (obstacles[row, column] != null && row < obstacles.GetLength(0) - 1)
+                if (obstacles.rows[row].columns[column] != null && row < obstacles.rows.Count - 1)
                 {
                     countNotNullObstacle++;
-                    if(row + 1 <= obstacles.GetLength(0) && obstacles[row + 1, column] == null)
+                    if(row + 1 <= obstacles.rows.Count && obstacles.rows[row + 1].columns[column] == null)
                     {
-                        obstacles[row + 1, column] = obstacles[row, column];
-                        obstacles[row, column] = null;
+                        obstacles.rows[row + 1].columns[column] = obstacles.rows[row].columns[column];
+                        obstacles.rows[row].columns[column] = null;
                     }
                 }
             }
@@ -265,14 +267,14 @@ public class Spawner : MonoBehaviour
     }
     private void MoveObstaclesUp()
     {
-        for (int row = 0; row < obstacles.GetLength(0); row++)
+        for (int row = 0; row < obstacles.rows.Count; row++)
         {
-            for (int column = 0; column < obstacles.GetLength(1); column++)
+            for (int column = 0; column < obstacles.rows[0].columns.Count; column++)
             {
-                if (obstacles[row, column] != null)
+                if (obstacles.rows[row].columns[column] != null)
                 {
-                    obstacles[row, column].Moving(new Vector2(obstacles[row, column].transform.position.x, transform.position.y + (space * row)));
-                    if (obstacles[row, column].IsDoneMoving)
+                    obstacles.rows[row].columns[column].Moving(new Vector2(obstacles.rows[row].columns[column].transform.position.x, transform.position.y + (space * row)));
+                    if (obstacles.rows[row].columns[column].IsDoneMoving)
                         countDoneMoving++;
                 }
             }
@@ -281,19 +283,19 @@ public class Spawner : MonoBehaviour
     private Obstacle[] CheckIsInWarning()
     {
         List<Obstacle> inWarningObstacles = new List<Obstacle>();
-        for(int row = obstacles.GetLength(0) - 1; row >= 0; row--)
+        for(int row = obstacles.rows.Count - 1; row >= 0; row--)
         {
-            for(int column = 0; column < obstacles.GetLength(1); column++)
+            for(int column = 0; column < obstacles.rows[0].columns.Count; column++)
             {
                 //If in row 9 have obstacle => warning by shaking the obstacle in row 9.
                 //If in row 10 have obstacle => warning by shaking the obstacle in row 10. ==> GameOver...
-                if(row >= obstacles.GetLength(0) - 2 && obstacles[row, column] != null && obstacles[row, column] is Obstacle)
+                if(row >= obstacles.rows.Count - 2 && obstacles.rows[row].columns[column] != null && obstacles.rows[row].columns[column] is Obstacle)
                 {
-                    if(row == obstacles.GetLength(0) - 1)
+                    if(row == obstacles.rows.Count - 1)
                     {
-                        gameoverObstacle = (Obstacle)obstacles[row, column];
+                        gameoverObstacle = (Obstacle)obstacles.rows[row].columns[column];
                     }
-                    Obstacle obstacle = (Obstacle)obstacles[row, column];
+                    Obstacle obstacle = (Obstacle)obstacles.rows[row].columns[column];
                     obstacle.Shaking();
                     inWarningObstacles.Add(obstacle);
                 }
@@ -303,13 +305,13 @@ public class Spawner : MonoBehaviour
     }
     private void CheckingIsGameOver()
     {
-        for(int row = Obstacles.GetLength(0) - 1; row >= 0 ; row--)
+        for(int row = Obstacles.rows.Count - 1; row >= 0 ; row--)
         {
-            for(int column = Obstacles.GetLength(1) - 1; column >= 0; column--)
+            for(int column = Obstacles.rows[0].columns.Count - 1; column >= 0; column--)
             {
-                if(Obstacles[row, column] is Obstacle)
+                if(Obstacles.rows[row].columns[column] is Obstacle)
                 {
-                    Obstacle obstacle = (Obstacle)Obstacles[row, column];
+                    Obstacle obstacle = (Obstacle)Obstacles.rows[row].columns[column];
                     if(obstacle.IsGameOver == true)
                     {
                         GameManager.Instance.gameState = GameManager.GameState.gameover;

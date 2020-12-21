@@ -23,7 +23,11 @@ public class Fan : Bottom
         foreach (Ball ball in GameManager.Instance.Level.Balls)
         {
             if (collision != ball)
+            {
+                if(collision.GetComponent<Ball>())
+                    collision.GetComponent<Ball>().Rigidbody.gravityScale = 8.0f;
                 Physics2D.IgnoreCollision(collision.GetComponent<Collider2D>(), ball.GetComponent<Collider2D>(), false);
+            }
         }
     }
 }
