@@ -42,7 +42,7 @@ public class Obstacle : Item
         ParticleSystem particle;
         if(pool.CanExtend)
         {
-            particle = GameManager.Instance.PoolParty.CreateItem(pool, transform.position, 0, Spawner.instance.transform).GetComponent<ParticleSystem>();
+            particle = GameManager.Instance.PoolParty.CreateItem(pool, transform.position, 0, Spawner.Instance.transform).GetComponent<ParticleSystem>();
         }
         else
         {

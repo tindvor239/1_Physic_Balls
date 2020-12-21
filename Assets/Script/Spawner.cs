@@ -32,11 +32,11 @@ public class Spawner : MonoBehaviour
     [SerializeField] [Range(0f, 1f)]
     private float spawnItemRate = 0.25f;
     #region Singleton
-    public static Spawner instance;
+    public static Spawner Instance;
     private void Awake()
     {
         spawnStartRate = spawnRate;
-        instance = this;
+        Instance = this;
     }
     #endregion
     #region Properties

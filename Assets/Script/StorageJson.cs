@@ -104,9 +104,10 @@ public class StorageJson
                     }
                 }
             }
-            foreach(string st in toRemove)
+            //remove the unused string.
+            foreach(string removeString in toRemove)
             {
-                fieldList.Remove(st);
+                fieldList.Remove(removeString);
             }
             LevelPackage levelPackage = (LevelPackage)JsonUtility.FromJson(level, typeof(LevelPackage));
             levelPackage.Unpack(GameManager.Instance.Level);
@@ -117,6 +118,7 @@ public class StorageJson
                 if (count == 0)
                 {
                     ball.transform.position = Shooter.Instance.transform.position;
+                    ball.Rigidbody.bodyType = RigidbodyType2D.Static;
                 }
                 else
                 {
@@ -129,18 +131,37 @@ public class StorageJson
             foreach(string s in fieldList)
             {
                 string type = "";
+                int prefabIndex = 0;
+                //if unpack the package.
                 if(s.IndexOf("\"type\":\"Obstacle\"") != -1)
                 {
                     type = "Obstacles Pool";
+                    Debug.Log(s);
+                    CreaturePackage package = new CreaturePackage();
+                    package = (CreaturePackage)JsonUtility.FromJson(s, typeof(CreaturePackage));
+                    for(int index = 0; index < poolParty.GetPool(type).ObjectsToPool.Length; index++)
+                    {
+                        if(poolParty.GetPool(type).ObjectsToPool[index].GetComponent<Obstacle>().Geometry.ToString() == package.geometry)
+                        {
+                            prefabIndex = index;
+                        }
+                    }
+                    GameObject item = poolParty.CreateItem(poolParty.GetPool(type), GameManager.Instance.transform.position, prefabIndex, Spawner.Instance.transform);
+                    package.Unpack(item);
                 }
                 else if(s.IndexOf("\"type\":\"AddItem\"") != -1 || s.IndexOf("\"type\":\"SizeItem\"") != -1)
                 {
                     type = "Items Pool";
+                    Package package = new Package();
+                    if (s.IndexOf("\"type\":\"AddItem\"") != -1)
+                        prefabIndex = s.IndexOf("\"type\":\"AddItem\"");
+                    else if (s.IndexOf("\"type\":\"SizeItem\"") != -1)
+                        prefabIndex = s.IndexOf("\"type\":\"SizeItem\"");
+                    GameObject item = poolParty.CreateItem(poolParty.GetPool(type), GameManager.Instance.transform.position, prefabIndex, GameManager.Instance.transform);
+                    package.Unpack(item);
                 }
-                GameObject item = poolParty.CreateItem(poolParty.GetPool(type), GameManager.Instance.transform.position, 1, GameManager.Instance.transform);
+                
             }
-            //CreaturePackage package = (CreaturePackage)JsonUtility.FromJson(data, typeof(CreaturePackage));
-            //package.Unpack(something);
             //Debug.Log(string.Format("name: {0}, position: {1}, rotation: {2}, hp: {3}", package.name, package.position, package.rotation, package.hp));
         }
     }
@@ -253,8 +274,8 @@ public class CreaturePackage : Package
         if(gameObject.GetComponent<Obstacle>())
         {
             Obstacle obstacle = gameObject.GetComponent<Obstacle>();
-            Debug.Log(obstacle.HP);
             hp = obstacle.HP;
+            geometry = obstacle.Geometry.ToString();
         }
     }
     public override void Unpack(GameObject gameObject)
