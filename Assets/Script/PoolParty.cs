@@ -28,7 +28,8 @@ public class PoolParty : MonoBehaviour
     }
     public GameObject CreateItem(Pool pool, Vector2 position, int index, Transform parent)
     {
-        GameObject newGameObject = Instantiate(pool.ObjectsToPool[index], parent);
+        GameObject newGameObject = null;
+        newGameObject = Instantiate(pool.ObjectsToPool[index], parent);
         newGameObject.transform.position = position;
         pool.ObjectsPool.Add(newGameObject);
         return newGameObject;

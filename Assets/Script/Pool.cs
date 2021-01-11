@@ -17,7 +17,7 @@ public class Pool
     public GameObject[] ObjectsToPool { get => objectsToPool; }
     public bool CanExtend { get => IsExtend(); }
     #endregion
-    private void SetPooledObject(GameObject gameObject, bool isActive)
+    public void SetPooledObject(GameObject gameObject, bool isActive)
     {
         gameObject.SetActive(isActive);
         if(gameObject.GetComponent<Collider2D>())
@@ -42,11 +42,11 @@ public class Pool
         obj.transform.position = position;
     }
 
-    public GameObject GetOutOfPool(Vector2 position)
+    public GameObject GetOutOfPool(GameObject go, Vector2 position)
     {
         foreach(GameObject obj in objectsPool)
         {
-            if(obj.activeInHierarchy == false)
+            if(obj.activeInHierarchy == false && go == obj)
             {
                 SetPooledObject(obj, true);
                 obj.transform.position = position;

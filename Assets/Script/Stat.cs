@@ -6,11 +6,11 @@ using UnityEngine;
 public class Stat
 {
     [SerializeField]
-    private uint baseStat;
+    private int baseStat;
     #region Properties
-    public uint BaseStat { get => baseStat; }
+    public int BaseStat { get => baseStat; }
     #endregion
-    public void SetBase(uint value)
+    public void SetBase(int value)
     {
         baseStat = value;
     }

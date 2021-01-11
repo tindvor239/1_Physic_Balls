@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,15 +8,18 @@ public class LevelButton : MonoBehaviour
 {
     [SerializeField]
     private new Text name;
-    [SerializeField]
-    private byte star;
-    
+    public LevelPackage levelPackage;
+    #region Properties
+    public string Name { get => name.text; set => name.text = value; }
+    public LevelPackage LevelPackage { get => levelPackage; }
+    #endregion
     public void OnSelected()
     {
-        string path = string.Format("{0}/{1}/{2}.json", Application.persistentDataPath, GameManager.Instance.LevelFolder, name);
-        if (File.Exists(path))
-        {
-            //Load file saves.
-        }
+        GameManager.Instance.Level.Load(levelPackage);
+        GameManager.Instance.SetStars();
+        GameManager.Instance.currentLevel = this;
+        DoozyUI.UIManager.HideUiElement("LEVEL_UI");
+        Time.timeScale = 1f;
+        GameManager.Instance.gameState = GameManager.GameState.play;
     }
 }

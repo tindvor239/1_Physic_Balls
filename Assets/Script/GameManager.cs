@@ -2,10 +2,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.IO;
+using UnityEngine.EventSystems;
+using System;
 
 [RequireComponent(typeof(PoolParty))]
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
+    [Header("Save/Load Settings")]
+    [SerializeField]
+    private List<LevelPackage> levelPackages;
     [SerializeField]
     private Level level;
     [SerializeField]
@@ -13,21 +19,30 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private GameObject gameScene;
     public enum GameMode { survival, level }
-    public enum GameState {play, gameover};
-    [SerializeField]
+    public enum GameState { start, level, play, pause, gameover, win };
+    [Header("Gameplay Settings")]
     public GameMode gameMode = GameMode.survival;
-    [SerializeField]
     public GameState gameState = GameState.play;
     public uint turn = 0;
     public uint lastTurn = 0;
     public bool isSpawning = false;
     public bool isEndTurn = true;
     [SerializeField]
-    private GameObject menu;
+    private List<Sprite> triangleSprites = new List<Sprite>();
     [SerializeField]
-    private GameObject pauseMenu;
+    private List<Sprite> cubeSprites = new List<Sprite>();
     [SerializeField]
-    private GameObject gameoverMenu;
+    private List<Sprite> circleSprites = new List<Sprite>();
+    [SerializeField]
+    private List<Sprite> pentagonSprites = new List<Sprite>();
+    [SerializeField]
+    private List<Color32> colors = new List<Color32>();
+    [SerializeField]
+    private GameObject[] fans;
+    [SerializeField]
+    private Collider2D[] frames;
+    [SerializeField]
+    private float gravity = 4.2f;
     [SerializeField]
     private Text comment;
     [SerializeField]
@@ -41,21 +56,38 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private ParticleSystem particle;
     [SerializeField]
-    private List<GameObject> obstaclesPool;
+    public bool firstStart = false;
     [SerializeField]
-    private List<ParticleSystem> particlesPool;
+    private List<Obstacle> hitObstacles = new List<Obstacle>();
     [SerializeField]
     private PoolParty poolParty;
+    [Header("Level Settings")]
     [SerializeField]
-    private float gravity = 4.2f;
+    private Sprite starOff;
     [SerializeField]
-    private string levelFolder = "Level";
+    private Sprite starOn;
+    [SerializeField]
+    private Sprite winStarOn;
+    [SerializeField]
+    private Sprite winStarOff;
+    [SerializeField]
+    private Vector2 winStarSizeOn = new Vector2(160, 150);
+    [SerializeField]
+    private Vector2 winStarSizeOff = new Vector2(120, 110);
+    [SerializeField]
+    public LevelButton currentLevel;
+    [SerializeField]
+    private GameObject levelHolder;
+    [SerializeField]
+    private List<LevelButton> levelButtons;
+    [Header("Prefabs")]
+    [SerializeField]
+    private GameObject levelPrefab;
     private float timer;
+    public bool isReset = false;
     #region Singleton
-    public static GameManager Instance;
-    private void Awake()
+    protected override void OnAwake()
     {
-        Instance = this;
         poolParty = GetComponent<PoolParty>();
         Score = 0;
     }
@@ -67,16 +99,28 @@ public class GameManager : MonoBehaviour
     public int Score
     {
         get => int.Parse(GetScore());
-        set => score.text = value.ToString("#,##0");
+        set
+        {
+            if(score != null)
+            {
+                score.text = value.ToString("#,##0");
+            }
+        }
     }
-    public string LevelFolder { get => levelFolder; }
     private string GetScore()
     {
-        string[] splitedString = score.text.Split(',');
-        string result = "";
-        for(int i = 0; i < splitedString.Length; i++)
+        string result = "0";
+        if(score.text != null)
         {
-            result += splitedString[i];
+            string[] splitedString = score.text.Split(',');
+            for (int i = 0; i < splitedString.Length; i++)
+            {
+                result += splitedString[i];
+            }
+        }
+        else
+        {
+            Debug.LogError("Not have Score text in this " + gameObject.name);
         }
         return result;
     }
@@ -96,50 +140,358 @@ public class GameManager : MonoBehaviour
         set => comment.text = value;
     }
     public float Gravity { get => gravity; }
+    public List<Obstacle> HitObstacles { get => hitObstacles; }
+    public GameObject[] Fans { get => fans; }
+    public Collider2D[] Frames { get => frames; }
+    public List<Sprite> TriangleSprites { get => triangleSprites; }
+    public List<Sprite> CubeSprites { get => cubeSprites; }
+    public List<Sprite> PentagonSprites { get => pentagonSprites; }
+    public List<Sprite> CircleSprites { get => circleSprites; }
+    private bool isUpdateOneTime = true;
+    public Sprite StarOff { get => starOff; }
+    public Sprite StarOn { get => starOn; }
     #endregion
 
+    public delegate void OnUpdateOneTime();
+    public event OnUpdateOneTime onUpdateOneTime;
+    private void Start()
+    {
+        //To do show start menu.
+        gameState = GameState.start;
+    }
     private void Update()
     {
-        switch(gameState)
+        switch (gameState)
         {
+            case GameState.start:
+                OnStart();
+                break;
+            case GameState.level:
+                OnLevel();
+                break;
             case GameState.play:
                 TimeCount();
+                if(Input.GetMouseButtonDown(0))
+                {
+                    firstStart = false;
+                }
                 OnPlay();
+                
+                if(onUpdateOneTime != null && isUpdateOneTime && isEndTurn)
+                {
+                    onUpdateOneTime.Invoke();
+                    isUpdateOneTime = false;
+                }
+                if(isEndTurn == false)
+                {
+                    isUpdateOneTime = true;
+                }
+                switch(gameMode)
+                {
+                    case GameMode.level:
+
+                        break;
+                }
+                break;
+            case GameState.pause:
+                OnPause();
                 break;
             case GameState.gameover:
                 OnGameover();
                 break;
+            case GameState.win:
+                OnWin();
+                break;
+        }
+    }
+    public void SetStars()
+    {
+        UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
+        int currentTurnCount = level.TurnCount - ((int)turn - 1);
+        float value = (float)currentTurnCount / (float)level.TurnCount;
+        gameMenu.Sections[0].Sections[0].gameObject.GetComponent<Slider>().value = value;
+        UIMenu levelStars = gameMenu.Sections[0].Sections[1];
+        level.UpdateStatus();
+        SetStarImages(levelStars.Images, starOn, starOff, level.Stars);
+    }
+    private void SetStarImages(List<Image> images, Sprite starOn, Sprite starOff, int starCount)
+    {
+        for(int index = 0; index < images.Count; index++)
+        {
+            if(index < starCount)
+            {
+                images[index].sprite = starOn;
+            }
+            else
+            {
+                images[index].sprite = starOff;
+            }
         }
     }
     public GameObject CreateObject(Transform parent, GameObject prefab)
     {
         return Instantiate(prefab, parent);
     }
+    #region Button Behaviors
     public void ChooseLevel()
     {
         //To do: show level menu.
+        gameMode = GameMode.level;
+        gameState = GameState.level;
+        firstStart = true;
+        //load every level files.
+        List<string> levelInfos = new List<string>();
+        bool canCreate = true;
+        //load level blocks.
+        foreach(LevelPackage levelPackage in levelPackages)
+        {
+            foreach(LevelButton button in levelButtons)
+            {
+                if(button.Name == levelPackage.name)
+                {
+                    canCreate = false;
+                }
+            }
+            if(canCreate)
+            {
+                GameObject objectLevel = Instantiate(levelPrefab, levelHolder.transform);
+                LevelButton levelButton = objectLevel.GetComponent<LevelButton>();
+                UIMenu uIMenu = objectLevel.GetComponent<UIMenu>();
+                //Debug.Log()
+                levelButton.Name = levelPackage.name;
+                SetStarImages(uIMenu.Images, starOn, StarOff, levelPackage.Stars);
+                levelButton.levelPackage = levelPackage;
+                levelButtons.Add(levelButton);
+            }
+            canCreate = true;
+        }
     }
     public void ChooseSurvival()
     {
         //To do: show play survival mode
+        gameMode = GameMode.survival;
+        UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
+        gameMenu.Sections[0].gameObject.SetActive(false);
+        firstStart = true;
+        gameState = GameState.play;
+        DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
+        Time.timeScale = 1f;
     }
-    public void Pause()
+    private void ShowTutorialOnPlay()
+    {
+        if(firstStart)
+        {
+            //To do show tutorial.
+            DoozyUI.UIManager.ShowUiElement("TUTORIAL_UI");
+        }
+        else
+        {
+            DoozyUI.UIManager.HideUiElement("TUTORIAL_UI");
+        }
+    }
+    private void OnPause()
     {
         Time.timeScale = 0;
-        menu.SetActive(true);
-        pauseMenu.SetActive(true);
+        DoozyUI.UIManager.ShowUiElement("PAUSE_UI");
+        gameState = GameState.pause;
     }
+    private void OnStart()
+    {
+        DoozyUI.UIManager.ShowUiElement("START_UI");
+        gameState = GameState.start;
+    }
+    private void OnWin()
+    {
+        DoozyUI.UIManager.ShowUiElement("WIN_UI");
+        List<DoozyUI.UIElement> uIElements = DoozyUI.UIManager.GetUiElements("WIN_UI");
+        switch(gameMode)
+        {
+            case GameMode.survival:
+                uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0].gameObject.SetActive(true);
+                uIElements[0].gameObject.GetComponent<UIMenu>().Sections[1].gameObject.SetActive(false);
+                UIMenu survivalSection = uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0];
+                survivalSection.MenuInfos[1].text = score.text;
+                survivalSection.MenuInfos[2].text = BestScore.ToString();
+                break;
+            case GameMode.level:
+                UIMenu winMenu = uIElements[0].gameObject.GetComponent<UIMenu>();
+                UIMenu levelSection = winMenu.Sections[1];
+                levelSection.gameObject.SetActive(true);
+                SetStarImages(levelSection.Images, winStarOn, winStarOff, level.Stars);
+                //resize star image on/off becuz sprite size of on/off r diffent of each other.
+                foreach(Image star in levelSection.Images)
+                {
+                    RectTransform rectTransform = star.GetComponent<RectTransform>();
+                    if(star.sprite == winStarOn)
+                    {
+                        rectTransform.sizeDelta = winStarSizeOn;
+                    }
+                    else
+                    {
+                        rectTransform.sizeDelta = winStarSizeOff;
+                    }
+                }
+                levelSection.MenuInfos[0].text = "Stage: " + level.Name;
+                levelSection.MenuInfos[1].text = "Score: " + Score;
+                winMenu.Sections[0].gameObject.SetActive(false);
+                //storage star in level.
+                level.Storage.ConvertedLevel.Save(level);
+                break;
+        }
+    }
+    private void OnLevel()
+    {
+        DoozyUI.UIManager.ShowUiElement("LEVEL_UI");
+        gameState = GameState.level;
+        UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
+        gameMenu.Sections[0].gameObject.SetActive(true);
+    }
+    private void OnPlay()
+    {
+        DoozyUI.UIManager.HideUiElement("START_UI");
+        DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
+        ShowTutorialOnPlay();
+    }
+    private void OnGameover()
+    {
+        switch (gameMode)
+        {
+            case GameMode.survival:
+                DoozyUI.UIManager.ShowUiElement("WIN_UI");
+                totalScore.text = Score.ToString();
+                SetBestScore();
+                bestScore.text = string.Format("BEST: {0}", BestScore.ToString("#,##0"));
+                break;
+            case GameMode.level:
+                //show level sections.
+                break;
+        }
+    }
+    //Button Section.
     public void Continue()
     {
         Time.timeScale = 1;
-        menu.SetActive(false);
+        DoozyUI.UIManager.HideUiElement("PAUSE_UI");
+        DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
+        gameState = GameState.play;
+    }
+    public void Win()
+    {
+        gameState = GameState.win;
+    }
+    public void Menu()
+    {
+        gameState = GameState.start;
+        DoozyUI.UIManager.HideUiElement("PAUSE_UI");
+        DoozyUI.UIManager.HideUiElement("LEVEL_UI");
+    }
+    public void Pause()
+    {
+        gameState = GameState.pause;
+    }
+    private void DestroyBallsAt(int startIndex)
+    {
+        List<GameObject> destroyBalls = new List<GameObject>();
+        for (int index = startIndex; index < level.Balls.Count; index++)
+        {
+            GameObject ball = level.Balls[index].gameObject;
+            Debug.Log("index: " + index);
+            destroyBalls.Add(ball);
+        }
+        level.Balls.RemoveRange(startIndex, level.Balls.Count - startIndex);
+        foreach (GameObject go in destroyBalls)
+        {
+            Destroy(go);
+        }
     }
     public void Restart()
     {
         Time.timeScale = 1;
+        switch (gameMode)
+        {
+            case GameMode.survival:
+                DestroyBallsAt(1);
+                Shooter.Instance.Balls.RemoveRange(0, Shooter.Instance.Balls.Count);
+                level.Balls[0].transform.position = Shooter.Instance.transform.position;
+                level.Balls[0].Rigidbody.bodyType = RigidbodyType2D.Static;
+                Shooter.Instance.Balls.Add(level.Balls[0]);
+                Shooter.Instance.Reload();
+                level.Balls[0].GetComponent<SpriteRenderer>().color = Color.white;
+                Spawner.Instance.spawnOnStart = true;
+                break;
+            case GameMode.level:
+                isReset = true;
+                DestroyBallsAt(0);
+                //foreach(Items items in Spawner.Instance.Obstacles.rows)
+                //{
+                //    if(items != null)
+                //    {
+                //        foreach(Item item in items.columns)
+                //        {
+                //            if(item != null)
+                //            {
+                //                Pool pool = null;
+                //                if(item is Obstacle)
+                //                {
+                //                    pool = poolParty.GetPool("Obstacles Pool");
+                //                }
+                //                else if(item is AddItem || item is SizeItem)
+                //                {
+                //                    pool = poolParty.GetPool("Items Pool");
+                //                }
+                //                item.BackToPool(pool);
+                //            }
+                //        }
+                //    }
+                //}
+                currentLevel.OnSelected();
+                Spawner.Instance.spawnOnStart = false;
+                //level handle.
+                break;
+        }
+        Shooter.Instance.Reload();
+        Shooter.Instance.ContainBalls = new List<GameObject>();
+        firstStart = true;
+        isEndTurn = false;
+        isSpawning = false;
+        turn = 0;
+        GetObstaclesInSpawnerToPool();
+        timer = 0;
+        Score = 0;
         gameState = GameState.play;
-        SceneManager.LoadScene(0);
+        Shooter.Instance.reloadOnEndTurnTime = Shooter.ReloadOnEndTurnDelay;
+        DoozyUI.UIManager.HideUiElement("PAUSE_UI");
     }
+    private void GetObstaclesInSpawnerToPool()
+    {
+        for (int row = 0; row < Spawner.Instance.Obstacles.rows.Count; row++)
+        {
+            Items items = Spawner.Instance.Obstacles.rows[row];
+            for (int column = 0; column < items.columns.Count; column++)
+            {
+                if (items.columns[column] != null)
+                {
+                    Item item = items.columns[column];
+                    Pool pool = new Pool();
+                    if (item is Obstacle)
+                    {
+                        pool = poolParty.GetPool("Obstacles Pool");
+                    }
+                    else if (item is AddItem || item is SizeItem)
+                    {
+                        pool = poolParty.GetPool("Items Pool");
+                    }
+                    item.BackToPool(pool);
+                }
+            }
+        }
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
+    #endregion
     private void TimeCount()
     {
         timer += Time.deltaTime;
@@ -147,17 +499,61 @@ public class GameManager : MonoBehaviour
         string seconds = Mathf.RoundToInt(timer % 60).ToString("00");
         time.text = string.Format("{0} : {1}", minutes, seconds);
     }
-    private void OnPlay()
+    public void SetSpriteColor(Obstacle obstacle)
     {
-        gameoverMenu.SetActive(false);
+        List<Sprite> sprites = new List<Sprite>();
+        sprites = GetSprites(obstacle.Geometry);
+        if(obstacle.HP <= 20)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
+            obstacle.Background.color = colors[0];
+        }
+        else if(obstacle.HP <= 40)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
+            obstacle.Background.color = colors[1];
+        }
+        else if (obstacle.HP <= 60)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
+            obstacle.Background.color = colors[2];
+        }
+        else if (obstacle.HP <= 70)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
+            obstacle.Background.color = colors[3];
+        }
+        else if (obstacle.HP <= 80)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
+            obstacle.Background.color = colors[4];
+        }
+        else if (obstacle.HP <= 90)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
+            obstacle.Background.color = colors[5];
+        }
+        else if (obstacle.HP > 91)
+        {
+            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
+            obstacle.Background.color = colors[6];
+        }
     }
-    private void OnGameover()
+    private List<Sprite> GetSprites(Geometry geometry)
     {
-        menu.SetActive(true);
-        gameoverMenu.SetActive(true);
-        totalScore.text = Score.ToString();
-        SetBestScore();
-        bestScore.text = string.Format("BEST: {0}", BestScore.ToString("#,##0"));
+        switch(geometry)
+        {
+            case Geometry.circle:
+                return circleSprites;
+            case Geometry.cube:
+                return cubeSprites;
+            case Geometry.triangle:
+                return triangleSprites;
+            case Geometry.pentagon:
+                return pentagonSprites;
+            default:
+                return null;
+        }
     }
     private void SetBestScore()
     {
@@ -172,4 +568,5 @@ public class GameManager : MonoBehaviour
             Comment = "Great!";
         }
     }
+    //Reset Levels.
 }

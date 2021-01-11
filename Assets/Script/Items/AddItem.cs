@@ -4,7 +4,7 @@ public class AddItem : Item
 {
     protected override void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Ball")
+        if (collision.gameObject.tag == "Ball" && collision.isTrigger == false)
         {
             BackToPool(GameManager.Instance.PoolParty.GetPool("Items Pool"));
             AddBall(collision.gameObject);
@@ -12,11 +12,10 @@ public class AddItem : Item
     }
     protected virtual void AddBall(GameObject hitObject)
     {
-        Ball newBall = Instantiate(hitObject, hitObject.transform.parent).GetComponent<Ball>();
+        Ball newBall = Instantiate(GameManager.Instance.Level.BallPrefab, hitObject.transform.parent).GetComponent<Ball>();
         float gravity = GameManager.Instance.Gravity;
         newBall.Rigidbody.gravityScale = gravity;
         newBall.transform.position = hitObject.transform.position;
-        GameManager.Instance.Level.Balls.Add(newBall);
         foreach (Ball ball in GameManager.Instance.Level.Balls)
         {
             if (newBall != ball)

@@ -3,12 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(Collider2D))]
-public class Shooter : MonoBehaviour
+public class Shooter : Singleton<Shooter>
 {
     [SerializeField]
-    private Ball bullet;
+    public Ball bullet;
     [SerializeField]
     private PhysicsMaterial2D physic;
     [SerializeField]
@@ -18,14 +19,14 @@ public class Shooter : MonoBehaviour
     [SerializeField]
     private List<Ball> balls;
     [SerializeField]
-    private List<GameObject> containBalls;
+    private List<GameObject> containBalls = new List<GameObject>();
     [SerializeField]
     private GameObject aimCursor;
     [SerializeField]
     private float minScale = 2, maxScale = 8;
     private static float shootDelay = 0.2f;
     private static float reloadOnEndTurnDelay = 3f;
-    private float reloadOnEndTurnTime = reloadOnEndTurnDelay;
+    public float reloadOnEndTurnTime = reloadOnEndTurnDelay;
     private float shootTime = shootDelay;
     [SerializeField]
     private RigidbodyType2D bodytype;
@@ -37,6 +38,7 @@ public class Shooter : MonoBehaviour
     private float mass;
     [SerializeField]
     private float drag;
+    [SerializeField]
     private bool isReloading = false;
     private bool isDoneShoot = false;
     [SerializeField]
@@ -45,13 +47,6 @@ public class Shooter : MonoBehaviour
     private bool isAllIn = false;
 
     private Vector2 shootDirection;
-    #region Singleton
-    public static Shooter Instance;
-    private void Awake()
-    {
-        Instance = this;
-    }
-    #endregion
     #region Properties
     public List<Ball> Balls
     {
@@ -62,6 +57,10 @@ public class Shooter : MonoBehaviour
     {
         get => containBalls;
         set => containBalls = value;
+    }
+    public static float ReloadOnEndTurnDelay
+    {
+        get => reloadOnEndTurnDelay;
     }
     public float GravityScale { get => gravityScale; }
     #endregion
@@ -77,7 +76,7 @@ public class Shooter : MonoBehaviour
         //Set a closet ball = transform position to shoot.
         if (GameManager.Instance.isEndTurn)
         {
-            if(isDoneSetBall == false)
+            if(isDoneSetBall == false && balls != null)
             {
                 foreach(Ball ball in balls)
                 {
@@ -116,7 +115,7 @@ public class Shooter : MonoBehaviour
         }
         else
         {
-            if(containBalls.Count == GameManager.Instance.Level.Balls.Count && containBalls.Count != 0)
+            if(containBalls.Count != 0 && containBalls.Count == GameManager.Instance.Level.Balls.Count)
             {
                 foreach( GameObject gameObject in containBalls)
                 {
@@ -126,6 +125,8 @@ public class Shooter : MonoBehaviour
                 containBalls.Clear();
             }
         }
+        Debug.Log("shooter balls: " + balls.Count);
+        Debug.Log("gamemanager balls: " + GameManager.Instance.Level.Balls.Count);
         if(balls.Count == GameManager.Instance.Level.Balls.Count && isAllIn == false)
         {
             isAllIn = true;
@@ -134,31 +135,35 @@ public class Shooter : MonoBehaviour
     }
     private void GetMouseDirection()
     {
-        if (Input.GetMouseButton(0))
+        if (EventSystem.current.currentSelectedGameObject == null)
         {
-            aimCursor.SetActive(true);
-            Vector2 mousePosition = Vector2.zero;
-            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float scale = minScale;
-            if(mousePosition.y < 0)
+            if (Input.GetMouseButton(0))
             {
-                scale = Mathf.Clamp(Mathf.Abs(mousePosition.y / 3.5f), minScale, maxScale);
+                aimCursor.SetActive(true);
+                Vector2 mousePosition = Vector2.zero;
+                mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                float scale = minScale;
+                if (mousePosition.y < 0)
+                {
+                    scale = Mathf.Clamp(Mathf.Abs(mousePosition.y / 3.5f), minScale, maxScale);
+                }
+                aimCursor.transform.localScale = new Vector2(scale, scale);
+                // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
+                aimCursor.transform.up = -(new Vector2(mousePosition.x * 1.1f, 5) - (Vector2)transform.position);
+                // put lock rotation between from -77(291) to 77.
+                if (aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
+                    aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, lockAngle));
+                else
+                    aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 360 - lockAngle, 360));
+                shootDirection = -aimCursor.transform.up;
             }
-            aimCursor.transform.localScale = new Vector2(scale, scale);
-            // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
-            aimCursor.transform.up = -(new Vector2(mousePosition.x * 1.1f, 5) - (Vector2)transform.position);
-            // put lock rotation between from -77(291) to 77.
-            if(aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
-                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, lockAngle));
-            else
-                aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 360 - lockAngle, 360));
-            shootDirection = -aimCursor.transform.up;
-        }
-        if(Input.GetMouseButtonUp(0))
-        {
-            aimCursor.SetActive(false);
-            isShooting = true;
-            GameManager.Instance.isEndTurn = false;
+            if (Input.GetMouseButtonUp(0))
+            {
+                aimCursor.SetActive(false);
+                isShooting = true;
+                reloadOnEndTurnTime = reloadOnEndTurnDelay;
+                GameManager.Instance.isEndTurn = false;
+            }
         }
     }
     public void Reload()
@@ -200,6 +205,11 @@ public class Shooter : MonoBehaviour
             bullet.Collider.enabled = true;
             bullet.Collider.sharedMaterial = physic;
             bullet.Trail.enabled = true;
+            if(bullet is LightningBall)
+            {
+                LightningBall lightningBullet = (LightningBall)bullet;
+                lightningBullet.TriggerCollider.enabled = true;
+            }
             foreach(Ball gameobject in GameManager.Instance.Level.Balls)
             {
                 if (bullet != gameobject)
@@ -208,10 +218,10 @@ public class Shooter : MonoBehaviour
                     Physics2D.IgnoreCollision(bulletBall.Collider, gameobject.Collider, true);
                 }
             }
+            isAllIn = false;
+            isDoneSetBall = false;
+            bullet = null;
+            isDoneShoot = true;
         }
-        isAllIn = false;
-        isDoneSetBall = false;
-        bullet = null;
-        isDoneShoot = true;
     }
 }

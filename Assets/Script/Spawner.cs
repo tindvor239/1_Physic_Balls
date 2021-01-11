@@ -1,8 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using UnityEngine.UI;
 
-public class Spawner : MonoBehaviour
+public class Spawner : Singleton<Spawner>
 {
     [SerializeField]
     private float space;
@@ -17,14 +18,10 @@ public class Spawner : MonoBehaviour
     // row will be 9 and column will 6
     private TwoDimentionalItems obstacles = new TwoDimentionalItems();
     private byte countSpawnOnStart;
-    private byte countDoneMoving = 0;
-    [SerializeField]
-    private byte countInWarning = 0, countNotNullObstacle = 0;
-    private bool isDoneMoveUpInArray = false, isDoneMoving = false;
-    private bool isDoneWarning = false, isDoneChecking = false;
+    private bool isMoving = true;
     private Obstacle[] warningObstacle = null;
     private Obstacle gameoverObstacle = null;
-    private bool spawnOnStart = true;
+    public bool spawnOnStart = true;
     private static float maxSpawnRate = 0.7f;
     [SerializeField] [Range(0f, 1f)]
     private float spawnRate = 0.25f;
@@ -32,16 +29,17 @@ public class Spawner : MonoBehaviour
     [SerializeField] [Range(0f, 1f)]
     private float spawnItemRate = 0.25f;
     #region Singleton
-    public static Spawner Instance;
-    private void Awake()
+    protected override void OnAwake()
     {
         spawnStartRate = spawnRate;
-        Instance = this;
     }
     #endregion
     #region Properties
     public TwoDimentionalItems Obstacles { get => obstacles; }
     #endregion
+    private void Start()
+    {
+    }
     private void Update()
     {
         // Spawn 4 obstacle on start
@@ -70,127 +68,178 @@ public class Spawner : MonoBehaviour
                         }
                         if (GameManager.Instance.isSpawning)
                         {
-                            SpawnOneLine();
+                            if (spawnOnStart)
+                            {
+                                SpawnOneLine(0.001f);
+                            }
+                            else
+                                SpawnOneLine(0.15f);
+                            CheckIsInWarning();
+                            GameManager.Instance.isSpawning = false;
                         }
                         break;
                 }
                 break;
             case GameManager.GameMode.level:
-                //To do: load level.
+                switch(GameManager.Instance.gameState)
+                {
+                    case GameManager.GameState.play:
+                        //To do: if list null show win menus.
+                        int notNullCount = 0;
+                        foreach(Items items in obstacles.rows)
+                        {
+                            foreach(Item item in items.columns)
+                            {
+                                if(item != null)
+                                {
+                                    notNullCount++;
+                                }
+                            }
+                        }
+                        if (GameManager.Instance.isSpawning)
+                        {
+                            //To do: move every blocks up.
+                            if(GameManager.Instance.Level.CanMoveUp)
+                            {
+                                MoveUp(0.15f);
+                            }
+                            CheckIsInWarning();
+                            if (isMoving == false)
+                            {
+                                OnEndTurn();
+                                GetItemBackToPoolOnLastRow();
+                                isMoving = true;
+                            }
+
+                            GameManager.Instance.isSpawning = false;
+                        }
+                        if (notNullCount == 0 && GameManager.Instance.isReset == false)
+                        {
+                            GameManager.Instance.gameState = GameManager.GameState.win;
+                        }
+                        break;
+                }
                 break;
         }
     }
-    private void SpawnOneLine()
+    private void SpawnOneLine(float time)
     {
-        if (isDoneMoveUpInArray == false)
-        {
-            MoveObstaclesInArrayUp();
-            isDoneMoveUpInArray = true;
-        }
-        if (isDoneMoveUpInArray && isDoneMoving == false)
-        {
-            MoveObstaclesUp();
-            bool isAllStopMoving = countDoneMoving == countNotNullObstacle && countDoneMoving != 0 && countNotNullObstacle != 0;
-            if (isAllStopMoving)
-                isDoneMoving = true;
-        }
-        if (isDoneMoving && isDoneChecking == false)
-        {
-            if(isDoneWarning == false)
-            {
-                warningObstacle = CheckIsInWarning();
-                isDoneWarning = true;
-            }
-            if (warningObstacle != null && warningObstacle.Length > 0 && isDoneWarning)
-            {
-                CheckingIsGameOver();
-            }
-            else
-                isDoneChecking = true;
-        }
-        if (isDoneMoving && isDoneChecking || countNotNullObstacle == 0 && countDoneMoving == 0)
+        MoveUp(time);
+        if (isMoving == false)
         {
             SpawnItems();
-            countNotNullObstacle = 0;
-            countDoneMoving = 0;
-            isDoneMoving = false;
-            isDoneChecking = false;
-            isDoneMoveUpInArray = false;
-            isDoneWarning = false;
             if (spawnRate >= maxSpawnRate)
                 spawnRate = maxSpawnRate;
             else
                 spawnRate += 0.02f;
-            GameManager.Instance.isSpawning = false;
-            GameManager.Instance.isEndTurn = true;
-            GameManager.Instance.turn++;
-            gameoverObstacle = null;
-            warningObstacle = null;
+            isMoving = true;
+            OnEndTurn();
             minRandomValue = maxRandomValue / 2;
             GetItemBackToPoolOnLastRow();
             maxRandomValue = startMaxRandomValue + (int)GameManager.Instance.turn;
-            isDoneMoving = false;
         }
+    }
+    private void OnEndTurn()
+    {
+        GameManager.Instance.isEndTurn = true;
+        GameManager.Instance.turn++;
+        gameoverObstacle = null;
+        warningObstacle = null;
+        if(GameManager.Instance.gameMode == GameManager.GameMode.level)
+        {
+            GameManager.Instance.SetStars();
+        }
+    }
+    private void MoveUp(float time)
+    {
+        if(isMoving)
+        {
+            MoveObstaclesInArrayUp();
+            for (int row = 0; row < obstacles.rows.Count; row++)
+            {
+                for(int column = 0; column < obstacles.rows[0].columns.Count; column++)
+                {
+                    if (obstacles.rows[row].columns[column] != null)
+                    {
+                        obstacles.rows[row].columns[column].transform.DOMoveY(obstacles.rows[row].columns[column].transform.position.y + space, time);
+                    }
+                }
+            }
+            isMoving = false;
+        }
+    }
+    private List<int> GetSpawnItems()
+    {
+        List<int> indexes = new List<int>();
+        for (byte column = 0; column < obstacles.rows[0].columns.Count; column++)
+        {
+            //Random that slot is spawn or not.
+            float randomSpawn = Random.Range(0f, 1f);
+            if (randomSpawn <= 0.5f)
+            {
+                indexes.Add(column);
+            }
+        }
+        return indexes;
+    }
+    private bool CheckCanItSpawn(int column)
+    {
+        //This method will run first, then it will run random obstacle method.
+        if (column < 6 && column > 0)
+        {
+            if (obstacles.rows[0].columns[column - 1] != null)
+            {
+                if (obstacles.rows[0].columns[column - 1].transform.position.x > 6.6f - space)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     private void SpawnItems()
     {
-        int count = 0;
-        for(byte column = 0; column < obstacles.rows[0].columns.Count; column++)
+        List<int> indexes = GetSpawnItems();
+        for(int index = 0; index < indexes.Count; index++)
         {
-            Debug.Log(column);
-            //Random that slot is spawn or not.
-            int randomSpawn = Random.Range(0, 100);
-            if(randomSpawn <= 80)
+            if(CheckCanItSpawn(indexes[index]))
             {
-                float randomRate = Random.Range(0f, 1f);
-                if(randomRate <= spawnRate)
+                float spawnRoll = Random.Range(0f, 1f);
+                if(spawnRoll <= spawnRate)
                 {
-                    SpawnObstacle(column);
-                    count++;
+                    SpawnItem(GameManager.Instance.PoolParty.GetPool("Obstacles Pool"), indexes[index]);
                 }
-                
-            }
-            else
-            {
-                float randomItemSpawn = Random.Range(0f, 1f);
-                if(randomItemSpawn <= spawnItemRate)
+                else
                 {
-                    byte itemCount = 0;
-                    for(byte i = 0; i < obstacles.rows[0].columns.Count; i++)
+                    if(CheckIsRowHaveItem() == false)
                     {
-                        Debug.Log(obstacles.rows[0].columns.Count);
-                        if((obstacles.rows[0].columns[i] is AddItem || obstacles.rows[0].columns[i] is SizeItem) && obstacles.rows[0].columns[i] != null)
-                        {
-                            itemCount++;
-                        }
-                    }
-                    if (itemCount == 0)
-                    {
-                        SpawnItem(column);
+                        float itemSpawnRoll = Random.Range(0f, 1f);
+                        if(itemSpawnRoll <= spawnItemRate)
+                            SpawnItem(GameManager.Instance.PoolParty.GetPool("Items Pool"), indexes[index]);
                     }
                 }
             }
         }
-        if (count == 0)
+        if(CheckIsRowEmpty())
         {
-            //get null index of first row in array
-            List<byte> indexes = new List<byte>();
-            for(byte i = 0; i < obstacles.rows[0].columns.Count; i++)
-            {
-                if (obstacles.rows[0].columns[i] == null)
-                    indexes.Add(i);
-            }
-            int randomIndex = Random.Range(0, indexes.Count);
-            SpawnObstacle(indexes[randomIndex]);
+            SpawnItems();
         }
     }
-    private void SpawnObstacle(byte column)
+    private bool CheckIsRowEmpty()
     {
-        Pool pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
-        GameObject newObj;
-        newObj = GetPooledObjectOrCreateNew(column, pool);
-        obstacles.rows[0].columns[column] = newObj.GetComponent<Obstacle>();
-        newObj.GetComponent<Obstacle>().HP = (uint)Random.Range(minRandomValue, maxRandomValue);
+        foreach(Item item in obstacles.rows[0].columns)
+        {
+            if(item != null)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    private Vector2 GetRandomPos(int index)
+    {
+        Vector2 randomPos = new Vector2(transform.position.x + (space * index), transform.position.y);
+        return randomPos;
     }
     private GameObject[] GetItemOnLastRow()
     {
@@ -216,36 +265,36 @@ public class Spawner : MonoBehaviour
             }
         }
     }
-    private GameObject GetPooledObjectOrCreateNew(byte column, Pool pool)
+    private void SpawnItem(Pool pool, int column)
     {
-        PoolParty poolParty = GameManager.Instance.PoolParty;
-        GameObject[] gameObjectsToPool = pool.ObjectsToPool;
-        int randomSprite = Random.Range(0, gameObjectsToPool.Length);
-        if (pool.ObjectsPool.Count != 0)
-        {
-            foreach (GameObject gameObj in pool.ObjectsPool)
-            {
-                if (gameObj.GetComponent<Obstacle>().Geometry == gameObjectsToPool[randomSprite].GetComponent<Obstacle>().Geometry
-                    && gameObj.activeInHierarchy == false)
-                {
-                    return pool.GetOutOfPool(new Vector2(transform.position.x + startPosition + (space * column), transform.position.y));
-                }
-            }
-        }
-        return poolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomSprite, transform);
-    }
-    private void SpawnItem(byte column)
-    {
-        Pool pool = GameManager.Instance.PoolParty.GetPool("Items Pool");
+        bool isGotIt = false;
         int randomItem = Random.Range(0, pool.ObjectsToPool.Length);
-        GameObject newGameObject;
+        GameObject newGameObject = null;
         if (pool.CanExtend)
         {
             newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
         }
         else
-            newGameObject = pool.GetOutOfPool(new Vector2(transform.position.x + startPosition + (space * column), transform.position.y));
-        obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
+        {
+            foreach (GameObject gameObject in pool.ObjectsPool)
+            {
+                if(gameObject.activeInHierarchy == false &&
+                    gameObject.GetComponent<Item>().GetType() == pool.ObjectsToPool[randomItem].GetComponent<Item>().GetType() && isGotIt == false)
+                {
+                    newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                    isGotIt = true;
+                }
+            }
+        }
+        if(newGameObject != null)
+        {
+            if(newGameObject.GetComponent<Obstacle>())
+            {
+                Obstacle obstacle = newGameObject.GetComponent<Obstacle>();
+                obstacle.HP = Random.Range(minRandomValue, maxRandomValue);
+            }
+            obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
+        }
     }
     private void MoveObstaclesInArrayUp()
     {
@@ -255,27 +304,11 @@ public class Spawner : MonoBehaviour
             {
                 if (obstacles.rows[row].columns[column] != null && row < obstacles.rows.Count - 1)
                 {
-                    countNotNullObstacle++;
                     if(row + 1 <= obstacles.rows.Count && obstacles.rows[row + 1].columns[column] == null)
                     {
                         obstacles.rows[row + 1].columns[column] = obstacles.rows[row].columns[column];
                         obstacles.rows[row].columns[column] = null;
                     }
-                }
-            }
-        }
-    }
-    private void MoveObstaclesUp()
-    {
-        for (int row = 0; row < obstacles.rows.Count; row++)
-        {
-            for (int column = 0; column < obstacles.rows[0].columns.Count; column++)
-            {
-                if (obstacles.rows[row].columns[column] != null)
-                {
-                    obstacles.rows[row].columns[column].Moving(new Vector2(obstacles.rows[row].columns[column].transform.position.x, transform.position.y + (space * row)));
-                    if (obstacles.rows[row].columns[column].IsDoneMoving)
-                        countDoneMoving++;
                 }
             }
         }
@@ -303,22 +336,15 @@ public class Spawner : MonoBehaviour
         }
         return inWarningObstacles.ToArray();
     }
-    private void CheckingIsGameOver()
+    private bool CheckIsRowHaveItem()
     {
-        for(int row = Obstacles.rows.Count - 1; row >= 0 ; row--)
+        foreach(Item item in obstacles.rows[0].columns)
         {
-            for(int column = Obstacles.rows[0].columns.Count - 1; column >= 0; column--)
+            if(item is AddItem || item is SizeItem)
             {
-                if(Obstacles.rows[row].columns[column] is Obstacle)
-                {
-                    Obstacle obstacle = (Obstacle)Obstacles.rows[row].columns[column];
-                    if(obstacle.IsGameOver == true)
-                    {
-                        GameManager.Instance.gameState = GameManager.GameState.gameover;
-                    }
-                }
+                return true;
             }
         }
-        isDoneChecking = true;
+        return false;
     }
 }

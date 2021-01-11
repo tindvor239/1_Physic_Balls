@@ -2,21 +2,24 @@
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Reflection;
 
 [Serializable]
 public class StorageJson
 {
     #region Member Field
     [SerializeField]
-    protected string folderName;
+    private string folderName;
     [SerializeField]
-    protected string fileName;
+    private string fileName;
     [SerializeField]
-    protected string fileExtension;
+    private string fileExtension;
+    [SerializeField]
+    private LevelPackage convertedLevel;
     #endregion
     #region Properties
     public string FileName { get => fileName; }
+    public string FolderName { get => folderName; }
+    public LevelPackage ConvertedLevel { get => convertedLevel; set => convertedLevel = value; }
     protected string Path
     {
         get
@@ -26,7 +29,7 @@ public class StorageJson
             {
                 result = fileExtension.Substring(fileExtension.IndexOf('.') + 1, fileExtension.Length - (fileExtension.IndexOf('.') + 1));
             }
-            return string.Format("{0}/{1}.{2}", Application.dataPath + "/" + folderName, fileName, result);
+            return string.Format("{0}/{1}.{2}", Application.dataPath + "/Resources/" + folderName, fileName, result);
         }
     }
     #endregion
@@ -40,39 +43,25 @@ public class StorageJson
         else
         {
             Debug.Log("file not exist!!");
-            Directory.CreateDirectory(Application.persistentDataPath);
+            Directory.CreateDirectory(Path);
         }
         WriteFile(level);
     }
-    public virtual void Load()
+    public void ConvertJsonToObject(string path)
     {
-        if(File.Exists(Path))
+        if(File.Exists(path))
         {
-            //Will be fixed
-            PoolParty poolParty = GameManager.Instance.PoolParty;
-            string data = File.ReadAllText(Path);
-            string[] fieldData = data.Split('}');
             List<string> fieldList = new List<string>();
             List<string> toRemove = new List<string>();
+            #region Convert To ScriptableObject
             string level = "";
-            //split json string to array.
-            for(int index = 0; index < fieldData.Length; index++)
-            {
-                fieldData[index] += '}';
-            }
-            //set array to list, get level info
-            for(int index = 1; index < fieldData.Length; index++)
-            {
-                if(fieldData[index] != "}")
-                    fieldList.Add(fieldData[index]);
-                level = fieldData[0];
-            }
+            level = GetLevelInfo(path, fieldList);
             //recorrect string into items list
             for (int index = 0; index < fieldList.Count; index++)
             {
                 if(index + 1 < fieldList.Count)
                 {
-                    //if obstacle will get 5 fields becuz dont have HP.
+                    //if obstacle will get 6 fields.
                     if(fieldList[index].IndexOf("\"type\":\"Obstacle\"") != -1)
                     {
                         for(int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
@@ -90,7 +79,7 @@ public class StorageJson
                     //if additem or sizeitem will get 4 fields.
                     else if(fieldList[index].IndexOf("\"type\":\"AddItem\"") != -1 || fieldList[index].IndexOf("\"type\":\"SizeItem\"") != -1)
                     {
-                        for (int fieldIndex = index + 1; fieldIndex < index + 5; fieldIndex++)
+                        for (int fieldIndex = index + 1; fieldIndex < index + 4; fieldIndex++)
                         {
                             if (fieldIndex < fieldList.Count)
                             {
@@ -109,74 +98,48 @@ public class StorageJson
             {
                 fieldList.Remove(removeString);
             }
-            LevelPackage levelPackage = (LevelPackage)JsonUtility.FromJson(level, typeof(LevelPackage));
-            levelPackage.Unpack(GameManager.Instance.Level);
-            for(int count = 0; count < levelPackage.balls; count++)
-            {
-                //To do: spawn ball.
-                Ball ball = GameManager.Instance.CreateObject(GameManager.Instance.GameScene.transform, GameManager.Instance.Level.BallPrefab).GetComponent<Ball>();
-                if (count == 0)
-                {
-                    ball.transform.position = Shooter.Instance.transform.position;
-                    ball.Rigidbody.bodyType = RigidbodyType2D.Static;
-                }
-                else
-                {
-                    ball.transform.position = GameManager.Instance.SpawnBall.transform.position;
-                }
-                GameManager.Instance.Level.Balls.Add(ball);
-                Shooter.Instance.Balls.Add(ball);
-            }
-            Shooter.Instance.Reload();
-            foreach(string s in fieldList)
-            {
-                string type = "";
-                int prefabIndex = 0;
-                //if unpack the package.
-                if(s.IndexOf("\"type\":\"Obstacle\"") != -1)
-                {
-                    type = "Obstacles Pool";
-                    Debug.Log(s);
-                    CreaturePackage package = new CreaturePackage();
-                    package = (CreaturePackage)JsonUtility.FromJson(s, typeof(CreaturePackage));
-                    for(int index = 0; index < poolParty.GetPool(type).ObjectsToPool.Length; index++)
-                    {
-                        if(poolParty.GetPool(type).ObjectsToPool[index].GetComponent<Obstacle>().Geometry.ToString() == package.geometry)
-                        {
-                            prefabIndex = index;
-                        }
-                    }
-                    GameObject item = poolParty.CreateItem(poolParty.GetPool(type), GameManager.Instance.transform.position, prefabIndex, Spawner.Instance.transform);
-                    package.Unpack(item);
-                }
-                else if(s.IndexOf("\"type\":\"AddItem\"") != -1 || s.IndexOf("\"type\":\"SizeItem\"") != -1)
-                {
-                    type = "Items Pool";
-                    Package package = new Package();
-                    if (s.IndexOf("\"type\":\"AddItem\"") != -1)
-                        prefabIndex = s.IndexOf("\"type\":\"AddItem\"");
-                    else if (s.IndexOf("\"type\":\"SizeItem\"") != -1)
-                        prefabIndex = s.IndexOf("\"type\":\"SizeItem\"");
-                    GameObject item = poolParty.CreateItem(poolParty.GetPool(type), GameManager.Instance.transform.position, prefabIndex, GameManager.Instance.transform);
-                    package.Unpack(item);
-                }
-                
-            }
-            //Debug.Log(string.Format("name: {0}, position: {1}, rotation: {2}, hp: {3}", package.name, package.position, package.rotation, package.hp));
+            BaseLevel baseLevel = (BaseLevel)JsonUtility.FromJson(level, typeof(BaseLevel));
+            convertedLevel.Pack(baseLevel, fieldList);
+            #endregion
         }
     }
-    public void WriteFile(Level level)
+    private string GetLevelInfo(string path, List<string> levelInfos)
+    {
+        string data = File.ReadAllText(path);
+        string[] jsonFields = data.Split('}');
+        string level = "";
+        //split json string to array.
+        for (int index = 0; index < jsonFields.Length; index++)
+        {
+            jsonFields[index] += '}';
+        }
+        //set array to list, get level info
+        for (int index = 1; index < jsonFields.Length; index++)
+        {
+            if (jsonFields[index] != "}")
+                levelInfos.Add(jsonFields[index]);
+            level = jsonFields[0];
+        }
+        return level;
+    }
+    private void WriteFile(Level level)
     {
         string json = "";
         if (level.Balls != null && level.Items != null)
         {
-            //To do: write name.
-            string name = GameManager.Instance.Level.Name;
-            //To do: write star.
-            byte star = GameManager.Instance.Level.Star;
-            //To do: write ball count.
-            byte ballCount = (byte)GameManager.Instance.Level.Balls.Count;
-            json += "{" + string.Format("{0},{1},{2}", StorageField("name", name), StorageField("stars", star), StorageField("balls", ballCount)) + "}";
+            GameManager.Instance.Level.Row = Spawner.Instance.Obstacles.rows.Count;
+            GameManager.Instance.Level.Column = Spawner.Instance.Obstacles.rows[0].columns.Count;
+            //pack level into json;
+            BaseLevel baseLevel = new BaseLevel();
+            baseLevel.Pack(GameManager.Instance.Level);
+            json += JsonUtility.ToJson(baseLevel);
+            foreach (Items items in Spawner.Instance.Obstacles.rows)
+            {
+                foreach(Item item in items.columns)
+                {
+                    GameManager.Instance.Level.Items.Add(item);
+                }
+            }
             foreach(Item item in GameManager.Instance.Level.Items)
             {
                 Package package = new Package();
@@ -199,7 +162,7 @@ public class StorageJson
                     package.Pack(sizeItem.gameObject);
                     package.type = "SizeItem";
                 }
-                Debug.Log(JsonUtility.ToJson(package));
+                //Debug.Log(JsonUtility.ToJson(package));
                 json += JsonUtility.ToJson(package);
             }
             File.WriteAllText(Path, json);
@@ -210,17 +173,6 @@ public class StorageJson
         return string.Format("\"{0}\":\"{1}\"", fieldName, value);
     }
     #endregion
-}
-public class LevelPackage
-{
-    public string name;
-    public byte stars;
-    public byte balls;
-    public virtual void Unpack(Level level)
-    {
-        level.Name = name;
-        level.Star = stars;
-    }
 }
 public class Package
 {
@@ -235,15 +187,11 @@ public class Package
         name = gameObject.name;
         position = gameObject.transform.position;
         rotation = gameObject.transform.rotation;
+        size = gameObject.transform.localScale;
         if(gameObject.GetComponent<Collider2D>())
         {
             Collider2D collider = gameObject.GetComponent<Collider2D>();
             offset = collider.offset;
-            if(collider is BoxCollider2D)
-            {
-                BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
-                size = boxCollider.size;
-            }
         }
     }
     public virtual void Unpack(GameObject gameObject)
@@ -251,22 +199,42 @@ public class Package
         gameObject.name = name;
         gameObject.transform.position = position;
         gameObject.transform.rotation = rotation;
+        gameObject.transform.localScale = size;
         if(gameObject.GetComponent<Collider2D>())
         {
             Collider2D collider = gameObject.GetComponent<Collider2D>();
             collider.offset = offset;
-            if(collider is BoxCollider2D)
-            {
-                BoxCollider2D boxCollider = gameObject.GetComponent<BoxCollider2D>();
-                size = boxCollider.size;
-            }
         }
     }
 }
-
+public class BaseLevel
+{
+    public string name;
+    public byte stars;
+    public int row, column;
+    public byte star1;
+    public byte star2;
+    public byte star3;
+    public byte turnCount;
+    public bool canMoveUp;
+    public int balls;
+    public void Pack(Level level)
+    {
+        name = level.Name;
+        stars = level.Stars;
+        row = level.Row;
+        column = level.Column;
+        star1 = level.Points[0];
+        star2 = level.Points[1];
+        star3 = level.Points[2];
+        turnCount = level.TurnCount;
+        canMoveUp = level.CanMoveUp;
+        balls = level.Balls.Count;
+    }
+}
 public class CreaturePackage : Package
 {
-    public uint hp;
+    public int hp;
     public string geometry;
     public override void Pack(GameObject gameObject)
     {

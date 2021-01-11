@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class ParticleController : MonoBehaviour
 {
-    private void OnParticleSystemStopped()
+    private void Update()
     {
-        GameManager.Instance.PoolParty.GetPool("Particles Pool").GetBackToPool(gameObject, GameManager.Instance.transform.position);
+        if(GetComponent<ParticleSystem>().isStopped)
+            GameManager.Instance.PoolParty.GetPool("Particles Pool").GetBackToPool(gameObject, GameManager.Instance.transform.position);
     }
 }

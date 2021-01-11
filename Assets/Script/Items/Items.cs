@@ -9,6 +9,9 @@ public class Items
     [SerializeField]
     private string name;
     public List<Item> columns = new List<Item>();
+    #region
+    public string Name { get => name; set => name = value; }
+    #endregion
 }
 
 [Serializable]

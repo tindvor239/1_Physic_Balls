@@ -8,7 +8,7 @@ public class Gameover : MonoBehaviour
     {
         if(collision.gameObject.tag == "Obstacle")
         {
-            collision.GetComponent<Obstacle>().IsGameOver = true;
+            GameManager.Instance.gameState = GameManager.GameState.gameover;
         }
     }
 }

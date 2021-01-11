@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 [RequireComponent(typeof(Animator))]
 public class Obstacle : Item
@@ -10,8 +11,10 @@ public class Obstacle : Item
     private Text hpUI;
     [SerializeField]
     private Geometry geometry;
+    [SerializeField]
+    private SpriteRenderer background;
     #region Properties
-    public uint HP
+    public int HP
     {
         get => hp.BaseStat;
         set
@@ -20,7 +23,8 @@ public class Obstacle : Item
             hpUI.text = hp.BaseStat.ToString();
         }
     }
-    public bool IsGameOver { get; set; }
+    public byte HitCount { get; set; }
+    public SpriteRenderer Background { get => background; }
     public Geometry Geometry { get => geometry; }
     #endregion
     protected override void OnCollisionEnter2D(Collision2D collision)
@@ -29,25 +33,41 @@ public class Obstacle : Item
         {
             HP--;
             GameManager.Instance.Score++;
-            if (HP <= 0)
-            {
-                Pool pool = GameManager.Instance.PoolParty.GetPool("Particles Pool");
-                CheckIsExtend(pool);
-                BackToPool(pool);
-            }
+            OnHit();
         }
     }
-    private void CheckIsExtend(Pool pool)
+
+    public void OnHit()
     {
-        ParticleSystem particle;
+        GameManager.Instance.SetSpriteColor(this);
+        ChangeColorOnHit();
+        if (HP <= 0)
+        {
+            Pool pool = GameManager.Instance.PoolParty.GetPool("Particles Pool");
+            SpawnParticle(pool);
+            BackToPool(pool);
+            HitCount = 0;
+        }
+    }
+    private void SpawnParticle(Pool pool)
+    {
+        ParticleSystem particle = null;
         if(pool.CanExtend)
         {
             particle = GameManager.Instance.PoolParty.CreateItem(pool, transform.position, 0, Spawner.Instance.transform).GetComponent<ParticleSystem>();
         }
         else
         {
-            particle = pool.GetOutOfPool(transform.position).GetComponent<ParticleSystem>();
+            // check geometry spawn the correct object!
+            foreach(GameObject gameObject in pool.ObjectsPool)
+            {
+                if(gameObject.activeInHierarchy == false)
+                {
+                    particle = pool.GetOutOfPool(gameObject, transform.position).GetComponent<ParticleSystem>();
+                }
+            }
         }
+        particle.textureSheetAnimation.SetSprite(0, gameObject.GetComponent<SpriteRenderer>().sprite);
         particle.Play();
     }
     public void Shaking()
@@ -59,5 +79,20 @@ public class Obstacle : Item
         animator.SetBool("isShaking", false);
         transform.position = position;
     }
+    private void ChangeColorOnHit()
+    {
+        Color baseColor = background.color;
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(background.DOColor(ConvertColorToColor32(new Color(1, 1, 1, baseColor.a)), 0.1f)).Append(background.DOColor(ConvertColorToColor32(baseColor), 0.1f));
+    }
+    private Color32 ConvertColorToColor32(Color color)
+    {
+        Color32 color32 = new Color32();
+        color32.r = (byte)(color.r * 255);
+        color32.g = (byte)(color.g * 255);
+        color32.b = (byte)(color.b * 255);
+        color32.a = (byte)(color.a * 255);
+        return color32;
+    }
 }
-public enum Geometry { circle, rectangle, triangle, hexagon}
+public enum Geometry { circle, cube, triangle, pentagon}
