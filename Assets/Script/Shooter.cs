@@ -125,8 +125,6 @@ public class Shooter : Singleton<Shooter>
                 containBalls.Clear();
             }
         }
-        Debug.Log("shooter balls: " + balls.Count);
-        Debug.Log("gamemanager balls: " + GameManager.Instance.Level.Balls.Count);
         if(balls.Count == GameManager.Instance.Level.Balls.Count && isAllIn == false)
         {
             isAllIn = true;

@@ -17,4 +17,10 @@ public class UIMenu : MonoBehaviour
     public List<Image> Images { get => images; }
     public List<Text> MenuInfos { get => menuInfos; }
     #endregion
+    #region Method
+    public void ShowSection(int index)
+    {
+        sections[index].gameObject.SetActive(true);
+    }
+    #endregion
 }

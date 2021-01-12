@@ -18,8 +18,9 @@ public class GameManager : Singleton<GameManager>
     private GameObject spawnBall;
     [SerializeField]
     private GameObject gameScene;
-    public enum GameMode { survival, level }
+    public enum GameMode { survival, level, editor }
     public enum GameState { start, level, play, pause, gameover, win };
+    #region Gameplay Setting
     [Header("Gameplay Settings")]
     public GameMode gameMode = GameMode.survival;
     public GameState gameState = GameState.play;
@@ -61,7 +62,11 @@ public class GameManager : Singleton<GameManager>
     private List<Obstacle> hitObstacles = new List<Obstacle>();
     [SerializeField]
     private PoolParty poolParty;
+    #endregion
+    #region Level Settings
     [Header("Level Settings")]
+    [SerializeField]
+    private bool isToolBoxActive = false;
     [SerializeField]
     private Sprite starOff;
     [SerializeField]
@@ -80,6 +85,7 @@ public class GameManager : Singleton<GameManager>
     private GameObject levelHolder;
     [SerializeField]
     private List<LevelButton> levelButtons;
+    #endregion
     [Header("Prefabs")]
     [SerializeField]
     private GameObject levelPrefab;
@@ -566,6 +572,18 @@ public class GameManager : Singleton<GameManager>
         else
         {
             Comment = "Great!";
+        }
+    }
+    public void Tools()
+    {
+        isToolBoxActive = !isToolBoxActive;
+        if(isToolBoxActive)
+        {
+            DoozyUI.UIElement.ShowUIElement("TOOLS_UI");
+        }
+        else
+        {
+            DoozyUI.UIElement.HideUIElement("TOOLS_UI");
         }
     }
     //Reset Levels.

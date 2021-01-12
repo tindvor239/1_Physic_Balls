@@ -6673,11 +6673,12 @@ MonoBehaviour:
   gridIndexerPrefab: {fileID: 4046619939407167067, guid: 31b15b87e3b980d48a45ee4b078cf55f,
     type: 3}
   gridRowIndexeres: []
+  gridColumnIndexeres: []
   spawner: {fileID: 0}
   row: 0
   column: 0
-  space: {x: 0, y: 0}
-  size: {x: 0, y: 0}
+  offset: {x: 1, y: 2}
+  size: {x: 2, y: 2}
 --- !u!1001 &815525345
 PrefabInstance:
   m_ObjectHideFlags: 0
