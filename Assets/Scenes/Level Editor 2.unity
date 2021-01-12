@@ -1859,6 +1859,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 812230838}
+        m_MethodName: SetBrush
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 21300000, guid: 3acc5fcaf06f78241a596eaaedb0c10c,
+            type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &611735610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2660,7 +2672,7 @@ MonoBehaviour:
   gridRowIndexeres: []
   gridColumnIndexeres: []
   gridTiles: []
-  brush: {fileID: 0}
+  brush: {fileID: 5217485191223251952, guid: 216dc955724eb86418d7508621d28d57, type: 3}
   spawner: {fileID: 0}
   row: 0
   column: 0
@@ -3008,6 +3020,18 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1398942046}
         m_MethodName: set_sprite
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 21300000, guid: 3344733013c288643a7ff9695ce5c3eb,
+            type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 812230838}
+        m_MethodName: SetBrush
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 21300000, guid: 3344733013c288643a7ff9695ce5c3eb,
@@ -4561,6 +4585,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 812230838}
+        m_MethodName: SetBrush
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 21300000, guid: 8b438eaa9ce16574d9af072552fbb2cc,
+            type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1586469883
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5267,6 +5303,18 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 1398942046}
         m_MethodName: set_sprite
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 21300000, guid: c1f96dc14b22d1442b2d0c57a0db5bff,
+            type: 3}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Sprite, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 812230838}
+        m_MethodName: SetBrush
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 21300000, guid: c1f96dc14b22d1442b2d0c57a0db5bff,

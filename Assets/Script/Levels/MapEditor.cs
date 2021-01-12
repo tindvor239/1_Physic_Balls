@@ -62,6 +62,23 @@ public class MapEditor : Singleton<MapEditor>
                 if(hit.collider.gameObject.tag == "Editor")
                 {
                     //spawn obstacle here.
+                    Pool pool = null;
+                    if (brush.GetComponent<Item>() is Obstacle)
+                    {
+                        pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
+                    }
+                    //else if item
+                    for (int i = 0; i < pool.ObjectsToPool.Length; i++)
+                    {
+                        if(brush == pool.ObjectsToPool[i])
+                        {
+                            int[] tileIndex = GetTileIndex(hit.collider.gameObject);
+                            if(tileIndex[0] != -1)
+                            {
+                                SpawnItemFromPool(1, pool, hit.collider.gameObject.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
+                            }
+                        }
+                    }
                 }
                 Debug.Log(hit.collider.gameObject.name);
             }
@@ -88,8 +105,35 @@ public class MapEditor : Singleton<MapEditor>
             SpawnGridIndexeres();
             SpawnGridTiles();
             Items[] items = new Items[row];
+            foreach(Items _items in items)
+            {
+                //Null exception error, But recheck back the class Level (when load renew the column and row of spawner).
+                Item[] items_ = new Item[column];
+                _items.columns = items_.ToList();
+            }
             Spawner.Instance.Obstacles.rows = items.ToList();
         }
+    }
+    private int[] GetTileIndex(GameObject selectedObject)
+    {
+        int row = 0, column = 0;
+        int[] result = {-1, -1};
+        for(int i = 0; i < gridTiles.Count; i++)
+        {
+            column++;
+            if(column >= this.column)
+            {
+                column = 0;
+                row++;
+            }
+            if(gameObject == selectedObject)
+            {
+                result[0] = row;
+                result[1] = column;
+                return result;
+            }
+        }
+        return result;
     }
     public void SetBrush(Sprite sprite)
     {
@@ -133,16 +177,28 @@ public class MapEditor : Singleton<MapEditor>
             SpawnPrefabFromPool(column, pool, new Vector2(Spawner.Instance.transform.position.x + (offset.y * column), Spawner.Instance.transform.position.y - offset.x), gridColumnIndexeres);
         }
     }
-    private void SpawnPrefabFromPool(int index, Pool pool, Vector2 position, List<GameObject> gameObjects)
+    private void SpawnPrefabFromPool(int number, Pool pool, Vector2 position, List<GameObject> gameObjects, int objectFromPoolIndex = 0)
     {
-        GameObject newGameObject = SpawnItem(pool, position, 0);
+        GameObject newGameObject = SpawnItem(pool, position, objectFromPoolIndex);
         newGameObject.transform.localScale = size;
         if(newGameObject.GetComponent<UIMenu>())
         {
             UIMenu gridIndexerMenu = newGameObject.GetComponent<UIMenu>();
-            gridIndexerMenu.MenuInfos[0].text = index.ToString();
+            gridIndexerMenu.MenuInfos[0].text = number.ToString();
         }
         gameObjects.Add(newGameObject);
+    }
+    private void SpawnItemFromPool(int number, Pool pool, Vector2 position, List<Item> items, int itemsIndex, int objectFromPoolIndex = 0)
+    {
+        GameObject newGameObject = SpawnItem(pool, position, objectFromPoolIndex);
+        Item item = newGameObject.GetComponent<Item>();
+        newGameObject.transform.localScale = size;
+        if (item is Obstacle)
+        {
+            Obstacle obstacle = (Obstacle)item;
+            obstacle.HP = number;
+        }
+        items[itemsIndex] = item;
     }
     private void DestroyExistInList(Pool pool, List<GameObject> gameObjects)
     {
