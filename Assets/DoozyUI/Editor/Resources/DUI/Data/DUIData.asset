@@ -21,9 +21,9 @@ MonoBehaviour:
       - Menu 2
       - Menu 3
       isExpanded:
-        m_Target: 0
+        m_Target: 1
         speed: 2
-        m_Value: 0
+        m_Value: 1
     - categoryName: Example 2 - OrientationManager
       itemNames:
       - MainMenu
@@ -61,6 +61,7 @@ MonoBehaviour:
       - BOOST_UI
       - DAILY_QUEST_DONE_UI
       - DAILY_QUEST_UI
+      - EDITOR_UI
       - GAMEOVER_UI
       - GAMEPLAY_UI
       - LEVEL_UI
@@ -432,9 +433,9 @@ MonoBehaviour:
       presetNames:
       - DefaultPreset
       isExpanded:
-        m_Target: 0
+        m_Target: 1
         speed: 2
-        m_Value: 0
+        m_Value: 1
     categoryNames:
     - Basic
     - Drop

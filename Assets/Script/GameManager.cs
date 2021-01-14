@@ -68,6 +68,8 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private bool isToolBoxActive = false;
     [SerializeField]
+    private bool isEditorBoxActive = false;
+    [SerializeField]
     private Sprite starOff;
     [SerializeField]
     private Sprite starOn;
@@ -89,7 +91,7 @@ public class GameManager : Singleton<GameManager>
     [Header("Prefabs")]
     [SerializeField]
     private GameObject levelPrefab;
-    private float timer;
+    public float timer;
     public bool isReset = false;
     #region Singleton
     protected override void OnAwake()
@@ -263,7 +265,6 @@ public class GameManager : Singleton<GameManager>
                 GameObject objectLevel = Instantiate(levelPrefab, levelHolder.transform);
                 LevelButton levelButton = objectLevel.GetComponent<LevelButton>();
                 UIMenu uIMenu = objectLevel.GetComponent<UIMenu>();
-                //Debug.Log()
                 levelButton.Name = levelPackage.name;
                 SetStarImages(uIMenu.Images, starOn, StarOff, levelPackage.Stars);
                 levelButton.levelPackage = levelPackage;
@@ -276,10 +277,39 @@ public class GameManager : Singleton<GameManager>
     {
         //To do: show play survival mode
         gameMode = GameMode.survival;
+        for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
+        {
+            for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
+            {
+                if (Spawner.Instance.Obstacles.rows[i].columns[j] != null)
+                {
+                    if (Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
+                    {
+                        poolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
+                    }
+                    else
+                    {
+                        poolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
+                    }
+                }
+            }
+        }
+        for (int s = 0; s < Level.Balls.Count; s++)
+        {
+            GameObject destroyObject = Level.Balls[s].gameObject;
+            Destroy(destroyObject);
+        }
+        Level.Balls.Clear();
+        Shooter.Instance.Balls.Clear();
         UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
         gameMenu.Sections[0].gameObject.SetActive(false);
         firstStart = true;
         gameState = GameState.play;
+
+        Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
+        ball.gameObject.transform.position = SpawnBall.transform.position;
+        Shooter.Instance.Balls.Add(ball);
+        Shooter.Instance.Reload();
         DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
         Time.timeScale = 1f;
     }
@@ -313,6 +343,17 @@ public class GameManager : Singleton<GameManager>
         switch(gameMode)
         {
             case GameMode.survival:
+
+                //Show Watch video on.
+                //if(ZenSDK.instance.IsVideoRewardReady())
+                //{
+                //    ZenSDK.instance.ShowVideoReward((bool isSuccess) =>
+                //    {
+                //        if()
+                //    });
+                //}
+                ////Else then lose.
+
                 uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0].gameObject.SetActive(true);
                 uIElements[0].gameObject.GetComponent<UIMenu>().Sections[1].gameObject.SetActive(false);
                 UIMenu survivalSection = uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0];
@@ -363,10 +404,12 @@ public class GameManager : Singleton<GameManager>
         switch (gameMode)
         {
             case GameMode.survival:
+                ZenSDK.instance.ReportScore("Endless", Score);
                 DoozyUI.UIManager.ShowUiElement("WIN_UI");
                 totalScore.text = Score.ToString();
                 SetBestScore();
                 bestScore.text = string.Format("BEST: {0}", BestScore.ToString("#,##0"));
+                ZenSDK.instance.ShowFullScreen();
                 break;
             case GameMode.level:
                 //show level sections.
@@ -390,6 +433,7 @@ public class GameManager : Singleton<GameManager>
         gameState = GameState.start;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
+        DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
     }
     public void Pause()
     {
@@ -416,52 +460,31 @@ public class GameManager : Singleton<GameManager>
         switch (gameMode)
         {
             case GameMode.survival:
-                DestroyBallsAt(1);
-                Shooter.Instance.Balls.RemoveRange(0, Shooter.Instance.Balls.Count);
-                level.Balls[0].transform.position = Shooter.Instance.transform.position;
-                level.Balls[0].Rigidbody.bodyType = RigidbodyType2D.Static;
-                Shooter.Instance.Balls.Add(level.Balls[0]);
-                Shooter.Instance.Reload();
+                DestroyBallsAt(0);
+                GetObstaclesInSpawnerToPool();
+                Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
+                ball.gameObject.transform.position = SpawnBall.transform.position;
+                Shooter.Instance.Balls.Add(ball);
                 level.Balls[0].GetComponent<SpriteRenderer>().color = Color.white;
                 Spawner.Instance.spawnOnStart = true;
                 break;
             case GameMode.level:
+                Debug.Log("Retried");
                 isReset = true;
-                DestroyBallsAt(0);
-                //foreach(Items items in Spawner.Instance.Obstacles.rows)
-                //{
-                //    if(items != null)
-                //    {
-                //        foreach(Item item in items.columns)
-                //        {
-                //            if(item != null)
-                //            {
-                //                Pool pool = null;
-                //                if(item is Obstacle)
-                //                {
-                //                    pool = poolParty.GetPool("Obstacles Pool");
-                //                }
-                //                else if(item is AddItem || item is SizeItem)
-                //                {
-                //                    pool = poolParty.GetPool("Items Pool");
-                //                }
-                //                item.BackToPool(pool);
-                //            }
-                //        }
-                //    }
-                //}
+                Shooter.Instance.isShooting = false;
                 currentLevel.OnSelected();
                 Spawner.Instance.spawnOnStart = false;
-                //level handle.
                 break;
         }
+        Shooter.Instance.isDoneShoot = true;
         Shooter.Instance.Reload();
         Shooter.Instance.ContainBalls = new List<GameObject>();
         firstStart = true;
-        isEndTurn = false;
         isSpawning = false;
+        isEndTurn = true;
+        Shooter.Instance.isAllIn = true;
+        Shooter.Instance.isShooting = false;
         turn = 0;
-        GetObstaclesInSpawnerToPool();
         timer = 0;
         Score = 0;
         gameState = GameState.play;
@@ -585,6 +608,20 @@ public class GameManager : Singleton<GameManager>
         {
             DoozyUI.UIElement.HideUIElement("TOOLS_UI");
         }
+    }
+
+    public void Editor()
+    {
+        isEditorBoxActive = !isEditorBoxActive;
+        if(isEditorBoxActive)
+        {
+            DoozyUI.UIElement.ShowUIElement("EDITOR_UI");
+        }
+        else
+        {
+            DoozyUI.UIElement.HideUIElement("EDITOR_UI");
+        }
+        Debug.Log("In");
     }
     //Reset Levels.
 }

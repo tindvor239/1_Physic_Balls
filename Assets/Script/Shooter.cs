@@ -15,7 +15,7 @@ public class Shooter : Singleton<Shooter>
     [SerializeField]
     private float force;
     [SerializeField]
-    private bool isShooting = false;
+    public bool isShooting = false;
     [SerializeField]
     private List<Ball> balls;
     [SerializeField]
@@ -40,11 +40,11 @@ public class Shooter : Singleton<Shooter>
     private float drag;
     [SerializeField]
     private bool isReloading = false;
-    private bool isDoneShoot = false;
+    public bool isDoneShoot = true;
     [SerializeField]
     private bool isDoneSetBall = false;
     [SerializeField]
-    private bool isAllIn = false;
+    public bool isAllIn = false;
 
     private Vector2 shootDirection;
     #region Properties
@@ -129,6 +129,7 @@ public class Shooter : Singleton<Shooter>
         {
             isAllIn = true;
             GameManager.Instance.isSpawning = true;
+            Debug.Log("Shitty");
         }
     }
     private void GetMouseDirection()
@@ -176,6 +177,7 @@ public class Shooter : Singleton<Shooter>
             balls.RemoveAt(0);
             isDoneShoot = false;
             isReloading = true;
+            Debug.Log("In");
         }
     }
     IEnumerator MoveToShootPoint()

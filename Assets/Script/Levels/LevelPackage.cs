@@ -44,8 +44,10 @@ public class LevelPackage : ScriptableObject
         points[2] = baseLevel.star3;
         turnCount = baseLevel.turnCount;
         canMoveUp = baseLevel.canMoveUp;
+#if UNITY_EDITOR
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
+#endif
     }
     public void Unpack(Level level)
     {

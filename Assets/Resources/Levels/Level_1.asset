@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: 1
   stars: 0
-  balls: 8
+  balls: 11
   items:
   - '{"name":"Obstacle_Cube (0,0)","type":"Obstacle","position":{"x":-6.930999755859375,"y":-12.315999984741211,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":-2.9802322387695315e-8,"y":-0.0014857649803161622},"size":{"x":1.730830192565918,"y":1.7211763858795167},"hp":22,"geometry":"cube"}'
   - '{"name":"Add_Ball (0,1)","type":"AddItem","position":{"x":-5.200999736785889,"y":-12.315999984741211,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":0.8307985663414002,"y":0.8261646628379822}'

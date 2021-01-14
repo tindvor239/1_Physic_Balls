@@ -58,7 +58,7 @@ public class Level
     }
     private void SpawnBalls(LevelPackage levelPackage)
     {
-        for (int count = 1; count < levelPackage.Balls; count++)
+        for (int count = 0; count < levelPackage.Balls; count++)
         {
             //To do: spawn ball.
             Ball ball = GameManager.Instance.CreateObject(GameManager.Instance.GameScene.transform, GameManager.Instance.Level.BallPrefab).GetComponent<Ball>();
@@ -66,15 +66,17 @@ public class Level
             //GameManager.Instance.Level.Balls.Add(ball);
             Shooter.Instance.Balls.Add(ball);
         }
-        GameManager.Instance.Level.Balls.Add(Shooter.Instance.bullet);
+        Shooter.Instance.Reload();
     }
     private void SpawnItems(List<string> itemsString)
     {
+        Debug.Log("On Spawn Item");
         PoolParty poolParty = GameManager.Instance.PoolParty;
         int row = 0;
         int column = 0;
         foreach (string itemString in itemsString)
         {
+            Debug.Log("Foreach");
             string type = "";
             int prefabIndex = 0;
             //if the package is obstacle
@@ -90,7 +92,7 @@ public class Level
                         prefabIndex = index;
                     }
                 }
-                GameObject item = CreateOrGetItem(poolParty, poolParty.GetPool(type), prefabIndex);
+                GameObject item = CreateOrGetObstacle(poolParty, poolParty.GetPool(type), prefabIndex);
                 Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Item>();
                 package.Unpack(item);
             }
@@ -118,7 +120,7 @@ public class Level
             }
         }
     }
-    private GameObject CreateOrGetItem(PoolParty poolParty, Pool pool, int prefabIndex)
+    private GameObject CreateOrGetObstacle(PoolParty poolParty, Pool pool, int prefabIndex)
     {
         bool isGotIt = false;
         GameObject newGameObject = null;
@@ -139,6 +141,65 @@ public class Level
             }
         }
         return newGameObject;
+    }
+    private GameObject CreateOrGetItem(PoolParty poolParty, Pool pool, int prefabIndex)
+    {
+        bool isGotIt = false;
+        GameObject newGameObject = null;
+        if (IsItemExistInBool(pool, prefabIndex) == false)
+        {
+            newGameObject = poolParty.CreateItem(pool, GameManager.Instance.transform.position, prefabIndex, Spawner.Instance.transform);
+        }
+        else
+        {
+            foreach (GameObject gameObject in pool.ObjectsPool)
+            {
+                if (gameObject.activeInHierarchy == false && isGotIt == false)
+                {
+                    if(prefabIndex == 0)
+                    {
+                        if (gameObject.GetComponent<SizeItem>() != null)
+                        {
+                            newGameObject = pool.GetOutOfPool(gameObject, GameManager.Instance.transform.position);
+                            isGotIt = true;
+                        }
+                    }
+                    else if(prefabIndex == 1)
+                    {
+                        if(gameObject.GetComponent<AddItem>() != null)
+                        {
+                            newGameObject = pool.GetOutOfPool(gameObject, GameManager.Instance.transform.position);
+                        }
+                    }
+                }
+            }
+        }
+        return newGameObject;
+    }
+    //This method only use for ITEMS POOL;
+    private bool IsItemExistInBool(Pool pool, int prefabIndex)
+    {
+        if(prefabIndex == 0)
+        {
+            foreach(GameObject go in pool.ObjectsPool)
+            {
+                if(go.GetComponent<SizeItem>() != null && go.activeInHierarchy == false)
+                {
+                    return true;
+                }
+            }
+        }
+        else if(prefabIndex == 1)
+        {
+            foreach(GameObject go in pool.ObjectsPool)
+            {
+                if(go.GetComponent<AddItem>() != null && go.activeInHierarchy == false)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     public void UpdateStatus()
     {
