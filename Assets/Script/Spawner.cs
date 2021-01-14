@@ -2,6 +2,7 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
+using System;
 
 public class Spawner : Singleton<Spawner>
 {
@@ -174,7 +175,7 @@ public class Spawner : Singleton<Spawner>
         for (byte column = 0; column < obstacles.rows[0].columns.Count; column++)
         {
             //Random that slot is spawn or not.
-            float randomSpawn = Random.Range(0f, 1f);
+            float randomSpawn = UnityEngine.Random.Range(0f, 1f);
             if (randomSpawn <= 0.5f)
             {
                 indexes.Add(column);
@@ -204,7 +205,7 @@ public class Spawner : Singleton<Spawner>
         {
             if(CheckCanItSpawn(indexes[index]))
             {
-                float spawnRoll = Random.Range(0f, 1f);
+                float spawnRoll = UnityEngine.Random.Range(0f, 1f);
                 if(spawnRoll <= spawnRate)
                 {
                     SpawnItem(GameManager.Instance.PoolParty.GetPool("Obstacles Pool"), indexes[index]);
@@ -213,7 +214,7 @@ public class Spawner : Singleton<Spawner>
                 {
                     if(CheckIsRowHaveItem() == false)
                     {
-                        float itemSpawnRoll = Random.Range(0f, 1f);
+                        float itemSpawnRoll = UnityEngine.Random.Range(0f, 1f);
                         if(itemSpawnRoll <= spawnItemRate)
                             SpawnItem(GameManager.Instance.PoolParty.GetPool("Items Pool"), indexes[index]);
                     }
@@ -268,11 +269,12 @@ public class Spawner : Singleton<Spawner>
     private void SpawnItem(Pool pool, int column)
     {
         bool isGotIt = false;
-        int randomItem = Random.Range(0, pool.ObjectsToPool.Length);
+        int randomItem = UnityEngine.Random.Range(0, pool.ObjectsToPool.Length);
         GameObject newGameObject = null;
         if (pool.CanExtend)
         {
             newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
+
         }
         else
         {
@@ -288,10 +290,15 @@ public class Spawner : Singleton<Spawner>
         }
         if(newGameObject != null)
         {
+            if(GameManager.Instance.gameMode == GameManager.GameMode.survival)
+            {
+                newGameObject.transform.localScale = pool.ObjectsToPool[randomItem].transform.localScale;
+                Debug.Log("1st size" + newGameObject.transform.localScale.x + ", 2nd size" + pool.ObjectsToPool[randomItem].transform.localScale.x);
+            }
             if(newGameObject.GetComponent<Obstacle>())
             {
                 Obstacle obstacle = newGameObject.GetComponent<Obstacle>();
-                obstacle.HP = Random.Range(minRandomValue, maxRandomValue);
+                obstacle.HP = UnityEngine.Random.Range(minRandomValue, maxRandomValue);
             }
             obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
         }

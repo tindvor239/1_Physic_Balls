@@ -3337,13 +3337,14 @@ MonoBehaviour:
   aimCursor: {fileID: 558583431}
   minScale: 2
   maxScale: 4
-  reloadOnEndTurnTime: 3
+  reloadOnEndTurnTime: 1
   bodytype: 0
   lockAngle: 80
   gravityScale: 0.05
   mass: 1
   drag: 0.25
   isReloading: 0
+  isDoneShoot: 1
   isDoneSetBall: 0
   isAllIn: 0
 --- !u!1 &734874396

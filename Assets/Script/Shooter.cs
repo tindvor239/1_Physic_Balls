@@ -25,7 +25,7 @@ public class Shooter : Singleton<Shooter>
     [SerializeField]
     private float minScale = 2, maxScale = 8;
     private static float shootDelay = 0.2f;
-    private static float reloadOnEndTurnDelay = 3f;
+    private static float reloadOnEndTurnDelay = 1f;
     public float reloadOnEndTurnTime = reloadOnEndTurnDelay;
     private float shootTime = shootDelay;
     [SerializeField]

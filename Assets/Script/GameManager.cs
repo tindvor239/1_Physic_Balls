@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.IO;
 using UnityEngine.EventSystems;
 using System;
+using System.Linq;
 
 [RequireComponent(typeof(PoolParty))]
 public class GameManager : Singleton<GameManager>
@@ -277,6 +278,7 @@ public class GameManager : Singleton<GameManager>
     {
         //To do: show play survival mode
         gameMode = GameMode.survival;
+        //Clear all existed obstacles.
         for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
         {
             for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
@@ -299,17 +301,40 @@ public class GameManager : Singleton<GameManager>
             GameObject destroyObject = Level.Balls[s].gameObject;
             Destroy(destroyObject);
         }
+        //Reset row and column.
+        Items[] items = new Items[10];
+        for(int index = 0; index < items.Length; index++)
+        {
+            items[index] = new Items();
+            items[index].Name = string.Format("row {0}", index);
+            Item[] item = new Item[6];
+            items[index].columns = item.ToList();
+        }
+        Spawner.Instance.Obstacles.rows = items.ToList();
+        //Clear all existed balls
         Level.Balls.Clear();
         Shooter.Instance.Balls.Clear();
+
         UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
         gameMenu.Sections[0].gameObject.SetActive(false);
         firstStart = true;
         gameState = GameState.play;
-
+        //Spawn 1 Ball
         Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
         ball.gameObject.transform.position = SpawnBall.transform.position;
         Shooter.Instance.Balls.Add(ball);
+        //Reset everythings.
+        firstStart = true;
+        isSpawning = false;
+        isEndTurn = true;
+        Shooter.Instance.isAllIn = true;
+        Shooter.Instance.isShooting = false;
+        turn = 0;
+        timer = 0;
+        Score = 0;
+        Shooter.Instance.isDoneShoot = true;
         Shooter.Instance.Reload();
+        Spawner.Instance.spawnOnStart = true;
         DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
         Time.timeScale = 1f;
     }
@@ -532,40 +557,82 @@ public class GameManager : Singleton<GameManager>
     {
         List<Sprite> sprites = new List<Sprite>();
         sprites = GetSprites(obstacle.Geometry);
-        if(obstacle.HP <= 20)
+        switch(gameMode)
         {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
-            obstacle.Background.color = colors[0];
-        }
-        else if(obstacle.HP <= 40)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
-            obstacle.Background.color = colors[1];
-        }
-        else if (obstacle.HP <= 60)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
-            obstacle.Background.color = colors[2];
-        }
-        else if (obstacle.HP <= 70)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
-            obstacle.Background.color = colors[3];
-        }
-        else if (obstacle.HP <= 80)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
-            obstacle.Background.color = colors[4];
-        }
-        else if (obstacle.HP <= 90)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
-            obstacle.Background.color = colors[5];
-        }
-        else if (obstacle.HP > 91)
-        {
-            obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
-            obstacle.Background.color = colors[6];
+            case GameMode.survival:
+                if(obstacle.HP <= 5)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
+                    obstacle.Background.color = colors[0];
+                }
+                else if(obstacle.HP <= 10)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
+                    obstacle.Background.color = colors[1];
+                }
+                else if (obstacle.HP <= 20)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
+                    obstacle.Background.color = colors[2];
+                }
+                else if (obstacle.HP <= 30)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
+                    obstacle.Background.color = colors[3];
+                }
+                else if (obstacle.HP <= 40)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
+                    obstacle.Background.color = colors[4];
+                }
+                else if (obstacle.HP <= 50)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
+                    obstacle.Background.color = colors[5];
+                }
+                else if (obstacle.HP > 51)
+            {
+                obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
+                obstacle.Background.color = colors[6];
+            }
+                break;
+            case GameMode.level:
+                if (obstacle.HP <= 2)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
+                    obstacle.Background.color = colors[0];
+                }
+                else if (obstacle.HP <= 4)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
+                    obstacle.Background.color = colors[1];
+                }
+                else if (obstacle.HP <= 6)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
+                    obstacle.Background.color = colors[2];
+                }
+                else if (obstacle.HP <= 8)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
+                    obstacle.Background.color = colors[3];
+                }
+                else if (obstacle.HP <= 10)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
+                    obstacle.Background.color = colors[4];
+                }
+                else if (obstacle.HP <= 12)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
+                    obstacle.Background.color = colors[5];
+                }
+                else if (obstacle.HP > 13)
+                {
+                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
+                    obstacle.Background.color = colors[6];
+                }
+                break;
         }
     }
     private List<Sprite> GetSprites(Geometry geometry)
