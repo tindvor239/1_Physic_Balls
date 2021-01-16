@@ -2643,9 +2643,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de8d92fe9dd9f574aaa572b1750e5f1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  color: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
   forceDirection: 8
   trigger: {fileID: 574751544}
+  balls: []
+  count: 0
 --- !u!60 &574751544
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -2671,18 +2673,24 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -9.7, y: 2.6301203}
+    - - {x: -9.708368, y: 2.893381}
       - {x: -9.7, y: 0}
       - {x: -5.9, y: -1}
       - {x: -3.59, y: -1.3434372}
-      - {x: -0.88, y: -1.5}
-      - {x: 1.4, y: -1.5}
+      - {x: -1.3392706, y: -1.5666599}
+      - {x: -0.6046054, y: -1.6837006}
+      - {x: 1.0328075, y: -1.6836987}
+      - {x: 2.0270286, y: -1.5343952}
       - {x: 6.25, y: -1}
       - {x: 9.47, y: 0.078279495}
-      - {x: 9.47, y: 2.551897}
-      - {x: 5.07, y: 0.9}
-      - {x: -0.13, y: 0.4}
-      - {x: -5.05, y: 0.92}
+      - {x: 9.47, y: 2.9463491}
+      - {x: 5.3435454, y: 1.4167722}
+      - {x: 2.688321, y: 1.0134153}
+      - {x: 0.9881946, y: 0.92913055}
+      - {x: 0.1985594, y: 0.8569397}
+      - {x: -0.3990841, y: 0.83360386}
+      - {x: -1.176942, y: 0.8843317}
+      - {x: -5.114393, y: 1.4022532}
 --- !u!60 &574751545
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -12586,7 +12594,7 @@ PrefabInstance:
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: levelPackages.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
@@ -13294,6 +13302,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 926bfaf0f3b9b61438442a22c2c6657a,
         type: 3}
+    - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
+        type: 3}
+      propertyPath: levelPackages.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: e87f9bc95e052454d83f2840ab338854,
+        type: 2}
     - target: {fileID: 6157378597341677885, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: m_Name

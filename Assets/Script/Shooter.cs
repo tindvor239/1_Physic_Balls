@@ -74,62 +74,64 @@ public class Shooter : Singleton<Shooter>
         //If all balls is in start shooting.
         //If start shooting disable collision.
         //Set a closet ball = transform position to shoot.
-        if (GameManager.Instance.isEndTurn)
+        if(GameManager.Instance.gameMode != GameManager.GameMode.editor)
         {
-            if(isDoneSetBall == false && balls != null)
+            if (GameManager.Instance.isEndTurn)
             {
-                foreach(Ball ball in balls)
+                if(isDoneSetBall == false && balls != null)
                 {
-                    ball.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
+                    foreach(Ball ball in balls)
+                    {
+                        ball.gameObject.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
+                    }
+                    isDoneSetBall = true;
                 }
-                isDoneSetBall = true;
+                reloadOnEndTurnTime -= Time.deltaTime;
+                if (reloadOnEndTurnTime <= 0)
+                {
+                    Reload();
+                    StartCoroutine(MoveToShootPoint());
+                    reloadOnEndTurnTime = reloadOnEndTurnDelay;
+                }
+                if (bullet != null)
+                {
+                   GetMouseDirection();
+                }
             }
-            reloadOnEndTurnTime -= Time.deltaTime;
-            if (reloadOnEndTurnTime <= 0)
+            if (isShooting)
             {
-                Reload();
+                shootTime -= Time.deltaTime;
+                //To do: if balls == null.
+                if (balls.Count == 0 && isReloading == false && bullet == null)
+                {
+                    isShooting = false;
+                    shootDirection = new Vector2(0, 0);
+                }
+                if (shootTime <= 0)
+                {
+                    Shoot();
+                    Reload();
+                    shootTime = shootDelay;
+                }
                 StartCoroutine(MoveToShootPoint());
-                reloadOnEndTurnTime = reloadOnEndTurnDelay;
             }
-            if (bullet != null)
+            else
             {
-               GetMouseDirection();
-            }
-        }
-        if (isShooting)
-        {
-            shootTime -= Time.deltaTime;
-            //To do: if balls == null.
-            if (balls.Count == 0 && isReloading == false && bullet == null)
-            {
-                isShooting = false;
-                shootDirection = new Vector2(0, 0);
-            }
-            if (shootTime <= 0)
-            {
-                Shoot();
-                Reload();
-                shootTime = shootDelay;
-            }
-            StartCoroutine(MoveToShootPoint());
-        }
-        else
-        {
-            if(containBalls.Count != 0 && containBalls.Count == GameManager.Instance.Level.Balls.Count)
-            {
-                foreach( GameObject gameObject in containBalls)
+                if(containBalls.Count != 0 && containBalls.Count == GameManager.Instance.Level.Balls.Count)
                 {
-                    if(gameObject.GetComponent<Ball>())
-                        balls.Add(gameObject.GetComponent<Ball>());
+                    foreach( GameObject gameObject in containBalls)
+                    {
+                        if(gameObject.GetComponent<Ball>())
+                            balls.Add(gameObject.GetComponent<Ball>());
+                    }
+                    containBalls.Clear();
                 }
-                containBalls.Clear();
             }
-        }
-        if(balls.Count == GameManager.Instance.Level.Balls.Count && isAllIn == false)
-        {
-            isAllIn = true;
-            GameManager.Instance.isSpawning = true;
-            Debug.Log("Shitty");
+            if(balls.Count == GameManager.Instance.Level.Balls.Count && isAllIn == false)
+            {
+                isAllIn = true;
+                GameManager.Instance.isSpawning = true;
+            }
         }
     }
     private void GetMouseDirection()

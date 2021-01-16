@@ -280,11 +280,33 @@ public class Spawner : Singleton<Spawner>
         {
             foreach (GameObject gameObject in pool.ObjectsPool)
             {
-                if(gameObject.activeInHierarchy == false &&
-                    gameObject.GetComponent<Item>().GetType() == pool.ObjectsToPool[randomItem].GetComponent<Item>().GetType() && isGotIt == false)
+                if(gameObject.activeInHierarchy == false && isGotIt == false)
                 {
-                    newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
-                    isGotIt = true;
+                    if(gameObject.GetComponent<Obstacle>() != null)
+                    {
+                        Obstacle obstacle = gameObject.GetComponent<Obstacle>();
+                        if(obstacle.Geometry == pool.ObjectsToPool[randomItem].GetComponent<Obstacle>().Geometry)
+                        {
+                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                            isGotIt = true;
+                        }
+                    }
+                    else if(randomItem == 0)
+                    {
+                        if(gameObject.GetComponent<SizeItem>() != null)
+                        {
+                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                            isGotIt = true;
+                        }
+                    }
+                    else if(randomItem == 1)
+                    {
+                        if(gameObject.GetComponent<AddItem>() != null)
+                        {
+                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                            isGotIt = true;
+                        }
+                    }
                 }
             }
         }
@@ -299,6 +321,7 @@ public class Spawner : Singleton<Spawner>
             {
                 Obstacle obstacle = newGameObject.GetComponent<Obstacle>();
                 obstacle.HP = UnityEngine.Random.Range(minRandomValue, maxRandomValue);
+                GameManager.Instance.SetSpriteColor(obstacle);
             }
             obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
         }

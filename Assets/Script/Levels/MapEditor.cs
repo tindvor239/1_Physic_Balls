@@ -171,6 +171,10 @@ public class MapEditor : Singleton<MapEditor>
         string path = string.Format("{0}/{1}/{2}.json", Application.dataPath + "/Resources/", GameManager.Instance.Level.Storage.FolderName, "level_" + GameManager.Instance.Level.Name);
         if (Input.GetKeyDown(KeyCode.S))
         {
+            foreach(Items items in Spawner.Instance.Obstacles.rows)
+            {
+                items.columns.RemoveAll(item => item == null);
+            }
             GameManager.Instance.Level.Storage.Save(GameManager.Instance.Level);
             GameManager.Instance.Level.Storage.ConvertJsonToObject(path);
         }
@@ -196,14 +200,33 @@ public class MapEditor : Singleton<MapEditor>
                     pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
                 }
                 //else if item
+                if(brush.GetComponent<Item>() is SizeItem || brush.GetComponent<Item>() is AddItem)
+                {
+                    pool = GameManager.Instance.PoolParty.GetPool("Items Pool");
+                }
                 for (int i = 0; i < pool.ObjectsToPool.Length; i++)
                 {
-                    if (brush == pool.ObjectsToPool[i])
+                    int[] tileIndex = GetTileIndex(hit.collider.gameObject);
+                    if (brush.GetComponent<Obstacle>() != null && brush == pool.ObjectsToPool[i])
                     {
-                        int[] tileIndex = GetTileIndex(hit.collider.gameObject);
                         if (tileIndex[0] != -1)
                         {
                             SpawnItemFromPool(1, pool, hit.collider.gameObject.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
+                        }
+                    }
+                    // if brush is item
+                    else if(brush.GetComponent<SizeItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<SizeItem>())
+                    {
+                        if(tileIndex[0] != -1)
+                        {
+                            SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
+                        }
+                    }
+                    else if (brush.GetComponent<AddItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<AddItem>())
+                    {
+                        if (tileIndex[0] != -1)
+                        {
+                            SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
                         }
                     }
                 }
@@ -288,7 +311,7 @@ public class MapEditor : Singleton<MapEditor>
         }
         return result;
     }
-    public void SetBrush(Sprite sprite)
+    public void SetObstacleBrush(Sprite sprite)
     {
         foreach (GameObject gameObject in GameManager.Instance.PoolParty.GetPool("Obstacles Pool").ObjectsToPool)
         {
@@ -301,6 +324,10 @@ public class MapEditor : Singleton<MapEditor>
                 }
             }
         }
+    }
+    public void SetItemBrush(int index)
+    {
+        brush = GameManager.Instance.PoolParty.GetPool("Items Pool").ObjectsToPool[index];
     }
     private void SpawnGridTiles()
     {
@@ -358,11 +385,15 @@ public class MapEditor : Singleton<MapEditor>
     {
         GameObject newGameObject = SpawnItem(pool, position, objectFromPoolIndex);
         Item item = newGameObject.GetComponent<Item>();
-        newGameObject.transform.localScale = Size;
         if (item is Obstacle)
         {
+            newGameObject.transform.localScale = Size;
             Obstacle obstacle = (Obstacle)item;
             obstacle.HP = number;
+        }
+        else if(item is SizeItem || item is AddItem)
+        {
+            newGameObject.transform.localScale = new Vector2(Size.x - 1.3f, Size.y - 1.3f);
         }
         items[itemsIndex] = item;
     }

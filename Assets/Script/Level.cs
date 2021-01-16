@@ -44,8 +44,20 @@ public class Level
     {
         storage.ConvertedLevel = levelPackage;
         storage.ConvertedLevel.Unpack(this);
-        Items[] items = new Items[row];
-        Item[] contentItems = new Item[column];
+        Items[] items = null;
+        Item[] contentItems = null;
+        if (GameManager.Instance.gameMode == GameManager.GameMode.editor)
+        {
+            MapEditor.Instance.Row = (uint)(row - 1);
+            MapEditor.Instance.Column = (uint)(column - 1);
+            items = new Items[row];
+            contentItems = new Item[column];
+        }
+        else
+        {
+            items = new Items[row];
+            contentItems = new Item[column];
+        }
         Spawner.Instance.Obstacles.rows = items.ToList();
         for(int index = 0; index < items.Length; index++)
         {
@@ -70,13 +82,11 @@ public class Level
     }
     private void SpawnItems(List<string> itemsString)
     {
-        Debug.Log("On Spawn Item");
         PoolParty poolParty = GameManager.Instance.PoolParty;
         int row = 0;
         int column = 0;
         foreach (string itemString in itemsString)
         {
-            Debug.Log("Foreach");
             string type = "";
             int prefabIndex = 0;
             //if the package is obstacle
@@ -95,6 +105,7 @@ public class Level
                 GameObject item = CreateOrGetObstacle(poolParty, poolParty.GetPool(type), prefabIndex);
                 Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Item>();
                 package.Unpack(item);
+                GameManager.Instance.SetSpriteColor(item.GetComponent<Obstacle>());
             }
             else if (itemString.IndexOf("\"type\":\"AddItem\"") != -1 || itemString.IndexOf("\"type\":\"SizeItem\"") != -1)
             {

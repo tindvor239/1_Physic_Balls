@@ -22,6 +22,10 @@ public class Ball : Item
     protected TrailRenderer trail;
     [SerializeField]
     protected SpriteRenderer sprite;
+    [SerializeField]
+    private bool isAtBottom;
+    [SerializeField]
+    private float countAtBottom = 0;
     #region Properties
     public TrailRenderer Trail { get => trail; }
     public Rigidbody2D Rigidbody { get => rigidbody; }
@@ -51,6 +55,24 @@ public class Ball : Item
     private void Update()
     {
         hitDelay += Time.deltaTime;
+        if(isAtBottom == true)
+        {
+            countAtBottom += Time.deltaTime;
+            if(countAtBottom >= 3f)
+            {
+                Bottom.Instance.PushBall(this);
+                LeaveBottom();
+            }
+        }
+    }
+    public void AtBottom()
+    {
+        isAtBottom = true;
+    }
+    public void LeaveBottom()
+    {
+        isAtBottom = false;
+        countAtBottom = 0;
     }
     protected override void OnCollisionEnter2D(Collision2D collision)
     {

@@ -216,7 +216,7 @@ public class GameManager : Singleton<GameManager>
     public void SetStars()
     {
         UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
-        int currentTurnCount = level.TurnCount - ((int)turn - 1);
+        int currentTurnCount = level.TurnCount - (int)turn;
         float value = (float)currentTurnCount / (float)level.TurnCount;
         gameMenu.Sections[0].Sections[0].gameObject.GetComponent<Slider>().value = value;
         UIMenu levelStars = gameMenu.Sections[0].Sections[1];
@@ -438,6 +438,7 @@ public class GameManager : Singleton<GameManager>
                 break;
             case GameMode.level:
                 //show level sections.
+                DoozyUI.UIManager.ShowUiElement("GAMEOVER_UI");
                 break;
         }
     }
@@ -515,6 +516,7 @@ public class GameManager : Singleton<GameManager>
         gameState = GameState.play;
         Shooter.Instance.reloadOnEndTurnTime = Shooter.ReloadOnEndTurnDelay;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
+        DoozyUI.UIManager.HideUiElement("GAMEOVER_UI");
     }
     private void GetObstaclesInSpawnerToPool()
     {

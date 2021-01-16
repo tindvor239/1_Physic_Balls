@@ -61,10 +61,10 @@ public class StorageJson
             {
                 if(index + 1 < fieldList.Count)
                 {
-                    //if obstacle will get 6 fields.
+                    //if obstacle will get 8 fields.
                     if(fieldList[index].IndexOf("\"type\":\"Obstacle\"") != -1)
                     {
-                        for(int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
+                        for(int fieldIndex = index + 1; fieldIndex < index + 8; fieldIndex++)
                         {
                             if(fieldIndex < fieldList.Count)
                             {
@@ -76,10 +76,10 @@ public class StorageJson
                             }
                         }
                     }
-                    //if additem or sizeitem will get 4 fields.
+                    //if additem or sizeitem will get 6 fields.
                     else if(fieldList[index].IndexOf("\"type\":\"AddItem\"") != -1 || fieldList[index].IndexOf("\"type\":\"SizeItem\"") != -1)
                     {
-                        for (int fieldIndex = index + 1; fieldIndex < index + 4; fieldIndex++)
+                        for (int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
                         {
                             if (fieldIndex < fieldList.Count)
                             {
@@ -135,12 +135,15 @@ public class StorageJson
             json += JsonUtility.ToJson(baseLevel);
             foreach (Items items in Spawner.Instance.Obstacles.rows)
             {
-                foreach(Item item in items.columns)
+                foreach (Item item in items.columns)
                 {
-                    GameManager.Instance.Level.Items.Add(item);
+                    if (item != null)
+                    {
+                        GameManager.Instance.Level.Items.Add(item);
+                    }
                 }
             }
-            foreach(Item item in GameManager.Instance.Level.Items)
+            foreach (Item item in GameManager.Instance.Level.Items)
             {
                 Package package = new Package();
                 if(item is Obstacle)
@@ -182,6 +185,7 @@ public class Package
     public Quaternion rotation;
     public Vector2 offset;
     public Vector2 size;
+    public int row = 0, column = 0;
     public virtual void Pack(GameObject gameObject)
     {
         name = gameObject.name;
@@ -192,6 +196,17 @@ public class Package
         {
             Collider2D collider = gameObject.GetComponent<Collider2D>();
             offset = collider.offset;
+        }
+        for(int row = 0; row < Spawner.Instance.Obstacles.rows.Count; row++)
+        {
+            for(int column = 0; column < Spawner.Instance.Obstacles.rows[row].columns.Count; column++)
+            {
+                if(Spawner.Instance.Obstacles.rows[row].columns[column].gameObject == gameObject)
+                {
+                    this.row = row;
+                    this.column = column;
+                }
+            }
         }
     }
     public virtual void Unpack(GameObject gameObject)
