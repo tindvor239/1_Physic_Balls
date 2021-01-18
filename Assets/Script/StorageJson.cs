@@ -64,7 +64,7 @@ public class StorageJson
                     //if obstacle will get 8 fields.
                     if(fieldList[index].IndexOf("\"type\":\"Obstacle\"") != -1)
                     {
-                        for(int fieldIndex = index + 1; fieldIndex < index + 8; fieldIndex++)
+                        for(int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
                         {
                             if(fieldIndex < fieldList.Count)
                             {

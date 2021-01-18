@@ -8,7 +8,7 @@ public class LevelPackage : ScriptableObject
 {
     public new string name;
     [SerializeField]
-    private byte stars = 3;
+    private byte stars;
     [SerializeField]
     private int balls;
     [SerializeField]
@@ -22,7 +22,18 @@ public class LevelPackage : ScriptableObject
     [SerializeField]
     private bool canMoveUp;
     #region Properties
-    public byte Stars { get => stars; }
+    public byte Stars
+    {
+        get
+        {
+            stars = (byte)PlayerPrefs.GetInt(string.Format("Level_{0} Stars", name));
+            return stars;
+        }
+        private set
+        {
+            PlayerPrefs.SetInt(string.Format("Level_{0} Stars", name), value);
+        }
+    }
     public int Balls { get => balls; }
     public int Row { get => row; }
     public int Column { get => column; }
@@ -34,7 +45,7 @@ public class LevelPackage : ScriptableObject
     public void Pack(BaseLevel baseLevel, List<string> items)
     {
         name = baseLevel.name;
-        stars = baseLevel.stars;
+        Stars = baseLevel.stars;
         balls = baseLevel.balls;
         this.items = items;
         row = baseLevel.row;
@@ -63,7 +74,7 @@ public class LevelPackage : ScriptableObject
     }
     public void Save(Level level)
     {
-        stars = level.Stars;
+        Stars = level.Stars;
     }
     #endregion
 }

@@ -23,8 +23,10 @@ public class GameManager : Singleton<GameManager>
     public enum GameState { start, level, play, pause, gameover, win };
     #region Gameplay Setting
     [Header("Gameplay Settings")]
-    public GameMode gameMode = GameMode.survival;
-    public GameState gameState = GameState.play;
+    [SerializeField]
+    private GameMode gameMode = GameMode.survival;
+    [SerializeField]
+    private GameState gameState = GameState.play;
     public uint turn = 0;
     public uint lastTurn = 0;
     public bool isSpawning = false;
@@ -94,6 +96,8 @@ public class GameManager : Singleton<GameManager>
     private GameObject levelPrefab;
     public float timer;
     public bool isReset = false;
+    private bool isClickedOnChooseLevel = false;
+    private bool onStateChange = false, onModeChange = false;
     #region Singleton
     protected override void OnAwake()
     {
@@ -102,6 +106,30 @@ public class GameManager : Singleton<GameManager>
     }
     #endregion
     #region Properties
+    public GameState State
+    {
+        get
+        {
+            return gameState;
+        }
+        set
+        {
+            gameState = value;
+            onStateChange = true;
+        }
+    }
+    public GameMode Mode
+    {
+        get
+        {
+            return gameMode;
+        }
+        set
+        {
+            gameMode = value;
+            onModeChange = true;
+        }
+    }
     public Level Level { get => level; }
     public GameObject SpawnBall { get => spawnBall; }
     public GameObject GameScene { get => gameScene; }
@@ -133,12 +161,12 @@ public class GameManager : Singleton<GameManager>
         }
         return result;
     }
-    public int BestScore
+    public int HighScore
     {
-        get => PlayerPrefs.GetInt("Best Score");
+        get => PlayerPrefs.GetInt("HighScore");
         private set
         {
-            PlayerPrefs.SetInt("Best Score", value);
+            PlayerPrefs.SetInt("HighScore", value);
         }
     }
     public ParticleSystem Particle { get => particle; }
@@ -159,6 +187,7 @@ public class GameManager : Singleton<GameManager>
     private bool isUpdateOneTime = true;
     public Sprite StarOff { get => starOff; }
     public Sprite StarOn { get => starOn; }
+
     #endregion
 
     public delegate void OnUpdateOneTime();
@@ -166,11 +195,11 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         //To do show start menu.
-        gameState = GameState.start;
+        State = GameState.start;
     }
     private void Update()
     {
-        switch (gameState)
+            switch (State)
         {
             case GameState.start:
                 OnStart();
@@ -206,12 +235,19 @@ public class GameManager : Singleton<GameManager>
                 OnPause();
                 break;
             case GameState.gameover:
-                OnGameover();
+                if(onStateChange)
+                {
+                    OnGameover();
+                }
                 break;
             case GameState.win:
-                OnWin();
+                if (onStateChange)
+                {
+                    OnWin();
+                }
                 break;
         }
+        onStateChange = false;
     }
     public void SetStars()
     {
@@ -245,34 +281,63 @@ public class GameManager : Singleton<GameManager>
     public void ChooseLevel()
     {
         //To do: show level menu.
-        gameMode = GameMode.level;
-        gameState = GameState.level;
+        Mode = GameMode.level;
+        State = GameState.level;
         firstStart = true;
         //load every level files.
         List<string> levelInfos = new List<string>();
-        bool canCreate = true;
         //load level blocks.
-        foreach(LevelPackage levelPackage in levelPackages)
+        if(isClickedOnChooseLevel == false)
         {
-            foreach(LevelButton button in levelButtons)
+            foreach(LevelPackage levelPackage in levelPackages)
             {
-                if(button.Name == levelPackage.name)
+                CreateLevelButton(levelPackage);
+            }
+            LockOnStart();
+            SetUnlockLevelButtons();
+            isClickedOnChooseLevel = true;
+        }
+    }
+    private void LockOnStart()
+    {
+        for (int index = 1; index < levelPackages.Count; index++)
+        {
+            if (levelButtons[index].LevelPackage != null)
+            {
+                levelButtons[index].Lock();
+            }
+        }
+    }
+    private void SetUnlockLevelButtons()
+    {
+        for (int index = 0; index < levelPackages.Count; index++)
+        {
+            if (levelButtons[index].LevelPackage != null)
+            {
+                if(levelButtons[index].LevelPackage.Stars > 0 && index + 1 < levelPackages.Count)
                 {
-                    canCreate = false;
+                    levelButtons[index + 1].Unlock();
                 }
             }
-            if(canCreate)
-            {
-                GameObject objectLevel = Instantiate(levelPrefab, levelHolder.transform);
-                LevelButton levelButton = objectLevel.GetComponent<LevelButton>();
-                UIMenu uIMenu = objectLevel.GetComponent<UIMenu>();
-                levelButton.Name = levelPackage.name;
-                SetStarImages(uIMenu.Images, starOn, StarOff, levelPackage.Stars);
-                levelButton.levelPackage = levelPackage;
-                levelButtons.Add(levelButton);
-            }
-            canCreate = true;
         }
+    }
+    private void CreateLevelButton(LevelPackage levelPackage)
+    {
+        GameObject objectLevel = Instantiate(levelPrefab, levelHolder.transform);
+        LevelButton levelButton = objectLevel.GetComponent<LevelButton>();
+        if(levelPackage != null)
+        {
+            levelButton.Unlock();
+            UIMenu uIMenu = objectLevel.GetComponent<UIMenu>();
+            levelButton.Name = levelPackage.name;
+            SetStarImages(uIMenu.Images, starOn, StarOff, levelPackage.Stars);
+            levelButton.levelPackage = levelPackage;
+        }
+        else
+        {
+            levelButton.Lock();
+        }
+        levelButtons.Add(levelButton);
     }
     public void ChooseSurvival()
     {
@@ -318,7 +383,7 @@ public class GameManager : Singleton<GameManager>
         UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
         gameMenu.Sections[0].gameObject.SetActive(false);
         firstStart = true;
-        gameState = GameState.play;
+        State = GameState.play;
         //Spawn 1 Ball
         Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
         ball.gameObject.transform.position = SpawnBall.transform.position;
@@ -354,12 +419,12 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 0;
         DoozyUI.UIManager.ShowUiElement("PAUSE_UI");
-        gameState = GameState.pause;
+        //State = GameState.pause;
     }
     private void OnStart()
     {
         DoozyUI.UIManager.ShowUiElement("START_UI");
-        gameState = GameState.start;
+        //State = GameState.start;
     }
     private void OnWin()
     {
@@ -382,8 +447,12 @@ public class GameManager : Singleton<GameManager>
                 uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0].gameObject.SetActive(true);
                 uIElements[0].gameObject.GetComponent<UIMenu>().Sections[1].gameObject.SetActive(false);
                 UIMenu survivalSection = uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0];
+                if (Score > HighScore)
+                {
+                    HighScore = Score;
+                }
                 survivalSection.MenuInfos[1].text = score.text;
-                survivalSection.MenuInfos[2].text = BestScore.ToString();
+                survivalSection.MenuInfos[2].text = HighScore.ToString();
                 break;
             case GameMode.level:
                 UIMenu winMenu = uIElements[0].gameObject.GetComponent<UIMenu>();
@@ -403,9 +472,11 @@ public class GameManager : Singleton<GameManager>
                         rectTransform.sizeDelta = winStarSizeOff;
                     }
                 }
+
                 levelSection.MenuInfos[0].text = "Stage: " + level.Name;
                 levelSection.MenuInfos[1].text = "Score: " + Score;
                 winMenu.Sections[0].gameObject.SetActive(false);
+                SetUnlockLevelButtons();
                 //storage star in level.
                 level.Storage.ConvertedLevel.Save(level);
                 break;
@@ -414,13 +485,14 @@ public class GameManager : Singleton<GameManager>
     private void OnLevel()
     {
         DoozyUI.UIManager.ShowUiElement("LEVEL_UI");
-        gameState = GameState.level;
+        State = GameState.level;
         UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
         gameMenu.Sections[0].gameObject.SetActive(true);
     }
     private void OnPlay()
     {
         DoozyUI.UIManager.HideUiElement("START_UI");
+        DoozyUI.UIManager.HideUiElement("WIN_UI");
         DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
         ShowTutorialOnPlay();
     }
@@ -433,7 +505,7 @@ public class GameManager : Singleton<GameManager>
                 DoozyUI.UIManager.ShowUiElement("WIN_UI");
                 totalScore.text = Score.ToString();
                 SetBestScore();
-                bestScore.text = string.Format("BEST: {0}", BestScore.ToString("#,##0"));
+                bestScore.text = string.Format("BEST: {0}", HighScore.ToString("#,##0"));
                 ZenSDK.instance.ShowFullScreen();
                 break;
             case GameMode.level:
@@ -448,22 +520,34 @@ public class GameManager : Singleton<GameManager>
         Time.timeScale = 1;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
-        gameState = GameState.play;
+        State = GameState.play;
+    }
+    public void NextLevel()
+    {
+        for(int index = 0; index < levelPackages.Count; index++)
+        {
+            if(levelPackages[index] == level.Storage.ConvertedLevel && index + 1 < levelPackages.Count)
+            {
+                levelButtons[index + 1].Unlock();
+                levelButtons[index + 1].OnSelected();
+                return;
+            }
+        }
     }
     public void Win()
     {
-        gameState = GameState.win;
+        State = GameState.win;
     }
     public void Menu()
     {
-        gameState = GameState.start;
+        State = GameState.start;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
     }
     public void Pause()
     {
-        gameState = GameState.pause;
+        State = GameState.pause;
     }
     private void DestroyBallsAt(int startIndex)
     {
@@ -495,7 +579,6 @@ public class GameManager : Singleton<GameManager>
                 Spawner.Instance.spawnOnStart = true;
                 break;
             case GameMode.level:
-                Debug.Log("Retried");
                 isReset = true;
                 Shooter.Instance.isShooting = false;
                 currentLevel.OnSelected();
@@ -513,7 +596,7 @@ public class GameManager : Singleton<GameManager>
         turn = 0;
         timer = 0;
         Score = 0;
-        gameState = GameState.play;
+        State = GameState.play;
         Shooter.Instance.reloadOnEndTurnTime = Shooter.ReloadOnEndTurnDelay;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("GAMEOVER_UI");
@@ -655,10 +738,10 @@ public class GameManager : Singleton<GameManager>
     }
     private void SetBestScore()
     {
-        bool isNewHighScore = Score > BestScore;
+        bool isNewHighScore = Score > HighScore;
         if(isNewHighScore)
         {
-            BestScore = Score;
+            HighScore = Score;
             Comment = "Congrat, New High Score!";
         }
         else

@@ -10,6 +10,9 @@ public class LevelButton : MonoBehaviour
     [SerializeField]
     private new Text name;
     public LevelPackage levelPackage;
+    [SerializeField]
+    private Image lockImage;
+    private bool isLock = false;
     private int count = 0;
     #region Properties
     public string Name { get => name.text; set => name.text = value; }
@@ -17,28 +20,61 @@ public class LevelButton : MonoBehaviour
     #endregion
     public void OnSelected()
     {
-        for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
+        if(isLock == false)
         {
-            for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
+            for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
             {
-                if (Spawner.Instance.Obstacles.rows[i].columns[j] != null)
+                for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
                 {
-                    if(Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
+                    if (Spawner.Instance.Obstacles.rows[i].columns[j] != null)
                     {
-                        GameManager.Instance.PoolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
-                    }
-                    else
-                    {
-                        GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
+                        if(Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
+                        {
+                            GameManager.Instance.PoolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
+                        }
+                        else
+                        {
+                            GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
+                        }
                     }
                 }
             }
+            for (int s = 0; s < GameManager.Instance.Level.Balls.Count; s++)
+            {
+                GameObject destroyObject = GameManager.Instance.Level.Balls[s].gameObject;
+                Destroy(destroyObject);
+            }
+            ResetLevel();
         }
-        for (int s = 0; s < GameManager.Instance.Level.Balls.Count; s++)
+    }
+    public void Lock()
+    {
+        name.gameObject.SetActive(false);
+        if(GetComponent<UIMenu>() != null)
         {
-            GameObject destroyObject = GameManager.Instance.Level.Balls[s].gameObject;
-            Destroy(destroyObject);
+            foreach(Image image in GetComponent<UIMenu>().Images)
+            {
+                image.gameObject.SetActive(false);
+            }
         }
+        lockImage.gameObject.SetActive(true);
+        isLock = true;
+    }
+    public void Unlock()
+    {
+        name.gameObject.SetActive(true);
+        if(GetComponent<UIMenu>() != null)
+        {
+            foreach(Image image in GetComponent<UIMenu>().Images)
+            {
+                image.gameObject.SetActive(true);
+            }
+        }
+        lockImage.gameObject.SetActive(false);
+        isLock = false;
+    }
+    private void ResetLevel()
+    {
         GameManager.Instance.Level.Balls.Clear();
         Shooter.Instance.Balls.Clear();
         GameManager.Instance.Level.Load(levelPackage);
@@ -46,7 +82,7 @@ public class LevelButton : MonoBehaviour
         GameManager.Instance.currentLevel = this;
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
         Time.timeScale = 1f;
-        GameManager.Instance.gameState = GameManager.GameState.play;
+        GameManager.Instance.State = GameManager.GameState.play;
         Shooter.Instance.isDoneShoot = true;
         Shooter.Instance.Reload();
         GameManager.Instance.isSpawning = false;

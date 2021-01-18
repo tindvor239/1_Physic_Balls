@@ -46,7 +46,7 @@ public class Level
         storage.ConvertedLevel.Unpack(this);
         Items[] items = null;
         Item[] contentItems = null;
-        if (GameManager.Instance.gameMode == GameManager.GameMode.editor)
+        if (GameManager.Instance.Mode == GameManager.GameMode.editor)
         {
             MapEditor.Instance.Row = (uint)(row - 1);
             MapEditor.Instance.Column = (uint)(column - 1);
@@ -103,7 +103,7 @@ public class Level
                     }
                 }
                 GameObject item = CreateOrGetObstacle(poolParty, poolParty.GetPool(type), prefabIndex);
-                Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Item>();
+                Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Obstacle>();
                 package.Unpack(item);
                 GameManager.Instance.SetSpriteColor(item.GetComponent<Obstacle>());
             }
@@ -111,7 +111,7 @@ public class Level
             {
                 type = "Items Pool";
                 Package package = new Package();
-                package = (Package)JsonUtility.FromJson(itemString + "}", typeof(Package));
+                package = (Package)JsonUtility.FromJson(itemString, typeof(Package));
                 for (int index = 0; index < poolParty.GetPool(type).ObjectsToPool.Length; index++)
                 {
                     if (package.type == "AddItem" && poolParty.GetPool(type).ObjectsToPool[index].GetComponent<AddItem>())
@@ -135,20 +135,25 @@ public class Level
     {
         bool isGotIt = false;
         GameObject newGameObject = null;
-        if (pool.CanExtend)
+        foreach(GameObject gameObject in pool.ObjectsPool)
+        {
+            if(gameObject.activeInHierarchy == false &&
+               gameObject.GetComponent<Obstacle>().Geometry == pool.ObjectsToPool[prefabIndex].GetComponent<Obstacle>().Geometry && isGotIt == false)
+            {
+                newGameObject = pool.GetOutOfPool(gameObject, GameManager.Instance.transform.position);
+                isGotIt = true;
+                if (newGameObject == null)
+                {
+                    Debug.Log("Get out of pool but still null");
+                }
+            }
+        }
+        if(isGotIt == false)
         {
             newGameObject = poolParty.CreateItem(pool, GameManager.Instance.transform.position, prefabIndex, Spawner.Instance.transform);
-        }
-        else
-        {
-            foreach (GameObject gameObject in pool.ObjectsPool)
+            if(newGameObject == null)
             {
-                if (gameObject.activeInHierarchy == false &&
-                    gameObject.GetComponent<Item>().GetType() == pool.ObjectsToPool[prefabIndex].GetComponent<Item>().GetType() && isGotIt == false)
-                {
-                    newGameObject = pool.GetOutOfPool(gameObject, GameManager.Instance.transform.position);
-                    isGotIt = true;
-                }
+                Debug.Log("Create but still null");
             }
         }
         return newGameObject;
@@ -230,6 +235,7 @@ public class Level
         if (levelTurn <= points[0])
         {
             stars = 0;
+            GameManager.Instance.State = GameManager.GameState.gameover;
         }
     }
 }

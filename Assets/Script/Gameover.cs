@@ -8,7 +8,7 @@ public class Gameover : MonoBehaviour
     {
         if(collision.gameObject.tag == "Obstacle")
         {
-            GameManager.Instance.gameState = GameManager.GameState.gameover;
+            GameManager.Instance.State = GameManager.GameState.gameover;
         }
     }
 }

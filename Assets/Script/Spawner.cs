@@ -44,10 +44,10 @@ public class Spawner : Singleton<Spawner>
     private void Update()
     {
         // Spawn 4 obstacle on start
-        switch(GameManager.Instance.gameMode)
+        switch(GameManager.Instance.Mode)
         {
             case GameManager.GameMode.survival:
-                switch(GameManager.Instance.gameState)
+                switch(GameManager.Instance.State)
                 {
                     case GameManager.GameState.play:
                         if (spawnOnStart)
@@ -82,7 +82,7 @@ public class Spawner : Singleton<Spawner>
                 }
                 break;
             case GameManager.GameMode.level:
-                switch(GameManager.Instance.gameState)
+                switch(GameManager.Instance.State)
                 {
                     case GameManager.GameState.play:
                         //To do: if list null show win menus.
@@ -114,9 +114,9 @@ public class Spawner : Singleton<Spawner>
 
                             GameManager.Instance.isSpawning = false;
                         }
-                        if (notNullCount == 0 && GameManager.Instance.isReset == false)
+                        if (notNullCount == 0)
                         {
-                            GameManager.Instance.gameState = GameManager.GameState.win;
+                            GameManager.Instance.State = GameManager.GameState.win;
                         }
                         break;
                 }
@@ -146,7 +146,7 @@ public class Spawner : Singleton<Spawner>
         GameManager.Instance.turn++;
         gameoverObstacle = null;
         warningObstacle = null;
-        if(GameManager.Instance.gameMode == GameManager.GameMode.level)
+        if(GameManager.Instance.Mode == GameManager.GameMode.level)
         {
             GameManager.Instance.SetStars();
         }
@@ -312,7 +312,7 @@ public class Spawner : Singleton<Spawner>
         }
         if(newGameObject != null)
         {
-            if(GameManager.Instance.gameMode == GameManager.GameMode.survival)
+            if(GameManager.Instance.Mode == GameManager.GameMode.survival)
             {
                 newGameObject.transform.localScale = pool.ObjectsToPool[randomItem].transform.localScale;
                 Debug.Log("1st size" + newGameObject.transform.localScale.x + ", 2nd size" + pool.ObjectsToPool[randomItem].transform.localScale.x);

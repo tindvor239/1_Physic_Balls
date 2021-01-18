@@ -74,7 +74,7 @@ public class Shooter : Singleton<Shooter>
         //If all balls is in start shooting.
         //If start shooting disable collision.
         //Set a closet ball = transform position to shoot.
-        if(GameManager.Instance.gameMode != GameManager.GameMode.editor)
+        if(GameManager.Instance.Mode != GameManager.GameMode.editor)
         {
             if (GameManager.Instance.isEndTurn)
             {
