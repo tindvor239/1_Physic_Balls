@@ -10,7 +10,7 @@ public class Obstacle : Item
     [SerializeField]
     private Text hpUI;
     [SerializeField]
-    private Geometry geometry;
+    protected Geometry geometry;
     [SerializeField]
     private SpriteRenderer background;
     #region Properties
@@ -95,4 +95,4 @@ public class Obstacle : Item
         return color32;
     }
 }
-public enum Geometry { circle, cube, triangle, pentagon}
+public enum Geometry { circle, cube, isoscelesTriangle, rightTriangle, pentagon}

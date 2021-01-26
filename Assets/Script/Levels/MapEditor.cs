@@ -17,10 +17,14 @@ public class MapEditor : Singleton<MapEditor>
     private List<GameObject> gridTiles = new List<GameObject>();
     [SerializeField] //just for show.
     private GameObject brush;
+    [SerializeField] //just for show.
+    private GameObject selectedObject;
+    [SerializeField]
+    private Image brushImage;
     [SerializeField]
     private Spawner spawner;
     [SerializeField]
-    private InputField row, column, space, sizeX, sizeY;
+    private InputField row, column, space, sizeX, sizeY, privatePositionX, privatePositionY, privateSizeX, privateSizeY, rotationZ, hp;
     [SerializeField]
     private bool isBeta = false;
     private int lastRow = -1, lastColumn = -1;
@@ -130,6 +134,124 @@ public class MapEditor : Singleton<MapEditor>
             return new Vector2(x, y);
         }
     }
+    private Vector2 PrivateSize
+    {
+        get
+        {
+            float x, y;
+            try
+            {
+                x = float.Parse(privateSizeX.text);
+            }
+            catch (Exception)
+            {
+                if (privateSizeX != null)
+                {
+                    privateSizeX.text = "1";
+                }
+                x = 1;
+            }
+            try
+            {
+                y = float.Parse(privateSizeY.text);
+            }
+            catch (Exception)
+            {
+                if (privateSizeY.text != null)
+                {
+                    privateSizeY.text = "1";
+                }
+                y = 1;
+            }
+            return new Vector2(x, y);
+        }
+        set
+        {
+            privateSizeX.text = value.x.ToString();
+            privateSizeY.text = value.y.ToString();
+        }
+    }
+    private Vector2 PrivatePosition
+    {
+        get
+        {
+            float x, y;
+            try
+            {
+                x = float.Parse(privatePositionX.text);
+            }
+            catch (Exception)
+            {
+                if (privatePositionX != null)
+                {
+                    privatePositionX.text = "1";
+                }
+                x = 1;
+            }
+            try
+            {
+                y = float.Parse(privatePositionY.text);
+            }
+            catch (Exception)
+            {
+                if (privatePositionY.text != null)
+                {
+                    privatePositionY.text = "1";
+                }
+                y = 1;
+            }
+            return new Vector2(x, y);
+        }
+        set
+        {
+            privatePositionY.text = value.x.ToString();
+            privatePositionY.text = value.y.ToString();
+        }
+    }
+    private float Rotation
+    {
+        get
+        {
+            try
+            {
+                return float.Parse(rotationZ.text);
+            }
+            catch (Exception)
+            {
+                if (rotationZ != null)
+                {
+                    rotationZ.text = "0";
+                }
+                return 1;
+            }
+        }
+        set
+        {
+            rotationZ.text = value.ToString();
+        }
+    }
+    private int HP
+    {
+        get
+        {
+            try
+            {
+                return int.Parse(hp.text);
+            }
+            catch (Exception)
+            {
+                if (hp != null)
+                {
+                    hp.text = "1";
+                }
+                return 1;
+            }
+        }
+        set
+        {
+            hp.text = value.ToString();
+        }
+    }
     #endregion
     // Update is called once per frame
     private void Start()
@@ -141,31 +263,60 @@ public class MapEditor : Singleton<MapEditor>
         if(isBeta)
         {
             if(Row != lastRow || Column != lastColumn || Size != lastSize || Space != lastSpace)
-        {
-            // reupdate if anything is change.
-            if (Row != lastRow)
             {
-                lastRow = (int)Row;
+                // Update if anything is change.
+                if (Row != lastRow)
+                {
+                    lastRow = (int)Row;
+                }
+                if (Column != lastColumn)
+                {
+                    lastColumn = (int)Column;
+                }
+                if (Size != lastSize)
+                {
+                    lastSize = Size;
+                }
+                if (Space != lastSpace)
+                {
+                    lastSpace = Space;
+                }
+                SpawnGridIndexeres();
+                SpawnGridTiles();
+                resizeObstacles();
             }
-            if (Column != lastColumn)
+            // Update if anything is change.
+            if(selectedObject != null)
             {
-                lastColumn = (int)Column;
+                bool isObstacle = selectedObject.GetComponent<Obstacle>() && HP != selectedObject.GetComponent<Obstacle>().HP;
+                if (PrivateSize != (Vector2)selectedObject.transform.localScale || PrivatePosition != (Vector2)selectedObject.transform.position
+                    || Rotation != selectedObject.transform.rotation.z || isObstacle)
+                {
+                    if(PrivatePosition != (Vector2)selectedObject.transform.position)
+                    {
+                        selectedObject.transform.position = PrivatePosition;
+                    }
+                    if(PrivateSize != (Vector2)selectedObject.transform.localScale)
+                    {
+                        selectedObject.transform.localScale = PrivateSize;
+                    }
+                }
             }
-            if (Size != lastSize)
+            // Get Object On Click
+            if(Input.GetMouseButton(0) || Input.GetMouseButtonDown(1))
             {
-                lastSize = Size;
-            }
-            if (Space != lastSpace)
-            {
-                lastSpace = Space;
-            }
-            SpawnGridIndexeres();
-            SpawnGridTiles();
-            resizeObstacles();
-        }
-            if(Input.GetMouseButton(0))
-            {
-                GetTileObject();
+                RaycastHit2D hit;
+                Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                hit = Physics2D.Raycast(mousePos, Vector2.zero);
+                if(Input.GetMouseButton(0))
+                {
+                    GetTileObject(hit);
+                }
+                if(Input.GetMouseButtonDown(1))
+                {
+                    //Spawn Obstacle Menu.
+                    ShowObstacleMenu(hit);
+                }
             }
         }
         string path = string.Format("{0}/{1}/{2}.json", Application.dataPath + "/Resources/", GameManager.Instance.Level.Storage.FolderName, "level_" + GameManager.Instance.Level.Name);
@@ -184,56 +335,111 @@ public class MapEditor : Singleton<MapEditor>
         }
     }
 
-    private void GetTileObject()
+    private void GetTileObject(RaycastHit2D hit)
     {
-        RaycastHit2D hit;
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        hit = Physics2D.Raycast(mousePos, Vector2.zero);
         if (hit.collider != null)
         {
-            if (hit.collider.gameObject.tag == "Editor")
+            if (hit.collider.gameObject.tag == "Editor" && brush != null)
             {
                 //spawn obstacle here.
-                Pool pool = null;
-                if (brush.GetComponent<Item>() is Obstacle)
+                Painting(hit);
+            }
+            else if (hit.collider.gameObject.tag == "Obstacle" && brush == null)
+            {
+                DestroySelectedObject(hit);
+            }
+        }
+    }
+    private void Painting(RaycastHit2D hit)
+    {
+        Pool pool = null;
+        if (brush.GetComponent<Item>() is Obstacle)
+        {
+            pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
+        }
+        //else if item
+        else if (brush.GetComponent<Item>() is SizeItem || brush.GetComponent<Item>() is AddItem)
+        {
+            pool = GameManager.Instance.PoolParty.GetPool("Items Pool");
+        }
+        else if(brush.GetComponent<Item>() is DeadItem)
+        {
+            pool = GameManager.Instance.PoolParty.GetPool("Dead Obstacles Pool");
+        }
+        for (int i = 0; i < pool.ObjectsToPool.Length; i++)
+        {
+            int[] tileIndex = GetTileIndex(hit.collider.gameObject);
+            if (brush.GetComponent<Obstacle>() != null && brush == pool.ObjectsToPool[i])
+            {
+                if (tileIndex[0] != -1)
                 {
-                    pool = GameManager.Instance.PoolParty.GetPool("Obstacles Pool");
+                    SpawnItemFromPool(1, pool, hit.collider.gameObject.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
                 }
-                //else if item
-                if(brush.GetComponent<Item>() is SizeItem || brush.GetComponent<Item>() is AddItem)
+            }
+            // if brush is item
+            else if (brush.GetComponent<SizeItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<SizeItem>())
+            {
+                if (tileIndex[0] != -1)
                 {
-                    pool = GameManager.Instance.PoolParty.GetPool("Items Pool");
+                    SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
                 }
-                for (int i = 0; i < pool.ObjectsToPool.Length; i++)
+            }
+            else if (brush.GetComponent<AddItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<AddItem>())
+            {
+                if (tileIndex[0] != -1)
                 {
-                    int[] tileIndex = GetTileIndex(hit.collider.gameObject);
-                    if (brush.GetComponent<Obstacle>() != null && brush == pool.ObjectsToPool[i])
+                    SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
+                }
+            }
+        }
+    }
+    private void ShowObstacleMenu(RaycastHit2D hit)
+    {
+        if (hit.collider.gameObject.tag == "Obstacle")
+        {
+            DisplayObstacleMenu(true);
+            GetObstacle(hit);
+        }
+    }
+    private void GetObstacle(RaycastHit2D hit)
+    {
+        if(hit.collider.gameObject.tag == "Obstacle")
+        {
+            selectedObject = hit.collider.gameObject;
+            PrivatePosition = selectedObject.transform.position;
+            PrivateSize = selectedObject.transform.localScale;
+            Rotation = selectedObject.transform.rotation.z;
+            HP = selectedObject.GetComponent<Obstacle>().HP;
+        }
+    }
+    private void DestroySelectedObject(RaycastHit2D hit)
+    {
+        if(hit.collider.gameObject.tag == "Obstacle")
+        {
+            if(hit.collider.gameObject.GetComponent<AddItem>() || hit.collider.gameObject.GetComponent<SizeItem>())
+            {
+                GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(hit.collider.gameObject, GameManager.Instance.transform.position);
+            }
+            else if(hit.collider.gameObject.GetComponent<Obstacle>())
+            {
+                GameManager.Instance.PoolParty.GetPool("Obstacles Pool").GetBackToPool(hit.collider.gameObject, GameManager.Instance.transform.position);
+            }
+            else if(hit.collider.gameObject.GetComponent<DeadItem>())
+            {
+                GameManager.Instance.PoolParty.GetPool("Dead Obstacles Pool").GetBackToPool(selectedObject, GameManager.Instance.transform.position);
+            }
+            foreach(Items items in Spawner.Instance.Obstacles.rows)
+            {
+                for(int column = 0; column < items.columns.Count; column++)
+                {
+                    if(items.columns[column] != null && items.columns[column].gameObject == hit.collider.gameObject)
                     {
-                        if (tileIndex[0] != -1)
-                        {
-                            SpawnItemFromPool(1, pool, hit.collider.gameObject.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
-                        }
-                    }
-                    // if brush is item
-                    else if(brush.GetComponent<SizeItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<SizeItem>())
-                    {
-                        if(tileIndex[0] != -1)
-                        {
-                            SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
-                        }
-                    }
-                    else if (brush.GetComponent<AddItem>() != null && brush == pool.ObjectsToPool[i] && pool.ObjectsToPool[i].GetComponent<AddItem>())
-                    {
-                        if (tileIndex[0] != -1)
-                        {
-                            SpawnItemFromPool(0, pool, hit.collider.transform.position, Spawner.Instance.Obstacles.rows[tileIndex[0]].columns, tileIndex[1], i);
-                        }
+                        items.columns[column] = null;
                     }
                 }
             }
         }
     }
-
     private void resizeObstacles()
     {
         Items[] items = new Items[Row + 1];
@@ -321,6 +527,24 @@ public class MapEditor : Singleton<MapEditor>
                 {
                     Debug.Log(gameObject.GetComponent<SpriteRenderer>().sprite.name);
                     brush = gameObject;
+                }  
+            }
+        }
+    }
+    public void EraseBrush()
+    {
+        brush = null;
+    }
+    public void SetDeadObstacleBrush(Sprite sprite)
+    {
+        foreach (GameObject gameObject in GameManager.Instance.PoolParty.GetPool("Dead Obstacles Pool").ObjectsToPool)
+        {
+            if (gameObject.GetComponent<SpriteRenderer>())
+            {
+                if (sprite == gameObject.GetComponent<SpriteRenderer>().sprite)
+                {
+                    Debug.Log(gameObject.GetComponent<SpriteRenderer>().sprite.name);
+                    brush = gameObject;
                 }
             }
         }
@@ -328,6 +552,17 @@ public class MapEditor : Singleton<MapEditor>
     public void SetItemBrush(int index)
     {
         brush = GameManager.Instance.PoolParty.GetPool("Items Pool").ObjectsToPool[index];
+    }
+    public void DisplayObstacleMenu(bool isDisplay)
+    {
+        if(isDisplay)
+        {
+            DoozyUI.UIElement.ShowUIElement("OBJECT_EDITOR_UI");
+        }
+        else
+        {
+            DoozyUI.UIElement.HideUIElement("OBJECT_EDITOR_UI");
+        }
     }
     private void SpawnGridTiles()
     {

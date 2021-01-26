@@ -91,7 +91,7 @@ public class Spawner : Singleton<Spawner>
                         {
                             foreach(Item item in items.columns)
                             {
-                                if(item != null)
+                                if(item is Obstacle && item != null)
                                 {
                                     notNullCount++;
                                 }
@@ -103,6 +103,10 @@ public class Spawner : Singleton<Spawner>
                             if(GameManager.Instance.Level.CanMoveUp)
                             {
                                 MoveUp(0.15f);
+                            }
+                            else
+                            {
+                                isMoving = false;
                             }
                             CheckIsInWarning();
                             if (isMoving == false)
@@ -315,7 +319,6 @@ public class Spawner : Singleton<Spawner>
             if(GameManager.Instance.Mode == GameManager.GameMode.survival)
             {
                 newGameObject.transform.localScale = pool.ObjectsToPool[randomItem].transform.localScale;
-                Debug.Log("1st size" + newGameObject.transform.localScale.x + ", 2nd size" + pool.ObjectsToPool[randomItem].transform.localScale.x);
             }
             if(newGameObject.GetComponent<Obstacle>())
             {

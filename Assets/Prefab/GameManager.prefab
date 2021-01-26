@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &612778177
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 612778178}
+  m_Layer: 0
+  m_Name: Spawn Ball Position
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &612778178
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 612778177}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.3, y: 43.77, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 6157378597341677887}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6157378597341677885
 GameObject:
   m_ObjectHideFlags: 0
@@ -28,7 +58,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -28.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 612778178}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -44,25 +75,214 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 626ef59a15a253045aecc1e775688174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  balls:
+  levelPackages:
+  - {fileID: 11400000, guid: 18f9415eadc9fe3488a8b42056242723, type: 2}
+  - {fileID: 11400000, guid: e87f9bc95e052454d83f2840ab338854, type: 2}
+  - {fileID: 11400000, guid: f0ecadae697c26942bd2dcbdb0c0f954, type: 2}
+  - {fileID: 11400000, guid: 7dd7dce51f761a946ba9b1184ed85306, type: 2}
+  - {fileID: 11400000, guid: bca75d72cca65e24b821fb67b365ad9e, type: 2}
   - {fileID: 0}
-  gameState: 0
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  level:
+    name: 
+    stars: 0
+    row: 0
+    column: 0
+    points: 
+    turnCount: 0
+    canMoveUp: 0
+    balls: []
+    items: []
+    ballPrefab: {fileID: 1537431207375580917, guid: 498d71a4c443b5b49bfc992ec9926e19,
+      type: 3}
+    storage:
+      folderName: Levels
+      fileName: something
+      fileExtension: .json
+      convertedLevel: {fileID: 11400000, guid: 18f9415eadc9fe3488a8b42056242723, type: 2}
+  spawnBall: {fileID: 612778177}
+  gameScene: {fileID: 0}
+  gameMode: 1
+  gameState: 2
   turn: 0
   lastTurn: 0
   isSpawning: 0
   isEndTurn: 1
-  menu: {fileID: 0}
-  pauseMenu: {fileID: 0}
-  gameoverMenu: {fileID: 0}
+  isoscelesTriangles: []
+  rightTriangles: []
+  cubeSprites:
+  - {fileID: 21300000, guid: 3acc5fcaf06f78241a596eaaedb0c10c, type: 3}
+  - {fileID: 21300000, guid: 5264028035f5aa446a09f6af52425bb5, type: 3}
+  - {fileID: 21300000, guid: 63219f3ce7221ad46bb90f1c0bb8b5d3, type: 3}
+  - {fileID: 21300000, guid: 81fb3157336e07347bcceb7b7282e7a1, type: 3}
+  - {fileID: 21300000, guid: aad085cab43e4f1448c854c929837d0d, type: 3}
+  - {fileID: 21300000, guid: 90e340f91b165494caa3a00e8f92eedf, type: 3}
+  - {fileID: 21300000, guid: 80a3e9a17f44a3e439a6b7df5ef8f0f4, type: 3}
+  circleSprites:
+  - {fileID: 21300000, guid: 8b438eaa9ce16574d9af072552fbb2cc, type: 3}
+  - {fileID: 21300000, guid: 3b03197db7ff5ae4da4e579c4635749c, type: 3}
+  - {fileID: 21300000, guid: 8174d073e8046ce48b2a8de66f9bab80, type: 3}
+  - {fileID: 21300000, guid: ac350b13c8622b1458c0e4655a404878, type: 3}
+  - {fileID: 21300000, guid: a4346c53583d9a34e8714a0e590ea15c, type: 3}
+  - {fileID: 21300000, guid: 6f3090497cc12ea4d9ecb7fc7030bd26, type: 3}
+  - {fileID: 21300000, guid: 0528a4227767cb34bba79e667fc3d2b4, type: 3}
+  pentagonSprites:
+  - {fileID: 21300000, guid: 3344733013c288643a7ff9695ce5c3eb, type: 3}
+  - {fileID: 21300000, guid: 1fdfee4e0e350ee419cbbf1369de21e9, type: 3}
+  - {fileID: 21300000, guid: 3f7cdd67be64195448f2638987fe1dfd, type: 3}
+  - {fileID: 21300000, guid: b8457c55958a21144ac07909e7932aaa, type: 3}
+  - {fileID: 21300000, guid: 25194b7040e977e4ea80bda385f6ec4b, type: 3}
+  - {fileID: 21300000, guid: c915c8e47e96b0242a349d60f746ac5a, type: 3}
+  - {fileID: 21300000, guid: ad66cd464e049dd4ead8d4a79b47378d, type: 3}
+  colors:
+  - serializedVersion: 2
+    rgba: 2099283711
+  - serializedVersion: 2
+    rgba: 2099510783
+  - serializedVersion: 2
+    rgba: 2100821792
+  - serializedVersion: 2
+    rgba: 2113921059
+  - serializedVersion: 2
+    rgba: 2113881391
+  - serializedVersion: 2
+    rgba: 2113872043
+  - serializedVersion: 2
+    rgba: 2098994431
+  fans:
+  - {fileID: 0}
+  - {fileID: 0}
+  frames:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  gravity: 3.2
   comment: {fileID: 0}
   totalScore: {fileID: 0}
   bestScore: {fileID: 0}
   score: {fileID: 0}
   time: {fileID: 0}
   particle: {fileID: 535824492693557887, guid: bba9fd15e2a8fb540b5467eac34b9df4, type: 3}
-  obstaclesPool: []
-  particlesPool: []
+  firstStart: 0
+  hitObstacles: []
   poolParty: {fileID: 0}
+  isToolBoxActive: 0
+  isEditorBoxActive: 0
+  starOff: {fileID: 21300000, guid: 913ea5110a901e54586c37e310e51e2f, type: 3}
+  starOn: {fileID: 21300000, guid: 879caa5faab1b8b49ba5326c83b60621, type: 3}
+  winStarOn: {fileID: 21300000, guid: 8f3a8c9184e44784589fa64b6f90c7cb, type: 3}
+  winStarOff: {fileID: 21300000, guid: 926bfaf0f3b9b61438442a22c2c6657a, type: 3}
+  winStarSizeOn: {x: 160, y: 150}
+  winStarSizeOff: {x: 120, y: 110}
+  currentLevel: {fileID: 0}
+  levelHolder: {fileID: 0}
+  levelButtons: []
+  hitObstacleSound: {fileID: 8300000, guid: 3d925d8233fc5004186cfaaecacc2072, type: 3}
+  outSound: {fileID: 8300000, guid: 9bcb89874c7c933419df4ef3153834ad, type: 3}
+  hitItemSound: {fileID: 8300000, guid: ec934c2f68506bd4b89134588c7ae7f0, type: 3}
+  audioSource: {fileID: 0}
+  levelPrefab: {fileID: 5444549403299057897, guid: 3434712b0fbb30c488083c08725fcdeb,
+    type: 3}
+  timer: 0
+  isReset: 0
 --- !u!114 &6157378597341677886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,6 +301,9 @@ MonoBehaviour:
     objectsToPool:
     - {fileID: 5217485191223251952, guid: 216dc955724eb86418d7508621d28d57, type: 3}
     - {fileID: 4046619939407167067, guid: e176377a4d9e5f1499f75771548e34c6, type: 3}
+    - {fileID: 4046619939407167067, guid: 65280b1d342946049991fe964415136a, type: 3}
+    - {fileID: 4046619939407167067, guid: c2b1fdce2376ce54687c932fb9364e77, type: 3}
+    - {fileID: 4046619939407167067, guid: 374f667cc97ed8e409d6839e2966c6f0, type: 3}
   - name: Particles Pool
     objectsPool: []
     objectsToPool:
@@ -90,3 +313,17 @@ MonoBehaviour:
     objectsToPool:
     - {fileID: 2394634110687117088, guid: 25932d6310599a34a9d4df1d6f8273fe, type: 3}
     - {fileID: 67109975725126964, guid: 7066004ed158bd642abdf28e12fcaeb2, type: 3}
+  - name: Lasers Pool
+    objectsPool: []
+    objectsToPool:
+    - {fileID: 7622157743309006301, guid: aa6581f637f4b624d8f5094115dda1de, type: 3}
+  - name: Floatings Pool
+    objectsPool: []
+    objectsToPool:
+    - {fileID: 2457072283743843156, guid: 2dc2b2fbcb6d7114686ab64385ee93db, type: 3}
+  - name: Dead Obstacles Pool
+    objectsPool: []
+    objectsToPool:
+    - {fileID: 4046619939407167067, guid: 04e4586e105897b40aa8ba6b29513479, type: 3}
+    - {fileID: 5217485191223251952, guid: 94a0a3785afa8ad4f82332255313d84c, type: 3}
+    - {fileID: 4046619939407167067, guid: 6986923dc9bfe4f44848bb48b56e479d, type: 3}

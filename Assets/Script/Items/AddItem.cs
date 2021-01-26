@@ -6,9 +6,44 @@ public class AddItem : Item
     {
         if (collision.gameObject.tag == "Ball" && collision.isTrigger == false)
         {
+            GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitItemSound);
+            CreateFloatingText("Extra Ball");
             BackToPool(GameManager.Instance.PoolParty.GetPool("Items Pool"));
             AddBall(collision.gameObject);
         }
+    }
+
+    protected void CreateFloatingText(string message)
+    {
+        Pool textPool = GameManager.Instance.PoolParty.GetPool("Floatings Pool");
+        if (textPool != null)
+        {
+            GameObject newFloatingText = null;
+            if (textPool.CanExtend)
+            {
+                newFloatingText = GameManager.Instance.PoolParty.CreateItem(textPool, transform.position, 0, transform.parent);
+                Debug.Log("CanExtend");
+                newFloatingText.transform.position = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y + 0.5f);
+            }
+            else
+            {
+                GameObject getObject = GetFloatingText(textPool);
+                newFloatingText = textPool.GetOutOfPool(getObject, new Vector2(transform.position.x, transform.position.y + 0.5f));
+            }
+            newFloatingText.GetComponent<FloatingText>().Floating();
+            newFloatingText.GetComponent<TextMesh>().text = message;
+        }
+    }
+    private GameObject GetFloatingText(in Pool textPool)
+    {
+        foreach (GameObject go in textPool.ObjectsPool)
+        {
+            if(go.activeInHierarchy == false)
+            {
+                return go;
+            }
+        }
+        return null;
     }
     protected virtual void AddBall(GameObject hitObject)
     {

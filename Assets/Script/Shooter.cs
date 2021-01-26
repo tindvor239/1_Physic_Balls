@@ -179,7 +179,6 @@ public class Shooter : Singleton<Shooter>
             balls.RemoveAt(0);
             isDoneShoot = false;
             isReloading = true;
-            Debug.Log("In");
         }
     }
     IEnumerator MoveToShootPoint()

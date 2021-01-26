@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 4046619939407167071}
   - component: {fileID: 9052875619665757021}
   m_Layer: 0
-  m_Name: Obstacle_Triangle
+  m_Name: Obstacle_Right_Triangle
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -156,7 +156,7 @@ SpriteRenderer:
   m_SortingLayerID: -1375888063
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: c1f96dc14b22d1442b2d0c57a0db5bff, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7718fb77c830156478128313a1f34846, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -192,8 +192,8 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -0.35, y: -0.36}
-      - {x: 0, y: 0.35}
+    - - {x: -0.36072597, y: -0.36}
+      - {x: -0.3593191, y: 0.34195104}
       - {x: 0.35, y: -0.36}
 --- !u!114 &4046619939407167071
 MonoBehaviour:
@@ -210,7 +210,7 @@ MonoBehaviour:
   hp:
     baseStat: 1
   hpUI: {fileID: 4046619939930219827}
-  geometry: 2
+  geometry: 3
   background: {fileID: 8325118163974212452}
 --- !u!95 &9052875619665757021
 Animator:
@@ -265,8 +265,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 7.6661825, y: 5.3070965}
+  m_AnchoredPosition: {x: 0.67301, y: 0.07}
+  m_SizeDelta: {x: 6.3201685, y: 5.3070965}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4046619939930219828
 CanvasRenderer:
@@ -302,7 +302,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 0
     m_MaxSize: 40
-    m_Alignment: 4
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -345,8 +345,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.007, y: -0.085}
-  m_SizeDelta: {x: 7.6661825, y: 5.3070965}
+  m_AnchoredPosition: {x: -0.143, y: -0.225}
+  m_SizeDelta: {x: 4.9741545, y: 5.3070965}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &4046619940164012610
 Canvas:

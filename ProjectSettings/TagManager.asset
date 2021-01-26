@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - Gameover
   - Editor
+  - Frame
   layers:
   - Default
   - TransparentFX

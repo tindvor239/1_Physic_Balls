@@ -32,7 +32,9 @@ public class GameManager : Singleton<GameManager>
     public bool isSpawning = false;
     public bool isEndTurn = true;
     [SerializeField]
-    private List<Sprite> triangleSprites = new List<Sprite>();
+    private List<Sprite> isoscelesTriangles = new List<Sprite>();
+    [SerializeField]
+    private List<Sprite> rightTriangles = new List<Sprite>();
     [SerializeField]
     private List<Sprite> cubeSprites = new List<Sprite>();
     [SerializeField]
@@ -90,6 +92,14 @@ public class GameManager : Singleton<GameManager>
     private GameObject levelHolder;
     [SerializeField]
     private List<LevelButton> levelButtons;
+    [SerializeField]
+    private AudioClip hitObstacleSound;
+    [SerializeField]
+    private AudioClip outSound;
+    [SerializeField]
+    private AudioClip hitItemSound;
+    [SerializeField]
+    private AudioSource audioSource;
     #endregion
     [Header("Prefabs")]
     [SerializeField]
@@ -170,17 +180,22 @@ public class GameManager : Singleton<GameManager>
         }
     }
     public ParticleSystem Particle { get => particle; }
+    public AudioClip HitObstacleSound { get => hitObstacleSound; }
+    public AudioClip HitItemSound { get => hitItemSound; }
+    public AudioClip OutSound { get => outSound; }
     public PoolParty PoolParty { get => poolParty; }
     private string Comment
     {
         get => comment.text;
         set => comment.text = value;
     }
+    public AudioSource Audio { get => audioSource; }
     public float Gravity { get => gravity; }
     public List<Obstacle> HitObstacles { get => hitObstacles; }
     public GameObject[] Fans { get => fans; }
     public Collider2D[] Frames { get => frames; }
-    public List<Sprite> TriangleSprites { get => triangleSprites; }
+    public List<Sprite> IsoscelesSprites { get => isoscelesTriangles; }
+    public List<Sprite> RightTriangles { get => rightTriangles; }
     public List<Sprite> CubeSprites { get => cubeSprites; }
     public List<Sprite> PentagonSprites { get => pentagonSprites; }
     public List<Sprite> CircleSprites { get => circleSprites; }
@@ -728,8 +743,10 @@ public class GameManager : Singleton<GameManager>
                 return circleSprites;
             case Geometry.cube:
                 return cubeSprites;
-            case Geometry.triangle:
-                return triangleSprites;
+            case Geometry.isoscelesTriangle:
+                return isoscelesTriangles;
+            case Geometry.rightTriangle:
+                return rightTriangles;
             case Geometry.pentagon:
                 return pentagonSprites;
             default:

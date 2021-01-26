@@ -71,6 +71,7 @@ MonoBehaviour:
       - MENU_UI
       - MOVE_MACHINE_UI
       - NO_COIN_UI
+      - OBJECT_EDITOR_UI
       - PAUSE_UI
       - POP_UP_BOOST_UI
       - POP_UP_QUEST_UI

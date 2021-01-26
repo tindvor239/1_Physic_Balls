@@ -80,6 +80,10 @@ public class Ball : Item
         {
             rigidbody.gravityScale = GameManager.Instance.Gravity;
         }
+        if(collision.gameObject.tag == "Obstacle" || collision.gameObject.tag == "Frame")
+        {
+            GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitObstacleSound);
+        }
         if (collision.gameObject.tag == "Obstacle")
         {
             if (hitDelay <= maxhitDelay)
@@ -106,7 +110,14 @@ public class Ball : Item
             hitCount++;
             if(hitCount >= 6)
             {
-                rigidbody.AddForce(new Vector2(transform.position.x, transform.position.y + 15f), ForceMode2D.Impulse);
+                if(transform.position.x >= 0)
+                {
+                    rigidbody.AddForce(new Vector2(-15, transform.position.y + 15f), ForceMode2D.Impulse);
+                }
+                else
+                {
+                    rigidbody.AddForce(new Vector2(15, transform.position.y + 15f), ForceMode2D.Impulse);
+                }
                 hitCount = 0;
             }
         }

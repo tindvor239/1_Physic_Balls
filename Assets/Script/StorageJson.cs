@@ -17,7 +17,17 @@ public class StorageJson
     private LevelPackage convertedLevel;
     #endregion
     #region Properties
-    public string FileName { get => fileName; }
+    public string FileName
+    {
+        get
+        {
+            if(convertedLevel != null)
+            {
+                fileName = $"level_{convertedLevel.name}";
+            }
+            return fileName;
+        }
+    }
     public string FolderName { get => folderName; }
     public LevelPackage ConvertedLevel { get => convertedLevel; set => convertedLevel = value; }
     protected string Path
@@ -61,12 +71,27 @@ public class StorageJson
             {
                 if(index + 1 < fieldList.Count)
                 {
-                    //if obstacle will get 8 fields.
+                    //if obstacle will get 6 fields.
                     if(fieldList[index].IndexOf("\"type\":\"Obstacle\"") != -1)
                     {
                         for(int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
                         {
                             if(fieldIndex < fieldList.Count)
+                            {
+                                if (fieldList[index].LastIndexOf('}') == fieldList[index].Length - 1 && fieldList[fieldIndex].IndexOf(',') == 0)
+                                {
+                                    fieldList[index] += fieldList[fieldIndex];
+                                    toRemove.Add(fieldList[fieldIndex]);
+                                }
+                            }
+                        }
+                    }
+                    //if dead item will get 6 fields
+                    else if(fieldList[index].IndexOf("\"type\":\"DeadItem\"") != -1)
+                    {
+                        for (int fieldIndex = index + 1; fieldIndex < index + 6; fieldIndex++)
+                        {
+                            if (fieldIndex < fieldList.Count)
                             {
                                 if (fieldList[index].LastIndexOf('}') == fieldList[index].Length - 1 && fieldList[fieldIndex].IndexOf(',') == 0)
                                 {
@@ -152,6 +177,13 @@ public class StorageJson
                     Obstacle obstacle = (Obstacle)item;
                     package.Pack(obstacle.gameObject);
                     package.type = "Obstacle";
+                }
+                if(item is DeadItem)
+                {
+                    package = new DeadPackage();
+                    DeadItem deadItem = (DeadItem)item;
+                    package.Pack(deadItem.gameObject);
+                    package.type = "DeadItem";
                 }
                 if(item is AddItem)
                 {
@@ -269,5 +301,23 @@ public class CreaturePackage : Package
             Obstacle obstacle = gameObject.GetComponent<Obstacle>();
             obstacle.HP = hp;
         }
+    }
+}
+public class DeadPackage : Package
+{
+    public string geometry;
+    public override void Pack(GameObject gameObject)
+    {
+        base.Pack(gameObject);
+        if (gameObject.GetComponent<DeadItem>())
+        {
+            DeadItem item = gameObject.GetComponent<DeadItem>();
+            geometry = item.Geometry.ToString();
+        }
+    }
+
+    public override void Unpack(GameObject gameObject)
+    {
+        base.Unpack(gameObject);
     }
 }

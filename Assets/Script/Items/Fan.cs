@@ -25,6 +25,7 @@ public class Fan : MonoBehaviour
     {
         if (collision.isTrigger == false)
         {
+            GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.OutSound);
             foreach (Ball ball in GameManager.Instance.Level.Balls)
             {
                 if (collision != ball)

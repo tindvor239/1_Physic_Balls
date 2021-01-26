@@ -92,6 +92,7 @@ public class Level
             //if the package is obstacle
             if (itemString.IndexOf("\"type\":\"Obstacle\"") != -1)
             {
+                Debug.Log("we have a obstacle");
                 type = "Obstacles Pool";
                 CreaturePackage package = new CreaturePackage();
                 package = (CreaturePackage)JsonUtility.FromJson(itemString, typeof(CreaturePackage));
@@ -106,6 +107,23 @@ public class Level
                 Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Obstacle>();
                 package.Unpack(item);
                 GameManager.Instance.SetSpriteColor(item.GetComponent<Obstacle>());
+            }
+            else if(itemString.IndexOf("\"type\":\"DeadItem\"") != -1)
+            {
+                Debug.Log("we have a dead item");
+                type = "Dead Obstacles Pool";
+                DeadPackage package = new DeadPackage();
+                package = (DeadPackage)JsonUtility.FromJson(itemString, typeof(DeadPackage));
+                for(int index = 0; index < poolParty.GetPool(type).ObjectsToPool.Length; index++)
+                {
+                    if(poolParty.GetPool(type).ObjectsToPool[index].GetComponent<DeadItem>().Geometry.ToString() == package.geometry)
+                    {
+                        prefabIndex = index;
+                    }
+                }
+                GameObject item = CreateOrGetObstacle(poolParty, poolParty.GetPool(type), prefabIndex);
+                Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Obstacle>();
+                package.Unpack(item);
             }
             else if (itemString.IndexOf("\"type\":\"AddItem\"") != -1 || itemString.IndexOf("\"type\":\"SizeItem\"") != -1)
             {
