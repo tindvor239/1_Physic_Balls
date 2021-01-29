@@ -70,7 +70,7 @@ public class Obstacle : Item
                 }
             }
         }
-        particle.textureSheetAnimation.SetSprite(0, gameObject.GetComponent<SpriteRenderer>().sprite);
+        particle.textureSheetAnimation.SetSprite(0, mainImage.GetComponent<SpriteRenderer>().sprite);
         particle.Play();
     }
     public void Shaking()

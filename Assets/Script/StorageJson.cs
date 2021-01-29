@@ -351,10 +351,27 @@ public class CreaturePackage : Package
     }
     public override void Unpack(GameObject gameObject)
     {
-        base.Unpack(gameObject);
-        if(gameObject.GetComponent<Obstacle>())
+        gameObject.name = name;
+        gameObject.transform.position = position;
+        if (gameObject.GetComponent<Obstacle>())
         {
             Obstacle obstacle = gameObject.GetComponent<Obstacle>();
+            obstacle.MainImage.rotation = rotation;
+            obstacle.Background.gameObject.transform.rotation = rotation;
+
+            obstacle.MainImage.localScale = size / 2.5f;
+            if(obstacle.Geometry == Geometry.cube)
+            {
+                obstacle.Background.gameObject.transform.localScale = size * 2.7f / 2.5f;
+            }
+            else if (obstacle.Geometry == Geometry.circle)
+            {
+                obstacle.Background.gameObject.transform.localScale = size * 1.9f / 2.5f;
+            }
+            else if (obstacle.Geometry == Geometry.isoscelesTriangle)
+            {
+                obstacle.Background.gameObject.transform.localScale = size * 0.94f / 2.5f;
+            }
             obstacle.HP = hp;
         }
     }
