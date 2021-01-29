@@ -23,7 +23,7 @@ public class Ball : Item
     [SerializeField]
     protected SpriteRenderer sprite;
     [SerializeField]
-    private bool isAtBottom;
+    public bool isAtBottom;
     [SerializeField]
     private float countAtBottom = 0;
     #region Properties
@@ -60,7 +60,7 @@ public class Ball : Item
             countAtBottom += Time.deltaTime;
             if(countAtBottom >= 3f)
             {
-                Bottom.Instance.PushBall(this);
+                isAtBottom = false;
                 LeaveBottom();
             }
         }
@@ -82,7 +82,10 @@ public class Ball : Item
         }
         if(collision.gameObject.tag == "Obstacle" || collision.gameObject.tag == "Frame")
         {
-            GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitObstacleSound);
+            if(GameManager.Instance.Mute == false)
+            {
+                GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitObstacleSound);
+            }
         }
         if (collision.gameObject.tag == "Obstacle")
         {

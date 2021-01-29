@@ -68,6 +68,11 @@ public class Level
         SpawnBalls(levelPackage);
         SpawnItems(levelPackage.Items);
     }
+    public void LoadSurvival(LevelPackage levelPackage)
+    {
+        string levelString = "";
+        PlayerPrefs.GetString("survival", levelString);
+    }
     private void SpawnBalls(LevelPackage levelPackage)
     {
         for (int count = 0; count < levelPackage.Balls; count++)
@@ -104,6 +109,12 @@ public class Level
                     }
                 }
                 GameObject item = CreateOrGetObstacle(poolParty, poolParty.GetPool(type), prefabIndex);
+                GameObject text = item.GetComponentInChildren<RectTransform>().gameObject;
+                text.transform.parent = null;
+                text.GetComponent<RectTransform>().rotation = new Quaternion(0,0 , 1, 0);
+                Debug.Log(text.GetComponent<RectTransform>().rotation);
+                text.transform.parent = item.transform;
+                text.GetComponent<RectTransform>().position = item.transform.position;
                 Spawner.Instance.Obstacles.rows[row].columns[column] = item.GetComponent<Obstacle>();
                 package.Unpack(item);
                 GameManager.Instance.SetSpriteColor(item.GetComponent<Obstacle>());

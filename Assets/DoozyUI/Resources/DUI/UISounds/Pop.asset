@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Pop
   m_EditorClassIdentifier: 
   soundName: Pop
-  audioClip: {fileID: 0}
+  audioClip: {fileID: 8300000, guid: 3d925d8233fc5004186cfaaecacc2072, type: 3}
   soundType: 0

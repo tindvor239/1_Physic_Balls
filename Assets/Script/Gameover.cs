@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Gameover : MonoBehaviour
+public class Gameover : Singleton<Gameover>
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {

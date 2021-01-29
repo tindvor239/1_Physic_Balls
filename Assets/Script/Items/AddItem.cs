@@ -6,7 +6,10 @@ public class AddItem : Item
     {
         if (collision.gameObject.tag == "Ball" && collision.isTrigger == false)
         {
-            GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitItemSound);
+            if(GameManager.Instance.Mute == false)
+            {
+                GameManager.Instance.Audio.PlayOneShot(GameManager.Instance.HitItemSound);
+            }
             CreateFloatingText("Extra Ball");
             BackToPool(GameManager.Instance.PoolParty.GetPool("Items Pool"));
             AddBall(collision.gameObject);

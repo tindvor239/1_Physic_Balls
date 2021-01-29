@@ -4793,5 +4793,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d973dc9cae358c644b7581c9c373cc6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSize: 6
-  minSize: 5
+  maxSize: 2.5
+  minSize: 2

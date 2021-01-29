@@ -62,6 +62,10 @@ public class Shooter : Singleton<Shooter>
     {
         get => reloadOnEndTurnDelay;
     }
+    public GameObject AimCursor
+    {
+        get => aimCursor;
+    }
     public float GravityScale { get => gravityScale; }
     #endregion
     private void Start()
@@ -131,6 +135,8 @@ public class Shooter : Singleton<Shooter>
             {
                 isAllIn = true;
                 GameManager.Instance.isSpawning = true;
+                Bottom.Instance.Balls.Clear();
+                Bottom.Instance.Directions.Clear();
             }
         }
     }
@@ -150,7 +156,7 @@ public class Shooter : Singleton<Shooter>
                 }
                 aimCursor.transform.localScale = new Vector2(scale, scale);
                 // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
-                aimCursor.transform.up = -(new Vector2(mousePosition.x * 1.1f, 5) - (Vector2)transform.position);
+                aimCursor.transform.up = -(new Vector2(mousePosition.x * 1.8f, 5) - (Vector2)transform.position);
                 // put lock rotation between from -77(291) to 77.
                 if (aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
                     aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, lockAngle));
@@ -172,13 +178,16 @@ public class Shooter : Singleton<Shooter>
         if (balls.Count != 0 && bullet == null && isDoneShoot == true)
         {
             bullet = balls[0];
-            Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
-            rigidbody.bodyType = RigidbodyType2D.Static;
-            bullet.GetComponent<Collider2D>().enabled = false;
-            rigidbody.gravityScale = 0;
-            balls.RemoveAt(0);
-            isDoneShoot = false;
-            isReloading = true;
+            //if(bullet != null)
+            //{
+                Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
+                rigidbody.bodyType = RigidbodyType2D.Static;
+                bullet.GetComponent<Collider2D>().enabled = false;
+                rigidbody.gravityScale = 0;
+                balls.RemoveAt(0);
+                isDoneShoot = false;
+                isReloading = true;
+            //}
         }
     }
     IEnumerator MoveToShootPoint()

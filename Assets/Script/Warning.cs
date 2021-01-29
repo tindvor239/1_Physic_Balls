@@ -1,25 +1,26 @@
 ﻿using UnityEngine;
 using DG.Tweening;
 
-public class Warning : MonoBehaviour
+public class Warning : Singleton<Warning>
 {
     [SerializeField]
-    private SpriteRenderer[] warnings;
-    #region Singleton
-    public static Warning instance;
-    private void Awake()
-    {
-        instance = this;
-    }
-    #endregion
+    private GameObject[] warnings;
     #region Properties
-    public SpriteRenderer[] Warnings { get => warnings; }
+    public GameObject[] Warnings { get => warnings; }
     #endregion
-    public void Blinking(SpriteRenderer spriteRenderer, bool isActive)
+    private void Start()
+    {
+        for(int index = 0; index < warnings.Length; index++)
+        {
+            warnings[index].SetActive(false);
+        }
+    }
+    public void Blinking(int index, bool isActive)
     {
         if(isActive)
         {
             Sequence sequence = DOTween.Sequence();
+            SpriteRenderer spriteRenderer = warnings[index].GetComponent<SpriteRenderer>();
             sequence.Append(spriteRenderer.DOFade(0, 0.1f).SetEase(Ease.Linear)).Append(spriteRenderer.DOFade(1f, 0.1f).SetEase(Ease.Linear));
             sequence.SetLoops(3);
             isActive = false;

@@ -8,6 +8,8 @@ public class Obstacle : Item
     [SerializeField]
     private Stat hp;
     [SerializeField]
+    private Transform mainImage;
+    [SerializeField]
     private Text hpUI;
     [SerializeField]
     protected Geometry geometry;
@@ -25,6 +27,7 @@ public class Obstacle : Item
     }
     public byte HitCount { get; set; }
     public SpriteRenderer Background { get => background; }
+    public Transform MainImage { get => mainImage; }
     public Geometry Geometry { get => geometry; }
     #endregion
     protected override void OnCollisionEnter2D(Collision2D collision)

@@ -17,11 +17,16 @@ public class LevelButton : MonoBehaviour
     #region Properties
     public string Name { get => name.text; set => name.text = value; }
     public LevelPackage LevelPackage { get => levelPackage; }
+    public bool IsLock { get => isLock; }
     #endregion
     public void OnSelected()
     {
         if(isLock == false)
         {
+            if(GameManager.Instance.Mute == false)
+            {
+                GameManager.Instance.ClickSound();
+            }
             for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
             {
                 for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
@@ -78,7 +83,6 @@ public class LevelButton : MonoBehaviour
         GameManager.Instance.Level.Balls.Clear();
         Shooter.Instance.Balls.Clear();
         GameManager.Instance.Level.Load(levelPackage);
-        GameManager.Instance.SetStars();
         GameManager.Instance.currentLevel = this;
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
         Time.timeScale = 1f;
@@ -90,6 +94,7 @@ public class LevelButton : MonoBehaviour
         Shooter.Instance.isShooting = false;
         Shooter.Instance.isAllIn = true;
         GameManager.Instance.turn = 0;
+        GameManager.Instance.SetStars();
         GameManager.Instance.timer = 0;
         GameManager.Instance.Score = 0;
     }

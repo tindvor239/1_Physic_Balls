@@ -355,7 +355,7 @@ public class Spawner : Singleton<Spawner>
             {
                 //If in row 9 have obstacle => warning by shaking the obstacle in row 9.
                 //If in row 10 have obstacle => warning by shaking the obstacle in row 10. ==> GameOver...
-                if(row >= obstacles.rows.Count - 2 && obstacles.rows[row].columns[column] != null && obstacles.rows[row].columns[column] is Obstacle)
+                if(obstacles.rows[row].columns[column] != null && obstacles.rows[row].columns[column].transform.position.y >= (Gameover.Instance.transform.position.y - 6f) && obstacles.rows[row].columns[column] is Obstacle)
                 {
                     if(row == obstacles.rows.Count - 1)
                     {

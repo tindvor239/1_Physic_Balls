@@ -57,6 +57,13 @@ public class StorageJson
         }
         WriteFile(level);
     }
+    public void SaveSurvival(Level level)
+    {
+        level.Name = "survival";
+        level.Row = Spawner.Instance.Obstacles.rows.Count;
+        level.Column = Spawner.Instance.Obstacles.rows[0].columns.Count;
+        WriteSurvivalFile(level);
+    }
     public void ConvertJsonToObject(string path)
     {
         if(File.Exists(path))
@@ -201,6 +208,55 @@ public class StorageJson
                 json += JsonUtility.ToJson(package);
             }
             File.WriteAllText(Path, json);
+        }
+    }
+    private void WriteSurvivalFile(Level level)
+    {
+        string json = "";
+        if (level.Balls != null && level.Items != null)
+        {
+            GameManager.Instance.Level.Row = Spawner.Instance.Obstacles.rows.Count;
+            GameManager.Instance.Level.Column = Spawner.Instance.Obstacles.rows[0].columns.Count;
+            //pack level into json;
+            BaseLevel baseLevel = new BaseLevel();
+            baseLevel.Pack(GameManager.Instance.Level);
+            json += JsonUtility.ToJson(baseLevel);
+            foreach (Items items in Spawner.Instance.Obstacles.rows)
+            {
+                foreach (Item item in items.columns)
+                {
+                    if (item != null)
+                    {
+                        GameManager.Instance.Level.Items.Add(item);
+                    }
+                }
+            }
+            foreach (Item item in GameManager.Instance.Level.Items)
+            {
+                Package package = new Package();
+                if (item is Obstacle)
+                {
+                    package = new CreaturePackage();
+                    Obstacle obstacle = (Obstacle)item;
+                    package.Pack(obstacle.gameObject);
+                    package.type = "Obstacle";
+                }
+                if (item is AddItem)
+                {
+                    AddItem addItem = (AddItem)item;
+                    package.Pack(addItem.gameObject);
+                    package.type = "AddItem";
+                }
+                if (item is SizeItem)
+                {
+                    SizeItem sizeItem = (SizeItem)item;
+                    package.Pack(sizeItem.gameObject);
+                    package.type = "SizeItem";
+                }
+                //Debug.Log(JsonUtility.ToJson(package));
+                json += JsonUtility.ToJson(package);
+            }
+            PlayerPrefs.SetString("survival", json);
         }
     }
     public string StorageField(string fieldName, object value)

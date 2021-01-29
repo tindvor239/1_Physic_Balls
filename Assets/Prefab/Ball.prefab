@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 1537431207375580917}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: -1375888063
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f6fcde576a2d49c439ee90ba42567d8a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: fdb10b6346a878c42952a724b8aeb1c3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,7 +100,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.08
+  m_Radius: 0.17889063
 --- !u!50 &1537431207375580915
 Rigidbody2D:
   serializedVersion: 4
@@ -138,6 +138,12 @@ MonoBehaviour:
   maxhitDelay: 1.2
   hitDelay: 0
   hitCount: 0
+  rigidbody: {fileID: 0}
+  collider: {fileID: 0}
+  trail: {fileID: 0}
+  sprite: {fileID: 0}
+  isAtBottom: 0
+  countAtBottom: 0
 --- !u!96 &1914330679
 TrailRenderer:
   serializedVersion: 2

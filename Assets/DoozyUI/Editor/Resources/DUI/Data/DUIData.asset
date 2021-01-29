@@ -65,6 +65,7 @@ MonoBehaviour:
       - GAMEOVER_UI
       - GAMEPLAY_UI
       - LEVEL_UI
+      - LEVEL_WIN_UI
       - LEVELUP_UI
       - LUCKYSPIN_POPUP
       - LUCKYSPIN_UI
@@ -81,6 +82,7 @@ MonoBehaviour:
       - SKIN_UI
       - SPIN_POPUP
       - START_UI
+      - SURVIVAL_WIN_UI
       - TOOLS_UI
       - TUTORIAL_UI
       - VIDEO_REWARD_UI
@@ -137,12 +139,20 @@ MonoBehaviour:
         m_Target: 0
         speed: 2
         m_Value: 0
+    - categoryName: Uncategorized
+      itemNames:
+      - ~Button Name~
+      isExpanded:
+        m_Target: 0
+        speed: 2
+        m_Value: 0
     categoryNames:
     - ~Custom Name~
     - Example 1 - SimpleScene
     - Example 2 - OrientationManager
     - Example 3 - Buttons
     - Example 4 - Simple UI
+    - Uncategorized
   DatabaseUICanvases:
   - MasterCanvas
   DatabaseUISounds:

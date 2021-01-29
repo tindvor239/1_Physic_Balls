@@ -20,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private GameObject gameScene;
     public enum GameMode { survival, level, editor }
-    public enum GameState { start, level, play, pause, gameover, win };
+    public enum GameState { start, level, play, pause, gameover, win, shop };
     #region Gameplay Setting
     [Header("Gameplay Settings")]
     [SerializeField]
@@ -50,12 +50,6 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private float gravity = 4.2f;
     [SerializeField]
-    private Text comment;
-    [SerializeField]
-    private Text totalScore;
-    [SerializeField]
-    private Text bestScore;
-    [SerializeField]
     private Text score;
     [SerializeField]
     private Text time;
@@ -65,6 +59,8 @@ public class GameManager : Singleton<GameManager>
     public bool firstStart = false;
     [SerializeField]
     private List<Obstacle> hitObstacles = new List<Obstacle>();
+    [SerializeField]
+    private bool mute = false;
     [SerializeField]
     private PoolParty poolParty;
     #endregion
@@ -99,7 +95,15 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private AudioClip hitItemSound;
     [SerializeField]
+    private AudioClip clickSound;
+    [SerializeField]
+    private AudioClip buySound;
+    [SerializeField]
+    private AudioClip errorSound;
+    [SerializeField]
     private AudioSource audioSource;
+    [SerializeField]
+    private Sprite muteIcon;
     #endregion
     [Header("Prefabs")]
     [SerializeField]
@@ -143,12 +147,13 @@ public class GameManager : Singleton<GameManager>
     public Level Level { get => level; }
     public GameObject SpawnBall { get => spawnBall; }
     public GameObject GameScene { get => gameScene; }
+    public bool Mute { get => mute; }
     public int Score
     {
         get => int.Parse(GetScore());
         set
         {
-            if(score != null)
+            if (score != null)
             {
                 score.text = value.ToString("#,##0");
             }
@@ -157,7 +162,7 @@ public class GameManager : Singleton<GameManager>
     private string GetScore()
     {
         string result = "0";
-        if(score.text != null)
+        if (score.text != null)
         {
             string[] splitedString = score.text.Split(',');
             for (int i = 0; i < splitedString.Length; i++)
@@ -184,11 +189,6 @@ public class GameManager : Singleton<GameManager>
     public AudioClip HitItemSound { get => hitItemSound; }
     public AudioClip OutSound { get => outSound; }
     public PoolParty PoolParty { get => poolParty; }
-    private string Comment
-    {
-        get => comment.text;
-        set => comment.text = value;
-    }
     public AudioSource Audio { get => audioSource; }
     public float Gravity { get => gravity; }
     public List<Obstacle> HitObstacles { get => hitObstacles; }
@@ -214,7 +214,7 @@ public class GameManager : Singleton<GameManager>
     }
     private void Update()
     {
-            switch (State)
+        switch (State)
         {
             case GameState.start:
                 OnStart();
@@ -224,22 +224,22 @@ public class GameManager : Singleton<GameManager>
                 break;
             case GameState.play:
                 TimeCount();
-                if(Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0))
                 {
                     firstStart = false;
                 }
                 OnPlay();
-                
-                if(onUpdateOneTime != null && isUpdateOneTime && isEndTurn)
+
+                if (onUpdateOneTime != null && isUpdateOneTime && isEndTurn)
                 {
                     onUpdateOneTime.Invoke();
                     isUpdateOneTime = false;
                 }
-                if(isEndTurn == false)
+                if (isEndTurn == false)
                 {
                     isUpdateOneTime = true;
                 }
-                switch(gameMode)
+                switch (gameMode)
                 {
                     case GameMode.level:
 
@@ -250,7 +250,7 @@ public class GameManager : Singleton<GameManager>
                 OnPause();
                 break;
             case GameState.gameover:
-                if(onStateChange)
+                if (onStateChange)
                 {
                     OnGameover();
                 }
@@ -276,9 +276,9 @@ public class GameManager : Singleton<GameManager>
     }
     private void SetStarImages(List<Image> images, Sprite starOn, Sprite starOff, int starCount)
     {
-        for(int index = 0; index < images.Count; index++)
+        for (int index = 0; index < images.Count; index++)
         {
-            if(index < starCount)
+            if (index < starCount)
             {
                 images[index].sprite = starOn;
             }
@@ -302,15 +302,59 @@ public class GameManager : Singleton<GameManager>
         //load every level files.
         List<string> levelInfos = new List<string>();
         //load level blocks.
-        if(isClickedOnChooseLevel == false)
+        if (isClickedOnChooseLevel == false)
         {
-            foreach(LevelPackage levelPackage in levelPackages)
+            foreach (LevelPackage levelPackage in levelPackages)
             {
                 CreateLevelButton(levelPackage);
             }
             LockOnStart();
             SetUnlockLevelButtons();
+            foreach(LevelButton button in levelButtons)
+            {
+                if (button.LevelPackage != null)
+                {
+                    SetStarImages(button.GetComponent<UIMenu>().Images, starOn, StarOff, button.levelPackage.Stars);
+                }
+            }
             isClickedOnChooseLevel = true;
+        }
+    }
+    public void ClickSound()
+    {
+        if (mute == false)
+        {
+            audioSource.PlayOneShot(clickSound);
+        }
+    }
+    public void BuySound()
+    {
+        if(mute == false)
+        {
+            audioSource.PlayOneShot(buySound);
+        }
+    }
+    public void ErrorSound()
+    {
+        if(mute == false)
+        {
+            audioSource.PlayOneShot(errorSound);
+        }
+    }
+    public void OnClickMute(Image icon)
+    {
+        mute = !mute;
+        Sprite buttonIcon = icon.sprite;
+        icon.sprite = muteIcon;
+        muteIcon = buttonIcon;
+    }
+    public void ChangeBallsPrefabSprites(Sprite sprite)
+    {
+        level.BallPrefab.GetComponent<SpriteRenderer>().sprite = sprite;
+        SpriteRenderer[] cursors = Shooter.Instance.AimCursor.GetComponentsInChildren<SpriteRenderer>();
+        foreach(SpriteRenderer cursor in cursors)
+        {
+            cursor.sprite = sprite;
         }
     }
     private void LockOnStart()
@@ -391,7 +435,7 @@ public class GameManager : Singleton<GameManager>
             items[index].columns = item.ToList();
         }
         Spawner.Instance.Obstacles.rows = items.ToList();
-        //Clear all existed balls
+        //Clear all balls list
         Level.Balls.Clear();
         Shooter.Instance.Balls.Clear();
 
@@ -404,6 +448,9 @@ public class GameManager : Singleton<GameManager>
         ball.gameObject.transform.position = SpawnBall.transform.position;
         Shooter.Instance.Balls.Add(ball);
         //Reset everythings.
+        //bool isContinue = true;
+        //if (isContinue == false)
+        //{
         firstStart = true;
         isSpawning = false;
         isEndTurn = true;
@@ -417,6 +464,11 @@ public class GameManager : Singleton<GameManager>
         Spawner.Instance.spawnOnStart = true;
         DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
         Time.timeScale = 1f;
+        //}
+        //else
+        //{
+
+        //}
     }
     private void ShowTutorialOnPlay()
     {
@@ -443,12 +495,9 @@ public class GameManager : Singleton<GameManager>
     }
     private void OnWin()
     {
-        DoozyUI.UIManager.ShowUiElement("WIN_UI");
-        List<DoozyUI.UIElement> uIElements = DoozyUI.UIManager.GetUiElements("WIN_UI");
         switch(gameMode)
         {
             case GameMode.survival:
-
                 //Show Watch video on.
                 //if(ZenSDK.instance.IsVideoRewardReady())
                 //{
@@ -459,23 +508,18 @@ public class GameManager : Singleton<GameManager>
                 //}
                 ////Else then lose.
 
-                uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0].gameObject.SetActive(true);
-                uIElements[0].gameObject.GetComponent<UIMenu>().Sections[1].gameObject.SetActive(false);
-                UIMenu survivalSection = uIElements[0].gameObject.GetComponent<UIMenu>().Sections[0];
-                if (Score > HighScore)
-                {
-                    HighScore = Score;
-                }
-                survivalSection.MenuInfos[1].text = score.text;
-                survivalSection.MenuInfos[2].text = HighScore.ToString();
+                //if (Score > HighScore)
+                //{
+                //    HighScore = Score;
+                //}
                 break;
             case GameMode.level:
-                UIMenu winMenu = uIElements[0].gameObject.GetComponent<UIMenu>();
-                UIMenu levelSection = winMenu.Sections[1];
-                levelSection.gameObject.SetActive(true);
-                SetStarImages(levelSection.Images, winStarOn, winStarOff, level.Stars);
+                UIWinLevelMenu.Instance.ShowUI(level.Name, Score);
+                UIShopMenu.Instance.Money += Score;
+                SetStarImages(UIWinLevelMenu.Instance.Stars, winStarOn, winStarOff, level.Stars);
+
                 //resize star image on/off becuz sprite size of on/off r diffent of each other.
-                foreach(Image star in levelSection.Images)
+                foreach(Image star in UIWinLevelMenu.Instance.Stars)
                 {
                     RectTransform rectTransform = star.GetComponent<RectTransform>();
                     if(star.sprite == winStarOn)
@@ -487,11 +531,8 @@ public class GameManager : Singleton<GameManager>
                         rectTransform.sizeDelta = winStarSizeOff;
                     }
                 }
-
-                levelSection.MenuInfos[0].text = "Stage: " + level.Name;
-                levelSection.MenuInfos[1].text = "Score: " + Score;
-                winMenu.Sections[0].gameObject.SetActive(false);
-                SetUnlockLevelButtons();
+                currentLevel.Unlock();
+                Debug.Log("unlock");
                 //storage star in level.
                 level.Storage.ConvertedLevel.Save(level);
                 break;
@@ -507,7 +548,8 @@ public class GameManager : Singleton<GameManager>
     private void OnPlay()
     {
         DoozyUI.UIManager.HideUiElement("START_UI");
-        DoozyUI.UIManager.HideUiElement("WIN_UI");
+        UIWinLevelMenu.Instance.HideUI();
+        UIWinSurvivalMenu.Instance.HideUI();
         DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
         ShowTutorialOnPlay();
     }
@@ -517,10 +559,8 @@ public class GameManager : Singleton<GameManager>
         {
             case GameMode.survival:
                 ZenSDK.instance.ReportScore("Endless", Score);
-                DoozyUI.UIManager.ShowUiElement("WIN_UI");
-                totalScore.text = Score.ToString();
-                SetBestScore();
-                bestScore.text = string.Format("BEST: {0}", HighScore.ToString("#,##0"));
+                UIWinSurvivalMenu.Instance.ShowUI(Comment(), Score, HighScore);
+                UIShopMenu.Instance.Money += Score;
                 ZenSDK.instance.ShowFullScreen();
                 break;
             case GameMode.level:
@@ -537,7 +577,7 @@ public class GameManager : Singleton<GameManager>
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
         State = GameState.play;
     }
-    public void NextLevel()
+    private void NextLevel()
     {
         for(int index = 0; index < levelPackages.Count; index++)
         {
@@ -552,6 +592,17 @@ public class GameManager : Singleton<GameManager>
     public void Win()
     {
         State = GameState.win;
+    }
+    public void SetTextMute(Text text)
+    {
+        if(mute)
+        {
+            text.text = "Sound Off";
+        }
+        else
+        {
+            text.text = "Sound On";
+        }
     }
     public void Menu()
     {
@@ -596,7 +647,14 @@ public class GameManager : Singleton<GameManager>
             case GameMode.level:
                 isReset = true;
                 Shooter.Instance.isShooting = false;
-                currentLevel.OnSelected();
+                if(currentLevel.IsLock == false)
+                {
+                    NextLevel();
+                }
+                else
+                {
+                    currentLevel.OnSelected();
+                }
                 Spawner.Instance.spawnOnStart = false;
                 break;
         }
@@ -662,74 +720,74 @@ public class GameManager : Singleton<GameManager>
             case GameMode.survival:
                 if(obstacle.HP <= 5)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[0];
                     obstacle.Background.color = colors[0];
                 }
                 else if(obstacle.HP <= 10)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[1];
                     obstacle.Background.color = colors[1];
                 }
                 else if (obstacle.HP <= 20)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[2];
                     obstacle.Background.color = colors[2];
                 }
                 else if (obstacle.HP <= 30)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[3];
                     obstacle.Background.color = colors[3];
                 }
                 else if (obstacle.HP <= 40)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[4];
                     obstacle.Background.color = colors[4];
                 }
                 else if (obstacle.HP <= 50)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[5];
                     obstacle.Background.color = colors[5];
                 }
                 else if (obstacle.HP > 51)
             {
-                obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[6];
                 obstacle.Background.color = colors[6];
             }
                 break;
             case GameMode.level:
                 if (obstacle.HP <= 2)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[0];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[0];
                     obstacle.Background.color = colors[0];
                 }
                 else if (obstacle.HP <= 4)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[1];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[1];
                     obstacle.Background.color = colors[1];
                 }
                 else if (obstacle.HP <= 6)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[2];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[2];
                     obstacle.Background.color = colors[2];
                 }
                 else if (obstacle.HP <= 8)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[3];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[3];
                     obstacle.Background.color = colors[3];
                 }
                 else if (obstacle.HP <= 10)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[4];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[4];
                     obstacle.Background.color = colors[4];
                 }
                 else if (obstacle.HP <= 12)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[5];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[5];
                     obstacle.Background.color = colors[5];
                 }
                 else if (obstacle.HP > 13)
                 {
-                    obstacle.GetComponent<SpriteRenderer>().sprite = sprites[6];
+                    obstacle.MainImage.GetComponent<SpriteRenderer>().sprite = sprites[6];
                     obstacle.Background.color = colors[6];
                 }
                 break;
@@ -753,17 +811,17 @@ public class GameManager : Singleton<GameManager>
                 return null;
         }
     }
-    private void SetBestScore()
+    private string Comment()
     {
         bool isNewHighScore = Score > HighScore;
         if(isNewHighScore)
         {
             HighScore = Score;
-            Comment = "Congrat, New High Score!";
+            return "Congrat, New High Score!";
         }
         else
         {
-            Comment = "Great!";
+            return "Great!";
         }
     }
     public void Tools()
@@ -778,7 +836,10 @@ public class GameManager : Singleton<GameManager>
             DoozyUI.UIElement.HideUIElement("TOOLS_UI");
         }
     }
-
+    public void OnApplicationQuit()
+    {
+        
+    }
     public void Editor()
     {
         isEditorBoxActive = !isEditorBoxActive;
