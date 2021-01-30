@@ -111,7 +111,7 @@ public class Shooter : Singleton<Shooter>
                     isShooting = false;
                     shootDirection = new Vector2(0, 0);
                 }
-                if (shootTime <= 0)
+                if (shootTime <= 0 && isReloading == false)
                 {
                     Shoot();
                     Reload();
@@ -178,8 +178,6 @@ public class Shooter : Singleton<Shooter>
         if (balls.Count != 0 && bullet == null && isDoneShoot == true)
         {
             bullet = balls[0];
-            //if(bullet != null)
-            //{
                 Rigidbody2D rigidbody = bullet.GetComponent<Rigidbody2D>();
                 rigidbody.bodyType = RigidbodyType2D.Static;
                 bullet.GetComponent<Collider2D>().enabled = false;
@@ -187,7 +185,6 @@ public class Shooter : Singleton<Shooter>
                 balls.RemoveAt(0);
                 isDoneShoot = false;
                 isReloading = true;
-            //}
         }
     }
     IEnumerator MoveToShootPoint()
@@ -211,10 +208,10 @@ public class Shooter : Singleton<Shooter>
             bullet.Rigidbody.angularDrag = drag;
             bullet.Rigidbody.bodyType = bodytype;
             bullet.Rigidbody.gravityScale = gravityScale;
-            bullet.Rigidbody.AddForce(shootDirection * force, ForceMode2D.Impulse);
             bullet.Collider.enabled = true;
             bullet.Collider.sharedMaterial = physic;
             bullet.Trail.enabled = true;
+            bullet.GetComponent<Rigidbody2D>().AddForce(shootDirection * force, ForceMode2D.Impulse);
             if(bullet is LightningBall)
             {
                 LightningBall lightningBullet = (LightningBall)bullet;

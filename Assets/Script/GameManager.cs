@@ -625,10 +625,12 @@ public class GameManager : Singleton<GameManager>
             destroyBalls.Add(ball);
         }
         level.Balls.RemoveRange(startIndex, level.Balls.Count - startIndex);
+        Shooter.Instance.Balls.RemoveRange(startIndex, Shooter.Instance.Balls.Count - startIndex);
         foreach (GameObject go in destroyBalls)
         {
             Destroy(go);
         }
+
     }
     public void Restart()
     {
