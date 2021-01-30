@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2186652393754845260}
   m_Layer: 0
   m_Name: Obstacle_Triangle
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -297,8 +297,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.662}
+  m_SizeDelta: {x: 0, y: -1.322825}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7041603673483980615
 CanvasRenderer:
@@ -329,7 +329,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 4
+    m_FontSize: 3
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
@@ -377,8 +377,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.0022, y: -0.0865}
-  m_SizeDelta: {x: 9.229528, y: 5.7333956}
+  m_AnchoredPosition: {x: -0.0022, y: -0.0083}
+  m_SizeDelta: {x: 9.229528, y: 7.265086}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7041603674202275889
 Canvas:
