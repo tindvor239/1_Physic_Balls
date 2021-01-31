@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1146509823110177896}
   - component: {fileID: 2936854683206210096}
-  - component: {fileID: 1499660154158890289}
   - component: {fileID: 2186652393754845260}
   m_Layer: 0
   m_Name: Obstacle_Right_Triangle
@@ -55,34 +54,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!60 &1499660154158890289
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1146509823110177899}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: f8af759d154873c4f9332392217f7a0d, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.81, y: 0.81}
-    newSize: {x: 0.16, y: 0.16}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: -0.36072597, y: -0.36}
-      - {x: -0.3593191, y: 0.34195104}
-      - {x: 0.35, y: -0.36}
 --- !u!114 &2186652393754845260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,6 +163,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7041603672944735277}
   - component: {fileID: 7041603672944735278}
+  - component: {fileID: 3843346137651947590}
+  - component: {fileID: 5467321651953621817}
   m_Layer: 0
   m_Name: Main_Image
   m_TagString: Obstacle
@@ -263,6 +236,46 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!60 &3843346137651947590
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041603672944735272}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: f8af759d154873c4f9332392217f7a0d, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.81, y: 0.81}
+    newSize: {x: 0.16, y: 0.16}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.36072597, y: -0.36}
+      - {x: -0.3593191, y: 0.34195104}
+      - {x: 0.35, y: -0.36}
+--- !u!114 &5467321651953621817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041603672944735272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c03afa6d1d3e7945bb33516aa680854, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7041603673483980610
 GameObject:
   m_ObjectHideFlags: 0

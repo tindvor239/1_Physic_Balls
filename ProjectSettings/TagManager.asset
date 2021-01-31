@@ -49,6 +49,12 @@ TagManager:
   - name: Game Play
     uniqueID: 2919079233
     locked: 0
+  - name: UI Start Menu
+    uniqueID: 1827216313
+    locked: 0
+  - name: UI Particle
+    uniqueID: 1644828357
+    locked: 0
   - name: UI
     uniqueID: 1457768987
     locked: 0

@@ -6,7 +6,7 @@ using UnityEngine;
 public class UIMover : UIMenu
 {
     // Start is called before the first frame update
-    void OnEnable()
+    private void Start()
     {
         // GameManager.
         //images[0].rectTransform.DOMoveX(3, 1f);

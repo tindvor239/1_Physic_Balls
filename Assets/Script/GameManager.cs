@@ -60,9 +60,13 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private List<Obstacle> hitObstacles = new List<Obstacle>();
     [SerializeField]
-    private bool mute = false;
-    [SerializeField]
     private PoolParty poolParty;
+    [SerializeField]
+    private List<Image> muteIcons = new List<Image>();
+    [SerializeField]
+    private Sprite muteOn, muteOff;
+    [SerializeField]
+    private Text muteText;
     #endregion
     #region Level Settings
     [Header("Level Settings")]
@@ -102,8 +106,11 @@ public class GameManager : Singleton<GameManager>
     private AudioClip errorSound;
     [SerializeField]
     private AudioSource audioSource;
+    public float speedupTimer = 3f;
+    private float speedupDelay = 3f;
+    private bool isSpeedUp = false;
     [SerializeField]
-    private Sprite muteIcon;
+    private Button speedUp;
     #endregion
     [Header("Prefabs")]
     [SerializeField]
@@ -147,7 +154,17 @@ public class GameManager : Singleton<GameManager>
     public Level Level { get => level; }
     public GameObject SpawnBall { get => spawnBall; }
     public GameObject GameScene { get => gameScene; }
-    public bool Mute { get => mute; }
+    public bool Mute
+    {
+        set
+        {
+            PlayerPrefs.SetInt("mute", value == false ? 0 : 1);
+        }
+        get
+        {
+            return PlayerPrefs.GetInt("mute") == 0 ? false : true;
+        }
+    }
     public int Score
     {
         get => int.Parse(GetScore());
@@ -202,7 +219,8 @@ public class GameManager : Singleton<GameManager>
     private bool isUpdateOneTime = true;
     public Sprite StarOff { get => starOff; }
     public Sprite StarOn { get => starOn; }
-
+    public Button SpeedUp { get => speedUp; }
+    public float SpeedUpDelay { get => speedupDelay; }
     #endregion
 
     public delegate void OnUpdateOneTime();
@@ -211,6 +229,22 @@ public class GameManager : Singleton<GameManager>
     {
         //To do show start menu.
         State = GameState.start;
+
+        if(Mute)
+        {
+            foreach(Image icon in muteIcons)
+            {
+                icon.sprite = muteOn;
+            }
+        }
+        else
+        {
+            foreach (Image icon in muteIcons)
+            {
+                icon.sprite = muteOff;
+            }
+        }
+        SetTextMute(muteText);
     }
     private void Update()
     {
@@ -237,6 +271,15 @@ public class GameManager : Singleton<GameManager>
                 }
                 if (isEndTurn == false)
                 {
+                    if(speedUp.gameObject.activeInHierarchy == false)
+                    {
+                        speedupTimer -= Time.deltaTime;
+                        if(speedupTimer <= 0)
+                        {
+                            speedUp.gameObject.SetActive(true);
+                            speedupTimer = speedupDelay;
+                        }
+                    }
                     isUpdateOneTime = true;
                 }
                 switch (gameMode)
@@ -322,31 +365,43 @@ public class GameManager : Singleton<GameManager>
     }
     public void ClickSound()
     {
-        if (mute == false)
+        if (Mute == false)
         {
             audioSource.PlayOneShot(clickSound);
         }
     }
     public void BuySound()
     {
-        if(mute == false)
+        if(Mute == false)
         {
             audioSource.PlayOneShot(buySound);
         }
     }
     public void ErrorSound()
     {
-        if(mute == false)
+        if(Mute == false)
         {
             audioSource.PlayOneShot(errorSound);
         }
     }
-    public void OnClickMute(Image icon)
+    public void OnClickMute()
     {
-        mute = !mute;
-        Sprite buttonIcon = icon.sprite;
-        icon.sprite = muteIcon;
-        muteIcon = buttonIcon;
+        Mute = !Mute;
+        if(Mute)
+        {
+            foreach(Image icon in muteIcons)
+            {
+                icon.sprite = muteOn;
+            }
+        }
+        else
+        {
+            foreach (Image icon in muteIcons)
+            {
+                icon.sprite = muteOff;
+            }
+        }
+        SetTextMute(muteText);
     }
     public void ChangeBallsPrefabSprites(Sprite sprite)
     {
@@ -470,6 +525,11 @@ public class GameManager : Singleton<GameManager>
 
         //}
     }
+    public void OnClickSpeedUp()
+    {
+        Time.timeScale = 2.5f;
+        Warning.Instance.Blinking(0, true);
+    }
     private void ShowTutorialOnPlay()
     {
         if(firstStart)
@@ -498,23 +558,9 @@ public class GameManager : Singleton<GameManager>
         switch(gameMode)
         {
             case GameMode.survival:
-                //Show Watch video on.
-                //if(ZenSDK.instance.IsVideoRewardReady())
-                //{
-                //    ZenSDK.instance.ShowVideoReward((bool isSuccess) =>
-                //    {
-                //        if()
-                //    });
-                //}
-                ////Else then lose.
-
-                //if (Score > HighScore)
-                //{
-                //    HighScore = Score;
-                //}
                 break;
             case GameMode.level:
-                UIWinLevelMenu.Instance.ShowUI(level.Name, Score);
+                UIWinLevelMenu.Instance.ShowUI(currentLevel.levelPackage.name, Score);
                 UIShopMenu.Instance.Money += Score;
                 SetStarImages(UIWinLevelMenu.Instance.Stars, winStarOn, winStarOff, level.Stars);
 
@@ -560,6 +606,7 @@ public class GameManager : Singleton<GameManager>
             case GameMode.survival:
                 ZenSDK.instance.ReportScore("Endless", Score);
                 UIWinSurvivalMenu.Instance.ShowUI(Comment(), Score, HighScore);
+                Focusing.Instance.gameObject.SetActive(true);
                 UIShopMenu.Instance.Money += Score;
                 ZenSDK.instance.ShowFullScreen();
                 break;
@@ -574,6 +621,7 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 1;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
+        DoozyUI.UIManager.HideUiElement("GAMEOVER_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
         State = GameState.play;
     }
@@ -593,9 +641,9 @@ public class GameManager : Singleton<GameManager>
     {
         State = GameState.win;
     }
-    public void SetTextMute(Text text)
+    private void SetTextMute(Text text)
     {
-        if(mute)
+        if(Mute)
         {
             text.text = "Sound Off";
         }
@@ -649,7 +697,7 @@ public class GameManager : Singleton<GameManager>
             case GameMode.level:
                 isReset = true;
                 Shooter.Instance.isShooting = false;
-                if(currentLevel.IsLock == false)
+                if(currentLevel.levelPackage.Stars > 0)
                 {
                     NextLevel();
                 }
@@ -668,6 +716,12 @@ public class GameManager : Singleton<GameManager>
         isEndTurn = true;
         Shooter.Instance.isAllIn = true;
         Shooter.Instance.isShooting = false;
+
+        Time.timeScale = 1f;
+        Warning.Instance.StopBlinking();
+        speedUp.gameObject.SetActive(false);
+        speedupTimer = speedupDelay;
+
         turn = 0;
         timer = 0;
         Score = 0;

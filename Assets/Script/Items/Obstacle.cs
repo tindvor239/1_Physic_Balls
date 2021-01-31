@@ -30,7 +30,7 @@ public class Obstacle : Item
     public Transform MainImage { get => mainImage; }
     public Geometry Geometry { get => geometry; }
     #endregion
-    protected override void OnCollisionEnter2D(Collision2D collision)
+    public void OnChildCollisionEnter(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ball")
         {

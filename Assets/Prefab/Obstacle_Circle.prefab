@@ -9,9 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1146509823110177896}
-  - component: {fileID: 2771243075549223009}
   - component: {fileID: 2936854683206210096}
-  - component: {fileID: 2186652393754845260}
+  - component: {fileID: 3125352917235029982}
   m_Layer: 0
   m_Name: Obstacle_Circle
   m_TagString: Obstacle
@@ -36,22 +35,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &2771243075549223009
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1146509823110177899}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: f8af759d154873c4f9332392217f7a0d, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.37
 --- !u!95 &2936854683206210096
 Animator:
   serializedVersion: 3
@@ -71,7 +54,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2186652393754845260
+--- !u!114 &3125352917235029982
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,6 +163,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7041603672944735277}
   - component: {fileID: 7041603672944735278}
+  - component: {fileID: 8595974503575933640}
+  - component: {fileID: 3689499929037493077}
   m_Layer: 0
   m_Name: Main_Image
   m_TagString: Obstacle
@@ -251,6 +236,34 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!58 &8595974503575933640
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041603672944735272}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 6200000, guid: f8af759d154873c4f9332392217f7a0d, type: 2}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.37
+--- !u!114 &3689499929037493077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7041603672944735272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c03afa6d1d3e7945bb33516aa680854, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7041603673483980610
 GameObject:
   m_ObjectHideFlags: 0

@@ -94,7 +94,7 @@ public class UIShopMenu : Singleton<UIShopMenu>
     {
         GameManager.Instance.State = GameManager.GameState.start;
         DoozyUI.UIElement.HideUIElement("SHOP_UI");
-        DoozyUI.UIElement.ShowUIElement("TUTORIAL_UI");
+        DoozyUI.UIElement.HideUIElement("TUTORIAL_UI");
         DoozyUI.UIElement.ShowUIElement("START_UI");
     }
     public void UnUseAll()

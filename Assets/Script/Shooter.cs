@@ -137,6 +137,14 @@ public class Shooter : Singleton<Shooter>
                 GameManager.Instance.isSpawning = true;
                 Bottom.Instance.Balls.Clear();
                 Bottom.Instance.Directions.Clear();
+
+                Time.timeScale = 1f;
+                if(Warning.Instance != null)
+                {
+                    Warning.Instance.StopBlinking();
+                }
+                GameManager.Instance.speedupTimer = GameManager.Instance.SpeedUpDelay;
+                GameManager.Instance.SpeedUp.gameObject.SetActive(false);
             }
         }
     }
@@ -156,7 +164,7 @@ public class Shooter : Singleton<Shooter>
                 }
                 aimCursor.transform.localScale = new Vector2(scale, scale);
                 // Aim cursor will rotate reverse direction with mouse position. So negative 1 with direction to get the same direction.
-                aimCursor.transform.up = -(new Vector2(mousePosition.x * 1.8f, 5) - (Vector2)transform.position);
+                aimCursor.transform.up = -(new Vector2(mousePosition.x * 3.8f, 5) - (Vector2)transform.position);
                 // put lock rotation between from -77(291) to 77.
                 if (aimCursor.transform.eulerAngles.z >= 0 && aimCursor.transform.eulerAngles.z <= 180)
                     aimCursor.transform.eulerAngles = new Vector3(aimCursor.transform.eulerAngles.x, aimCursor.transform.eulerAngles.y, Mathf.Clamp(aimCursor.transform.eulerAngles.z, 0, lockAngle));
@@ -191,12 +199,12 @@ public class Shooter : Singleton<Shooter>
     {
         if (bullet != null && isReloading)
         {
-            while (bullet.transform.position != transform.position)
+            while (bullet != null && bullet.transform.position != transform.position)
             {
                 bullet.transform.position = Vector2.MoveTowards(bullet.transform.position, transform.position, 0.5f);
                 yield return new WaitForEndOfFrame();
             }
-            if(bullet.transform.position == transform.position)
+            if(bullet != null && bullet.transform.position == transform.position)
                 isReloading = false;
         }
     }

@@ -225,18 +225,29 @@ public class Spawner : Singleton<Spawner>
                 }
             }
         }
-        if(CheckIsRowEmpty())
+        List<int> emptySlots = new List<int>();
+        if(CheckIsRowEmpty(emptySlots))
         {
-            SpawnItems();
+            Debug.Log("Empty");
+            Debug.Log(emptySlots.Count);
+            int randomIndex = UnityEngine.Random.Range(0, emptySlots.Count - 1);
+            SpawnItem(GameManager.Instance.PoolParty.GetPool("Obstacles Pool"), emptySlots[randomIndex]);
         }
     }
-    private bool CheckIsRowEmpty()
+    private bool CheckIsRowEmpty(List<int> emptySlots)
     {
-        foreach(Item item in obstacles.rows[0].columns)
+        for(int i = 0; i < obstacles.rows[0].columns.Count; i++)
         {
-            if(item != null)
+            if(obstacles.rows[0].columns[i] != null)
             {
-                return false;
+                if(obstacles.rows[0].columns[i] is Obstacle)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                emptySlots.Add(i);
             }
         }
         return true;
@@ -273,46 +284,58 @@ public class Spawner : Singleton<Spawner>
     private void SpawnItem(Pool pool, int column)
     {
         bool isGotIt = false;
-        int randomItem = UnityEngine.Random.Range(0, pool.ObjectsToPool.Length);
-        GameObject newGameObject = null;
-        if (pool.CanExtend)
+        int randomItem = 0;
+        if (pool.Name != "Obstacles Pool")
         {
-            newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
-
+            randomItem = UnityEngine.Random.Range(0, pool.ObjectsToPool.Length);
         }
         else
         {
-            foreach (GameObject gameObject in pool.ObjectsPool)
+            List<int> indexes = new List<int>();
+            for(int i = 0; i < pool.ObjectsToPool.Length; i++)
             {
-                if(gameObject.activeInHierarchy == false && isGotIt == false)
+                if(pool.ObjectsToPool[i].GetComponent<Obstacle>().Geometry != Geometry.rightTriangle)
                 {
-                    if(gameObject.GetComponent<Obstacle>() != null)
+                    indexes.Add(i);
+                }
+            }
+            randomItem = indexes[UnityEngine.Random.Range(0, indexes.Count)];
+        }
+        GameObject newGameObject = null;
+        foreach (GameObject gameObject in pool.ObjectsPool)
+        {
+            if(gameObject.activeInHierarchy == false && isGotIt == false)
+            {
+                if(gameObject.GetComponent<Obstacle>() != null)
+                {
+                    Obstacle obstacle = gameObject.GetComponent<Obstacle>();
+                    if(obstacle.Geometry == pool.ObjectsToPool[randomItem].GetComponent<Obstacle>().Geometry)
                     {
-                        Obstacle obstacle = gameObject.GetComponent<Obstacle>();
-                        if(obstacle.Geometry == pool.ObjectsToPool[randomItem].GetComponent<Obstacle>().Geometry)
-                        {
-                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
-                            isGotIt = true;
-                        }
+                        newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                        isGotIt = true;
                     }
-                    else if(randomItem == 0)
+                }
+                else if(randomItem == 0)
+                {
+                    if(gameObject.GetComponent<SizeItem>() != null)
                     {
-                        if(gameObject.GetComponent<SizeItem>() != null)
-                        {
-                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
-                            isGotIt = true;
-                        }
+                        newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                        isGotIt = true;
                     }
-                    else if(randomItem == 1)
+                }
+                else if(randomItem == 1)
+                {
+                    if(gameObject.GetComponent<AddItem>() != null)
                     {
-                        if(gameObject.GetComponent<AddItem>() != null)
-                        {
-                            newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
-                            isGotIt = true;
-                        }
+                        newGameObject = pool.GetOutOfPool(gameObject, GetRandomPos(column));
+                        isGotIt = true;
                     }
                 }
             }
+        }
+        if(isGotIt == false)
+        {
+            newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
         }
         if(newGameObject != null)
         {
@@ -323,10 +346,17 @@ public class Spawner : Singleton<Spawner>
             if(newGameObject.GetComponent<Obstacle>())
             {
                 Obstacle obstacle = newGameObject.GetComponent<Obstacle>();
+                float randomAngle = UnityEngine.Random.Range(0f, 359.9f);
+                obstacle.MainImage.transform.eulerAngles = new Vector3(0, 0, randomAngle);
+                obstacle.Background.transform.eulerAngles = new Vector3(0, 0, randomAngle);
                 obstacle.HP = UnityEngine.Random.Range(minRandomValue, maxRandomValue);
                 GameManager.Instance.SetSpriteColor(obstacle);
             }
             obstacles.rows[0].columns[column] = newGameObject.GetComponent<Item>();
+        }
+        if(newGameObject == null)
+        {
+            Debug.Log("null");
         }
     }
     private void MoveObstaclesInArrayUp()
