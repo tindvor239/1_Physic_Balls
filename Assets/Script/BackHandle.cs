@@ -17,9 +17,18 @@ public class BackHandle : Singleton<BackHandle>
             {
                 GameManager.Instance.Continue();
             }
+            else if(GameManager.Instance.State == GameManager.GameState.level)
+            {
+                GameManager.Instance.Menu();
+            }
             else if(GameManager.Instance.State == GameManager.GameState.start)
             {
                 //Do you really want to quit.
+                GameManager.Instance.ShowAskSureWantToQuit();
+            }
+            else if (GameManager.Instance.State == GameManager.GameState.askForSure)
+            {
+                GameManager.Instance.HideAskSureWantToQuit();
             }
         }
     }

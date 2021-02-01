@@ -20,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     [SerializeField]
     private GameObject gameScene;
     public enum GameMode { survival, level, editor }
-    public enum GameState { start, level, play, pause, gameover, win, shop };
+    public enum GameState { start, level, play, pause, gameover, win, shop, askForSure };
     #region Gameplay Setting
     [Header("Gameplay Settings")]
     [SerializeField]
@@ -411,6 +411,16 @@ public class GameManager : Singleton<GameManager>
             }
         }
         SetTextMute(muteText);
+    }
+    public void ShowAskSureWantToQuit()
+    {
+        DoozyUI.UIElement.ShowUIElement("ASK_TO_QUIT_UI");
+        State = GameState.askForSure;
+    }
+    public void HideAskSureWantToQuit()
+    {
+        DoozyUI.UIElement.HideUIElement("ASK_TO_QUIT_UI");
+        State = GameState.start;
     }
     public void ChangeBallsPrefabSprites(Sprite sprite)
     {
