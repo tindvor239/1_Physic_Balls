@@ -36,10 +36,12 @@ public class LevelButton : MonoBehaviour
                         if(Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
                         {
                             GameManager.Instance.PoolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
+                            Spawner.Instance.Obstacles.rows[i].columns[j] = null;
                         }
                         else
                         {
                             GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, GameManager.Instance.transform.position);
+                            Spawner.Instance.Obstacles.rows[i].columns[j] = null;
                         }
                     }
                 }

@@ -113,4 +113,27 @@ public class UIShopMenu : Singleton<UIShopMenu>
             }
         }
     }
+
+    public void OnClickWatch()
+    {
+        //Show Watch video on.
+        if (ZenSDK.instance.IsVideoRewardReady())
+        {
+            ZenSDK.instance.ShowVideoReward((bool isSuccess) =>
+            {
+                if(isSuccess)
+                {
+                    GiveCoin(150);
+                    GameManager.Instance.Continue();
+                }
+            });
+        }
+        //GiveCoin(150);
+        //GameManager.Instance.Continue();
+    }
+
+    private void GiveCoin(int amount)
+    {
+        Money += amount;
+    }
 }

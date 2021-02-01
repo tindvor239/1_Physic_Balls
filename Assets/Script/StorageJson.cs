@@ -368,9 +368,36 @@ public class CreaturePackage : Package
             {
                 obstacle.Background.gameObject.transform.localScale = size * 1.9f / 2.5f;
             }
+            else if(obstacle.Geometry == Geometry.pentagon)
+            {
+                GameObject objectChild = obstacle.MainImage.GetChild(0).gameObject;
+                Vector2 childPos = objectChild.transform.position;
+                objectChild.transform.parent = null;
+                objectChild.transform.eulerAngles = Vector3.zero;
+                objectChild.transform.parent = obstacle.MainImage;
+                objectChild.transform.position = childPos;
+            }
             else if (obstacle.Geometry == Geometry.isoscelesTriangle)
             {
                 obstacle.Background.gameObject.transform.localScale = size * 0.94f / 2.5f;
+
+                GameObject objectChild = obstacle.MainImage.GetChild(0).gameObject;
+                Vector2 childPos = objectChild.transform.position;
+                objectChild.transform.parent = null;
+                objectChild.transform.eulerAngles = Vector3.zero;
+                objectChild.transform.parent = obstacle.MainImage;
+                objectChild.transform.position = childPos;
+            }
+            else if(obstacle.Geometry == Geometry.rightTriangle)
+            {
+                obstacle.Background.gameObject.transform.localScale = obstacle.MainImage.localScale;
+
+                GameObject objectChild = obstacle.MainImage.GetChild(0).gameObject;
+                Vector2 childPos = objectChild.transform.position;
+                objectChild.transform.parent = null;
+                objectChild.transform.eulerAngles = Vector3.zero;
+                objectChild.transform.parent = obstacle.MainImage;
+                objectChild.transform.position = childPos;
             }
             obstacle.HP = hp;
         }

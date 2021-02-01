@@ -93,7 +93,13 @@ public class Spawner : Singleton<Spawner>
                             {
                                 if(item is Obstacle && item != null)
                                 {
-                                    notNullCount++;
+                                    if(item is DeadItem)
+                                    {
+                                    }
+                                    else
+                                    {
+                                        notNullCount++;
+                                    }
                                 }
                             }
                         }
@@ -112,7 +118,6 @@ public class Spawner : Singleton<Spawner>
                             if (isMoving == false)
                             {
                                 OnEndTurn();
-                                GetItemBackToPoolOnLastRow();
                                 isMoving = true;
                             }
 
@@ -140,7 +145,6 @@ public class Spawner : Singleton<Spawner>
             isMoving = true;
             OnEndTurn();
             minRandomValue = maxRandomValue / 2;
-            GetItemBackToPoolOnLastRow();
             maxRandomValue = startMaxRandomValue + (int)GameManager.Instance.turn;
         }
     }
@@ -270,17 +274,6 @@ public class Spawner : Singleton<Spawner>
         }
         return result.ToArray();
     }
-    private void GetItemBackToPoolOnLastRow()
-    {
-        GameObject[] itemOnLastRow = GetItemOnLastRow();
-        if(itemOnLastRow.Length != 0)
-        {
-            for(int i = 0; i < itemOnLastRow.Length; i++)
-            {
-                GameManager.Instance.PoolParty.GetPool("Items Pool").GetBackToPool(itemOnLastRow[i], GameManager.Instance.gameObject.transform.position);
-            }
-        }
-    }
     private void SpawnItem(Pool pool, int column)
     {
         bool isGotIt = false;
@@ -336,12 +329,22 @@ public class Spawner : Singleton<Spawner>
         if(isGotIt == false)
         {
             newGameObject = GameManager.Instance.PoolParty.CreateItem(pool, new Vector2(transform.position.x + startPosition + (space * column), transform.position.y), randomItem, transform);
+            isGotIt = true;
         }
         if(newGameObject != null)
         {
             if(GameManager.Instance.Mode == GameManager.GameMode.survival)
             {
-                newGameObject.transform.localScale = pool.ObjectsToPool[randomItem].transform.localScale;
+                if(newGameObject.GetComponent<Obstacle>())
+                {
+                    Obstacle obstacle = newGameObject.GetComponent<Obstacle>();
+                    obstacle.MainImage.transform.localScale = pool.ObjectsToPool[randomItem].GetComponent<Obstacle>().MainImage.transform.localScale;
+                    obstacle.Background.gameObject.transform.localScale = pool.ObjectsToPool[randomItem].GetComponent<Obstacle>().Background.transform.localScale;
+                }
+                else
+                {
+                    newGameObject.transform.localScale = pool.ObjectsToPool[randomItem].transform.localScale;
+                }
             }
             if(newGameObject.GetComponent<Obstacle>())
             {
@@ -349,6 +352,15 @@ public class Spawner : Singleton<Spawner>
                 float randomAngle = UnityEngine.Random.Range(0f, 359.9f);
                 obstacle.MainImage.transform.eulerAngles = new Vector3(0, 0, randomAngle);
                 obstacle.Background.transform.eulerAngles = new Vector3(0, 0, randomAngle);
+                if(obstacle.Geometry == Geometry.isoscelesTriangle || obstacle.Geometry == Geometry.pentagon)
+                {
+                    GameObject objectChild = obstacle.MainImage.GetChild(0).gameObject;
+                    Vector2 childPos = objectChild.transform.position;
+                    objectChild.transform.parent = null;
+                    objectChild.transform.eulerAngles = Vector3.zero;
+                    objectChild.transform.parent = obstacle.MainImage;
+                    objectChild.transform.position = childPos;
+                }
                 obstacle.HP = UnityEngine.Random.Range(minRandomValue, maxRandomValue);
                 GameManager.Instance.SetSpriteColor(obstacle);
             }

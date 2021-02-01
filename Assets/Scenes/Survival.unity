@@ -14835,7 +14835,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -241.29999}
+  m_AnchoredPosition: {x: 0, y: -241.29997}
   m_SizeDelta: {x: 14.845337, y: -506.59668}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &848119873
@@ -34179,6 +34179,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1224109663 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6157378597341677885, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
+    type: 3}
+  m_PrefabInstance: {fileID: 6157378598996958105}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1224109664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224109663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5265f77412e4bfc4b912c84a5002539b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1242150618
 GameObject:
   m_ObjectHideFlags: 0
@@ -40494,7 +40512,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -42962,7 +42980,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -44624,7 +44642,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 6157378598996958105}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1224109663}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 626ef59a15a253045aecc1e775688174, type: 3}
@@ -44763,6 +44781,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3588874027fc14f7c855daed65a37b1c, type: 3}
+--- !u!114 &1752041043 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114082613275074398, guid: 3588874027fc14f7c855daed65a37b1c,
+    type: 3}
+  m_PrefabInstance: {fileID: 1749595630}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8819076471a84ecb9b08b0bc2ac5219, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1754214379
 GameObject:
   m_ObjectHideFlags: 0
@@ -47827,8 +47857,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1726648997}
-        m_MethodName: ChooseLevel
+      - m_Target: {fileID: 1752041043}
+        m_MethodName: Rate
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -48416,7 +48446,7 @@ GameObject:
   - component: {fileID: 2110572656}
   - component: {fileID: 2110572655}
   m_Layer: 0
-  m_Name: Button
+  m_Name: Watch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48485,7 +48515,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2110572656}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1110261511}
+        m_MethodName: OnClickWatch
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2110572656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49273,6 +49314,12 @@ PrefabInstance:
       propertyPath: speedUp
       value: 
       objectReference: {fileID: 1722773574}
+    - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
+        type: 3}
+      propertyPath: levelPackages.Array.data[6]
+      value: 
+      objectReference: {fileID: 11400000, guid: bd8d38a5ebb86b8469cb6412a35a83ca,
+        type: 2}
     - target: {fileID: 6157378597341677885, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: m_Name

@@ -142,6 +142,7 @@ public class Shooter : Singleton<Shooter>
                 if(Warning.Instance != null)
                 {
                     Warning.Instance.StopBlinking();
+                    Debug.Log("Is Kill");
                 }
                 GameManager.Instance.speedupTimer = GameManager.Instance.SpeedUpDelay;
                 GameManager.Instance.SpeedUp.gameObject.SetActive(false);
@@ -220,11 +221,11 @@ public class Shooter : Singleton<Shooter>
             bullet.Collider.sharedMaterial = physic;
             bullet.Trail.enabled = true;
             bullet.GetComponent<Rigidbody2D>().AddForce(shootDirection * force, ForceMode2D.Impulse);
-            if(bullet is LightningBall)
-            {
-                LightningBall lightningBullet = (LightningBall)bullet;
-                lightningBullet.TriggerCollider.enabled = true;
-            }
+            //if(bullet is LightningBall)
+            //{
+            //    LightningBall lightningBullet = (LightningBall)bullet;
+            //    lightningBullet.TriggerCollider.enabled = true;
+            //}
             foreach(Ball gameobject in GameManager.Instance.Level.Balls)
             {
                 if (bullet != gameobject)

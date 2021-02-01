@@ -12,9 +12,11 @@ public class Focusing : Singleton<Focusing>
     private GameObject continueButton;
     private float startTimer = 11f;
     private float timer = 11f;
+    private int trackCount = 0;
     // Start is called before the first frame update
     void Start()
     {
+        trackCount = 0;
         Sequence sequence = DOTween.Sequence();
         sequence.Append(transform.DOScale(new Vector3(1.3f, 1.3f, 1.3f), 0.8f)).SetEase(Ease.Linear).Append(transform.DOScale(new Vector3(1f, 1f, 1f), 0.8f)).SetEase(Ease.Linear);
         sequence.SetLoops(-1);
@@ -39,6 +41,8 @@ public class Focusing : Singleton<Focusing>
             if(timer <= 0)
             {
                 continueButton.SetActive(true);
+                ZenSDK.instance.TrackLevelCompleted(trackCount);
+                trackCount++;
                 gameObject.SetActive(false);
                 countDown.gameObject.SetActive(false);
             }
@@ -58,11 +62,23 @@ public class Focusing : Singleton<Focusing>
         {
             ZenSDK.instance.ShowVideoReward((bool isSuccess) =>
             {
-                //Revive.
+                if(isSuccess)
+                {
+                    Revive();
+                    GameManager.Instance.Continue();
+                }
+                if(isSuccess == false)
+                {
+                    continueButton.SetActive(true);
+                    ZenSDK.instance.TrackLevelCompleted(trackCount);
+                    trackCount++;
+                    gameObject.SetActive(false);
+                    countDown.gameObject.SetActive(false);
+                }
             });
         }
-        Revive();
-        GameManager.Instance.Continue();
+        //Revive();
+        //GameManager.Instance.Continue();
     }
     private void Revive()
     {

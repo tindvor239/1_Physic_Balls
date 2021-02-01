@@ -117,8 +117,9 @@ public class GameManager : Singleton<GameManager>
     private GameObject levelPrefab;
     public float timer;
     public bool isReset = false;
-    private bool isClickedOnChooseLevel = false;
+    private bool isClickedLevel = false, isInteractable = true;
     private bool onStateChange = false, onModeChange = false;
+    private int gameoverCount = 0;
     #region Singleton
     protected override void OnAwake()
     {
@@ -222,7 +223,6 @@ public class GameManager : Singleton<GameManager>
     public Button SpeedUp { get => speedUp; }
     public float SpeedUpDelay { get => speedupDelay; }
     #endregion
-
     public delegate void OnUpdateOneTime();
     public event OnUpdateOneTime onUpdateOneTime;
     private void Start()
@@ -338,29 +338,38 @@ public class GameManager : Singleton<GameManager>
     #region Button Behaviors
     public void ChooseLevel()
     {
-        //To do: show level menu.
-        Mode = GameMode.level;
-        State = GameState.level;
-        firstStart = true;
-        //load every level files.
-        List<string> levelInfos = new List<string>();
-        //load level blocks.
-        if (isClickedOnChooseLevel == false)
+        if(isInteractable)
         {
-            foreach (LevelPackage levelPackage in levelPackages)
+            //To do: show level menu.
+            Mode = GameMode.level;
+            State = GameState.level;
+            firstStart = true;
+            //load every level files.
+            List<string> levelInfos = new List<string>();
+            //load level blocks.
+            if (isClickedLevel == false)
             {
-                CreateLevelButton(levelPackage);
-            }
-            LockOnStart();
-            SetUnlockLevelButtons();
-            foreach(LevelButton button in levelButtons)
-            {
-                if (button.LevelPackage != null)
+                foreach (LevelPackage levelPackage in levelPackages)
                 {
-                    SetStarImages(button.GetComponent<UIMenu>().Images, starOn, StarOff, button.levelPackage.Stars);
+                    CreateLevelButton(levelPackage);
                 }
+                LockOnStart();
+                SetUnlockLevelButtons();
+                foreach(LevelButton button in levelButtons)
+                {
+                    if (button.LevelPackage != null)
+                    {
+                        SetStarImages(button.GetComponent<UIMenu>().Images, starOn, StarOff, button.levelPackage.Stars);
+                    }
+                }
+                isClickedLevel = true;
             }
-            isClickedOnChooseLevel = true;
+
+            Time.timeScale = 1f;
+            Warning.Instance.StopBlinking();
+            speedUp.gameObject.SetActive(false);
+            speedupTimer = speedupDelay;
+            isInteractable = false;
         }
     }
     public void ClickSound()
@@ -456,74 +465,84 @@ public class GameManager : Singleton<GameManager>
     public void ChooseSurvival()
     {
         //To do: show play survival mode
-        gameMode = GameMode.survival;
-        //Clear all existed obstacles.
-        for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
+        if(isInteractable)
         {
-            for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
+            gameMode = GameMode.survival;
+            //Clear all existed obstacles.
+            for (int i = 0; i < Spawner.Instance.Obstacles.rows.Count; i++)
             {
-                if (Spawner.Instance.Obstacles.rows[i].columns[j] != null)
+                for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
                 {
-                    if (Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
+                    if (Spawner.Instance.Obstacles.rows[i].columns[j] != null)
                     {
-                        poolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
-                    }
-                    else
-                    {
-                        poolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
+                        if (Spawner.Instance.Obstacles.rows[i].columns[j].GetComponent<Obstacle>() != null)
+                        {
+                            poolParty.GetPool("Obstacles Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
+                            Spawner.Instance.Obstacles.rows[i].columns[j] = null;
+                        }
+                        else
+                        {
+                            poolParty.GetPool("Items Pool").GetBackToPool(Spawner.Instance.Obstacles.rows[i].columns[j].gameObject, transform.position);
+                            Spawner.Instance.Obstacles.rows[i].columns[j] = null;
+                        }
                     }
                 }
             }
-        }
-        for (int s = 0; s < Level.Balls.Count; s++)
-        {
-            GameObject destroyObject = Level.Balls[s].gameObject;
-            Destroy(destroyObject);
-        }
-        //Reset row and column.
-        Items[] items = new Items[10];
-        for(int index = 0; index < items.Length; index++)
-        {
-            items[index] = new Items();
-            items[index].Name = string.Format("row {0}", index);
-            Item[] item = new Item[6];
-            items[index].columns = item.ToList();
-        }
-        Spawner.Instance.Obstacles.rows = items.ToList();
-        //Clear all balls list
-        Level.Balls.Clear();
-        Shooter.Instance.Balls.Clear();
+            for (int s = 0; s < Level.Balls.Count; s++)
+            {
+                GameObject destroyObject = Level.Balls[s].gameObject;
+                Destroy(destroyObject);
+            }
+            //Reset row and column.
+            Items[] items = new Items[10];
+            for(int index = 0; index < items.Length; index++)
+            {
+                items[index] = new Items();
+                items[index].Name = string.Format("row {0}", index);
+                Item[] item = new Item[6];
+                items[index].columns = item.ToList();
+            }
+            Spawner.Instance.Obstacles.rows = items.ToList();
+            //Clear all balls list
+            Level.Balls.Clear();
+            Shooter.Instance.Balls.Clear();
 
-        UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
-        gameMenu.Sections[0].gameObject.SetActive(false);
-        firstStart = true;
-        State = GameState.play;
-        //Spawn 1 Ball
-        Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
-        ball.gameObject.transform.position = SpawnBall.transform.position;
-        Shooter.Instance.Balls.Add(ball);
-        //Reset everythings.
-        //bool isContinue = true;
-        //if (isContinue == false)
-        //{
-        firstStart = true;
-        isSpawning = false;
-        isEndTurn = true;
-        Shooter.Instance.isAllIn = true;
-        Shooter.Instance.isShooting = false;
-        turn = 0;
-        timer = 0;
-        Score = 0;
-        Shooter.Instance.isDoneShoot = true;
-        Shooter.Instance.Reload();
-        Spawner.Instance.spawnOnStart = true;
-        DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
-        Time.timeScale = 1f;
-        //}
-        //else
-        //{
+            UIMenu gameMenu = DoozyUI.UIManager.GetUiElements("GAMEPLAY_UI")[0].gameObject.GetComponent<UIMenu>();
+            gameMenu.Sections[0].gameObject.SetActive(false);
+            firstStart = true;
+            State = GameState.play;
+            //Spawn 1 Ball
+            Ball ball = CreateObject(GameScene.transform, Level.BallPrefab).GetComponent<Ball>();
+            ball.gameObject.transform.position = SpawnBall.transform.position;
+            Shooter.Instance.Balls.Add(ball);
+            //Reset everythings.
+            //bool isContinue = true;
+            //if (isContinue == false)
+            //{
+            firstStart = true;
+            isSpawning = false;
+            isEndTurn = true;
+            Shooter.Instance.isAllIn = true;
+            Shooter.Instance.isShooting = false;
+        
+            Warning.Instance.StopBlinking();
+            speedUp.gameObject.SetActive(false);
+            speedupTimer = speedupDelay;
 
-        //}
+            turn = 0;
+            timer = 0;
+            Score = 0;
+            Shooter.Instance.isDoneShoot = true;
+            Shooter.Instance.Reload();
+            Spawner.Instance.spawnOnStart = true;
+            DoozyUI.UIManager.ShowUiElement("GAMEPLAY_UI");
+            Time.timeScale = 1f;
+            //}
+            //else
+            //{
+            isInteractable = false;
+            //}
+        }
     }
     public void OnClickSpeedUp()
     {
@@ -578,7 +597,13 @@ public class GameManager : Singleton<GameManager>
                     }
                 }
                 currentLevel.Unlock();
-                Debug.Log("unlock");
+                foreach (LevelButton button in levelButtons)
+                {
+                    if (button.LevelPackage != null)
+                    {
+                        SetStarImages(button.GetComponent<UIMenu>().Images, starOn, StarOff, button.levelPackage.Stars);
+                    }
+                }
                 //storage star in level.
                 level.Storage.ConvertedLevel.Save(level);
                 break;
@@ -608,13 +633,18 @@ public class GameManager : Singleton<GameManager>
                 UIWinSurvivalMenu.Instance.ShowUI(Comment(), Score, HighScore);
                 Focusing.Instance.gameObject.SetActive(true);
                 UIShopMenu.Instance.Money += Score;
-                ZenSDK.instance.ShowFullScreen();
                 break;
             case GameMode.level:
                 //show level sections.
                 DoozyUI.UIManager.ShowUiElement("GAMEOVER_UI");
                 break;
         }
+        gameoverCount++;
+        if(gameoverCount >= 4)
+        {
+            ZenSDK.instance.ShowFullScreen();
+        }
+        Debug.Log("Gameover Count: " + gameoverCount);
     }
     //Button Section.
     public void Continue()
@@ -655,6 +685,7 @@ public class GameManager : Singleton<GameManager>
     public void Menu()
     {
         State = GameState.start;
+        isInteractable = true;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
@@ -726,6 +757,7 @@ public class GameManager : Singleton<GameManager>
         timer = 0;
         Score = 0;
         State = GameState.play;
+        isInteractable = true;
         Shooter.Instance.reloadOnEndTurnTime = Shooter.ReloadOnEndTurnDelay;
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("GAMEOVER_UI");
