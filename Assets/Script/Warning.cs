@@ -5,10 +5,10 @@ using DG.Tweening;
 public class Warning : Singleton<Warning>
 {
     [SerializeField]
-    private GameObject[] warnings = new GameObject[1];
+    private Image[] warnings = new Image[1];
     private Sequence sequence;
     #region Properties
-    public GameObject[] Warnings { get => warnings; }
+    public Image[] Warnings { get => warnings; }
     #endregion
     private void Start()
     {
@@ -30,11 +30,7 @@ public class Warning : Singleton<Warning>
     }
     public void StopBlinking()
     {
-        if (warnings[0] != null)
-        {
-            Image image = warnings[0].GetComponent<Image>();
-            image.DOFade(1f, 0.1f).SetEase(Ease.Linear);
-        }
         sequence.Kill();
+        warnings[0].DOFade(1f, 0.1f).SetEase(Ease.Linear);
     }
 }

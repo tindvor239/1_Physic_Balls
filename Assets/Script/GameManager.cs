@@ -110,6 +110,8 @@ public class GameManager : Singleton<GameManager>
     private float speedupDelay = 3f;
     private bool isSpeedUp = false;
     [SerializeField]
+    private GameObject starMinX, starMaxX;
+    [SerializeField]
     private Button speedUp;
     #endregion
     [Header("Prefabs")]
@@ -120,6 +122,7 @@ public class GameManager : Singleton<GameManager>
     private bool isClickedLevel = false, isInteractable = true;
     private bool onStateChange = false, onModeChange = false;
     private int gameoverCount = 0;
+    private bool isLastSpeedUpBool = false;
     #region Singleton
     protected override void OnAwake()
     {
@@ -314,8 +317,28 @@ public class GameManager : Singleton<GameManager>
         float value = (float)currentTurnCount / (float)level.TurnCount;
         gameMenu.Sections[0].Sections[0].gameObject.GetComponent<Slider>().value = value;
         UIMenu levelStars = gameMenu.Sections[0].Sections[1];
+        CalculateStarPos(levelStars.Images);
         level.UpdateStatus();
         SetStarImages(levelStars.Images, starOn, starOff, level.Stars);
+    }
+    private void CalculateStarPos(List<Image> stars)
+    {
+        float maxPos = 100f, minxPos = -100;
+        for(int i = 0; i < level.Points.Length; i++)
+        {
+            float percent = (float)level.Points[i] / (float)level.TurnCount;
+            float posX = percent * (maxPos * 2f);
+            if(percent < 50f)
+            {
+                posX = minxPos + posX;
+            }
+            else
+            {
+                posX = maxPos - posX;
+            }
+            Debug.Log("X: " + posX);
+            stars[i].transform.localPosition = new Vector2(starMinX.transform.position.x + posX, stars[i].transform.position.y);
+        }
     }
     private void SetStarImages(List<Image> images, Sprite starOn, Sprite starOff, int starCount)
     {
@@ -654,6 +677,7 @@ public class GameManager : Singleton<GameManager>
         DoozyUI.UIManager.HideUiElement("GAMEOVER_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");
         State = GameState.play;
+        Warning.Instance.gameObject.SetActive(isLastSpeedUpBool);
     }
     private void NextLevel()
     {
@@ -693,6 +717,8 @@ public class GameManager : Singleton<GameManager>
     public void Pause()
     {
         State = GameState.pause;
+        isLastSpeedUpBool = true;
+        Warning.Instance.gameObject.SetActive(false);
     }
     private void DestroyBallsAt(int startIndex)
     {
