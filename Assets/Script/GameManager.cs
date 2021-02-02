@@ -720,6 +720,13 @@ public class GameManager : Singleton<GameManager>
     {
         State = GameState.start;
         isInteractable = true;
+        foreach (LevelButton button in levelButtons)
+        {
+            if (button.LevelPackage != null)
+            {
+                SetStarImages(button.GetComponent<UIMenu>().Images, starOn, StarOff, button.levelPackage.Stars);
+            }
+        }
         DoozyUI.UIManager.HideUiElement("PAUSE_UI");
         DoozyUI.UIManager.HideUiElement("LEVEL_UI");
         DoozyUI.UIManager.HideUiElement("GAMEPLAY_UI");

@@ -30,7 +30,7 @@ public class Pool
         {
             foreach(GameObject gameObj in objectsPool)
             {
-                if (gameObj.activeInHierarchy == false)
+                if (gameObj != null && gameObj.activeInHierarchy == false)
                     return false;
             }
         }

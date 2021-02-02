@@ -125,7 +125,7 @@ public class Shooter : Singleton<Shooter>
                 {
                     foreach( GameObject gameObject in containBalls)
                     {
-                        if(gameObject.GetComponent<Ball>())
+                        if(gameObject != null && gameObject.GetComponent<Ball>())
                             balls.Add(gameObject.GetComponent<Ball>());
                     }
                     containBalls.Clear();

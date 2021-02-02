@@ -521,11 +521,11 @@ public class MapEditor : Singleton<MapEditor>
     {
         foreach (GameObject gameObject in GameManager.Instance.PoolParty.GetPool("Obstacles Pool").ObjectsToPool)
         {
-            if(gameObject.GetComponent<Obstacle>().MainImage.gameObject.GetComponent<SpriteRenderer>())
+            if(gameObject.GetComponent<Obstacle>().MainImage.GetComponent<SpriteRenderer>())
             {
-                if(sprite == gameObject.GetComponent<Obstacle>().MainImage.gameObject.GetComponent<SpriteRenderer>())
+                if(sprite == gameObject.GetComponent<Obstacle>().MainImage.GetComponent<SpriteRenderer>().sprite)
                 {
-                    Debug.Log(gameObject.GetComponent<SpriteRenderer>().sprite.name);
+                    Debug.Log(gameObject.GetComponent<Obstacle>().MainImage.GetComponent<SpriteRenderer>().sprite.name);
                     brush = gameObject;
                 }  
             }

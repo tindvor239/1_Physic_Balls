@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level_4
   m_EditorClassIdentifier: 
   name: 4
-  stars: 0
+  stars: 3
   balls: 6
   items:
   - '{"name":"Obstacle_Cube (1)","type":"Obstacle","position":{"x":-6.490000247955322,"y":-8.180000305175782,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":-2.9802322387695315e-8,"y":-0.0014857649803161622},"size":{"x":1.2999999523162842,"y":1.2999999523162842},"row":0,"column":0,"hp":20,"geometry":"cube"}'
@@ -108,6 +108,6 @@ MonoBehaviour:
   - '{"name":"Add_Ball (39)","type":"AddItem","position":{"x":-0.6500000953674316,"y":-8.15999984741211,"z":0.0},"rotation":{"x":-0.7071068286895752,"y":0.0,"z":0.0,"w":0.7071068286895752},"offset":{"x":0.0,"y":0.0},"size":{"x":0.800000011920929,"y":0.8000000715255737},"row":0,"column":89}'
   row: 1
   column: 90
-  points: 010203
-  turnCount: 10
+  points: 010206
+  turnCount: 14
   canMoveUp: 0
