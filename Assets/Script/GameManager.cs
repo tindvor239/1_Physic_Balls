@@ -672,12 +672,12 @@ public class GameManager : Singleton<GameManager>
                 DoozyUI.UIManager.ShowUiElement("GAMEOVER_UI");
                 break;
         }
+        Time.timeScale = 0;
         gameoverCount++;
         if(gameoverCount >= 4)
         {
             ZenSDK.instance.ShowFullScreen();
         }
-        Debug.Log("Gameover Count: " + gameoverCount);
     }
     //Button Section.
     public void Continue()
@@ -689,7 +689,7 @@ public class GameManager : Singleton<GameManager>
         State = GameState.play;
         Warning.Instance.gameObject.SetActive(isLastSpeedUpBool);
     }
-    private void NextLevel()
+    public void NextLevel()
     {
         for(int index = 0; index < levelPackages.Count; index++)
         {
@@ -727,7 +727,7 @@ public class GameManager : Singleton<GameManager>
     public void Pause()
     {
         State = GameState.pause;
-        isLastSpeedUpBool = true;
+        isLastSpeedUpBool = Warning.Instance.gameObject.activeInHierarchy;
         Warning.Instance.gameObject.SetActive(false);
     }
     private void DestroyBallsAt(int startIndex)
@@ -764,14 +764,7 @@ public class GameManager : Singleton<GameManager>
             case GameMode.level:
                 isReset = true;
                 Shooter.Instance.isShooting = false;
-                if(currentLevel.levelPackage.Stars > 0)
-                {
-                    NextLevel();
-                }
-                else
-                {
-                    currentLevel.OnSelected();
-                }
+                currentLevel.OnSelected();
                 Spawner.Instance.spawnOnStart = false;
                 break;
         }
@@ -822,7 +815,6 @@ public class GameManager : Singleton<GameManager>
             }
         }
     }
-
     public void Quit()
     {
         Application.Quit();

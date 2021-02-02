@@ -36,7 +36,7 @@ public class Gameover : Singleton<Gameover>
         {
             for (int j = 0; j < Spawner.Instance.Obstacles.rows[i].columns.Count; j++)
             {
-                if (gameObject.GetInstanceID() == Spawner.Instance.Obstacles.rows[i].columns[j].gameObject.GetInstanceID())
+                if (Spawner.Instance.Obstacles.rows[i].columns[j] != null && gameObject.GetInstanceID() == Spawner.Instance.Obstacles.rows[i].columns[j].gameObject.GetInstanceID())
                 {
                     Spawner.Instance.Obstacles.rows[i].columns[j] = null;
                 }

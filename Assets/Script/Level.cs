@@ -161,7 +161,7 @@ public class Level
         GameObject newGameObject = null;
         foreach(GameObject gameObject in pool.ObjectsPool)
         {
-            if(gameObject.activeInHierarchy == false &&
+            if(gameObject != null && gameObject.activeInHierarchy == false &&
                gameObject.GetComponent<Obstacle>().Geometry == pool.ObjectsToPool[prefabIndex].GetComponent<Obstacle>().Geometry && isGotIt == false)
             {
                 newGameObject = pool.GetOutOfPool(gameObject, GameManager.Instance.transform.position);
