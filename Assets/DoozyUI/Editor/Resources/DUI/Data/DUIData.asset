@@ -58,6 +58,7 @@ MonoBehaviour:
       - ~Element Name~
       - 777_PRIZE_UI
       - 777_UI
+      - ASK_TO_QUIT_UI
       - BOOST_UI
       - DAILY_QUEST_DONE_UI
       - DAILY_QUEST_UI
