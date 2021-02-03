@@ -15728,7 +15728,7 @@ PrefabInstance:
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: level.storage.fileName
-      value: level_2
+      value: level_38
       objectReference: {fileID: 0}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
@@ -15798,7 +15798,7 @@ PrefabInstance:
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: level.name
-      value: 1
+      value: 38
       objectReference: {fileID: 0}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
@@ -16112,7 +16112,7 @@ PrefabInstance:
         type: 3}
       propertyPath: level.storage.convertedLevel
       value: 
-      objectReference: {fileID: 11400000, guid: e87f9bc95e052454d83f2840ab338854,
+      objectReference: {fileID: 11400000, guid: 392ad1af44f264a40bbd2af9c7631823,
         type: 2}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
@@ -16122,7 +16122,7 @@ PrefabInstance:
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: level.row
-      value: 12
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
@@ -16142,7 +16142,7 @@ PrefabInstance:
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
       propertyPath: level.turnCount
-      value: 7
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 6157378597341677884, guid: 13c4cc59ba11f4a47a93404e5de95bf9,
         type: 3}
