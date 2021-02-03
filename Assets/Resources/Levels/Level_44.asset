@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3007df67072b59543b44723abc2e8450, type: 3}
+  m_Name: Level_44
+  m_EditorClassIdentifier: 
+  name: 44
+  stars: 0
+  balls: 8
+  items:
+  - '{"name":"Add_Ball","type":"AddItem","position":{"x":7.337377548217773,"y":-1.3166580200195313,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":0}'
+  - '{"name":"Obstacle_Square (146)","type":"Obstacle","position":{"x":7.376180648803711,"y":0.07316017150878906,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":1,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (147)","type":"Obstacle","position":{"x":6.006219863891602,"y":0.08186912536621094,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":2,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (159)","type":"Obstacle","position":{"x":5.997621536254883,"y":-1.2681207656860352,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":3,"hp":5,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (160)","type":"Obstacle","position":{"x":4.687620162963867,"y":-1.2597084045410157,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":4,"hp":5,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (161)","type":"Obstacle","position":{"x":3.317678451538086,"y":-1.2510175704956055,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":5,"hp":4,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (162)","type":"Obstacle","position":{"x":1.9177074432373047,"y":-1.2420997619628907,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":6,"hp":5,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (163)","type":"Obstacle","position":{"x":0.5477256774902344,"y":-1.2333259582519532,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":7,"hp":4,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (171)","type":"Obstacle","position":{"x":-6.24124002456665,"y":-1.0500478744506837,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":8,"hp":5,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (164)","type":"Obstacle","position":{"x":-0.7922296524047852,"y":-1.2248153686523438,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":9,"hp":5,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (148)","type":"Obstacle","position":{"x":4.696239471435547,"y":0.09022712707519531,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":10,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Right_Triangle","type":"Obstacle","position":{"x":-2.002202033996582,"y":-1.2170906066894532,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":11,"hp":5,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (1)","type":"Obstacle","position":{"x":-4.95128059387207,"y":-1.0582714080810547,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":12,"hp":5,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Square (150)","type":"Obstacle","position":{"x":1.9663114547729493,"y":0.10762977600097656,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":13,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (151)","type":"Obstacle","position":{"x":0.596336841583252,"y":0.11636829376220703,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":14,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (165)","type":"Obstacle","position":{"x":3.3347043991088869,"y":1.4189395904541016,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":15,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (152)","type":"Obstacle","position":{"x":7.393227577209473,"y":2.743107795715332,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":16,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (167)","type":"Obstacle","position":{"x":7.384611129760742,"y":1.3931102752685547,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":17,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (154)","type":"Obstacle","position":{"x":4.713287353515625,"y":2.7601795196533205,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":18,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (168)","type":"Obstacle","position":{"x":6.014640808105469,"y":1.4018564224243165,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":19,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (170)","type":"Obstacle","position":{"x":1.9347257614135743,"y":1.4278755187988282,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":20,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (155)","type":"Obstacle","position":{"x":3.3433170318603517,"y":2.7689075469970705,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":21,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (156)","type":"Obstacle","position":{"x":7.401883125305176,"y":4.103078842163086,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":22,"hp":26,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (157)","type":"Obstacle","position":{"x":6.0319061279296879,"y":4.111804962158203,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":23,"hp":30,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (172)","type":"Obstacle","position":{"x":4.721952438354492,"y":4.120168685913086,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":24,"hp":30,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (174)","type":"Obstacle","position":{"x":-3.5649304389953615,"y":1.502924919128418,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":25,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (175)","type":"Obstacle","position":{"x":-6.203083038330078,"y":0.22971725463867188,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":26,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (176)","type":"Obstacle","position":{"x":-4.854880332946777,"y":1.5111455917358399,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":27,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (178)","type":"Obstacle","position":{"x":-7.5030837059021,"y":0.23799896240234376,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":28,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (180)","type":"Obstacle","position":{"x":-7.4748311042785648,"y":1.5278348922729493,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":29,"hp":20,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (182)","type":"Obstacle","position":{"x":-6.156714916229248,"y":2.799467086791992,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":30,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (184)","type":"Obstacle","position":{"x":-3.5465736389160158,"y":2.8128414154052736,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":31,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (185)","type":"Obstacle","position":{"x":-4.893110752105713,"y":0.22136974334716798,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":32,"hp":15,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (186)","type":"Obstacle","position":{"x":-2.2084288597106935,"y":4.084327697753906,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":33,"hp":4,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (187)","type":"Obstacle","position":{"x":-2.236593246459961,"y":2.8044824600219728,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":34,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (189)","type":"Obstacle","position":{"x":-6.148464202880859,"y":4.089441299438477,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":35,"hp":30,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (190)","type":"Obstacle","position":{"x":-0.9383869171142578,"y":4.086223602294922,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":36,"hp":30,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (191)","type":"Obstacle","position":{"x":-7.4566144943237309,"y":2.8177566528320314,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":37,"hp":25,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (193)","type":"Obstacle","position":{"x":-4.818351745605469,"y":4.100973129272461,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":38,"hp":-112,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (194)","type":"Obstacle","position":{"x":-7.458338737487793,"y":4.117809295654297,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":39,"hp":30,"geometry":"cube"}'
+  - '{"name":"Obstacle_Right_Triangle (2)","type":"Obstacle","position":{"x":-3.5929949283599855,"y":0.23307132720947267,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":40,"hp":15,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (3)","type":"Obstacle","position":{"x":-2.2647275924682619,"y":1.5246334075927735,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":41,"hp":20,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (4)","type":"Obstacle","position":{"x":-0.9466075897216797,"y":2.7962646484375,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":42,"hp":25,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (5)","type":"Obstacle","position":{"x":0.3213958740234375,"y":4.048200607299805,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":43,"hp":30,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (6)","type":"Obstacle","position":{"x":-0.7236471176147461,"y":0.12477874755859375,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":44,"hp":15,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (7)","type":"Obstacle","position":{"x":0.614628791809082,"y":1.4162683486938477,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":45,"hp":20,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (8)","type":"Obstacle","position":{"x":1.983262062072754,"y":2.7675867080688478,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":46,"hp":25,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Right_Triangle (9)","type":"Obstacle","position":{"x":3.3617897033691408,"y":4.098812103271484,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":47,"hp":30,"geometry":"rightTriangle"}'
+  - '{"name":"Obstacle_Square (192)","type":"Obstacle","position":{"x":1.8602228164672852,"y":5.428424835205078,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":48,"hp":120,"geometry":"cube"}'
+  - '{"name":"Obstacle_Square (195)","type":"Obstacle","position":{"x":3.3101749420166017,"y":5.419179916381836,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":2.5,"y":2.5},"row":0,"column":49,"hp":120,"geometry":"cube"}'
+  - '{"name":"Add_Ball (1)","type":"AddItem","position":{"x":3.3364830017089845,"y":0.1289052963256836,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":50}'
+  - '{"name":"Add_Ball (2)","type":"AddItem","position":{"x":4.71484375,"y":1.4401397705078126,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":51}'
+  - '{"name":"Add_Ball (3)","type":"AddItem","position":{"x":6.063234329223633,"y":2.7515954971313478,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":52}'
+  - '{"name":"Add_Ball (4)","type":"AddItem","position":{"x":-4.82653284072876,"y":2.8209896087646486,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":53}'
+  - '{"name":"Add_Ball (5)","type":"AddItem","position":{"x":-6.164671897888184,"y":1.549504280090332,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":54}'
+  - '{"name":"Add_Ball (6)","type":"AddItem","position":{"x":-3.5380959510803224,"y":4.142803192138672,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":55}'
+  - '{"name":"Add_Ball (7)","type":"AddItem","position":{"x":-7.510904312133789,"y":-0.9919919967651367,"z":0.0},"rotation":{"x":0.0,"y":0.0,"z":0.0,"w":1.0},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":56}'
+  - '{"name":"Add_Ball","type":"AddItem","position":{"x":-2.950000047683716,"y":-2.5,"z":0.0},"rotation":{"x":-0.7071068286895752,"y":0.0,"z":0.0,"w":0.7071068286895752},"offset":{"x":0.0,"y":0.0},"size":{"x":1.0,"y":1.0},"row":0,"column":57}'
+  row: 1
+  column: 58
+  points: 000102
+  turnCount: 15
+  canMoveUp: 1
